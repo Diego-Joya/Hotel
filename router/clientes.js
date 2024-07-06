@@ -35,7 +35,8 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const body = req.body;
-    const crear = await clientes.crear(body);
+    const crear = await cliente.crear(body);
+    console.log(crear);
 
     res.json({
       ok: true,
@@ -46,5 +47,22 @@ router.post('/', async (req, res, next) => {
     next(error);
   }
 });
+
+router.patch(
+  "/:id", async (req, res, next) => {
+    try {
+      const body = req.body;
+      const { id } = req.params;
+      const actualizar = await cliente.actualizar(id, body);
+      console.log("actualizar",actualizar);
+      res.json({
+        ok: true,
+        message: "Datos actualizados correctamente"
+      })
+    } catch (error) {
+      next(error);
+    }
+  }
+)
 
 module.exports = router;

@@ -4,6 +4,8 @@ const { crearCliente } = require('./schemas/clientes.schemas');
 const habitacionesServices = require("./services/habitacionesServices");
 const router = express.Router();
 
+const habitaciones = new habitacionesServices();
+
 router.get('/', async (req, res, next) => {
   try {
     const cat = await profile.buscar_todos();
@@ -38,7 +40,7 @@ router.post(
   async (req, res, next) => {
     try {
       const body = req.body;
-      const crear = await profile.crear(body);
+      const crear = await habitaciones.createBedrooms(body);
 
       res.json({
         ok: true,
