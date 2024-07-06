@@ -8,7 +8,7 @@ class clientesServices {
   }
   async crear(body) {
     console.log(body);
-    const fecha_hora = moment().format('YYYY-MM-DD');
+    const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     // const customer_id = body.customer_id;
     const names = body.names;
     const surname = body.surname;
@@ -25,17 +25,6 @@ class clientesServices {
       names, surname, document_type, no_document, birthdate, cell_phone,
       cell_phone_emergency, center_id, created_by, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
-
-    console.log('names:', names);
-    console.log('surname:', surname);
-    console.log('document_type:', document_type);
-    console.log('no_document:', no_document);
-    console.log('birthdate:', birthdate);
-    console.log('cell_phone:', cell_phone);
-    console.log('cell_phone_emergency:', cell_phone_emergency);
-    console.log('center_id:', center_id);
-    console.log('create:', created_by);
-    console.log('created_at:', fecha_hora);
 
     // Construir la consulta SQL completa para depuración
     // const querybd = `
@@ -69,7 +58,7 @@ class clientesServices {
   }
 
   async actualizar(id, body) {
-    const fecha_hora = moment().format('YYYY-MM-DD');
+    const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
     const surname = body.surname;
     const document_type = body.document_type;
@@ -80,6 +69,10 @@ class clientesServices {
     const center_id = body.center_id;
     const updated_by = body.created_by;
     const updated_at = fecha_hora;
+    const consulExistencia = await this.getClientes({ id });
+    if (consulExistencia == "") {
+      return false;
+    }
 
     const rta = await this.pool.query(
       `UPDATE booking_data.customers
@@ -101,21 +94,32 @@ class clientesServices {
     return rta;
 
   }
+  async getClientes({ id, nombre, documento }) {
+    if (id != undefined) {
+      let rta = await this.pool
+        .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
+        .catch((err) => console.log(err));
+      return rta.rows;
 
+    }
+    else if (nombre != undefined) {
+      let rta = await this.pool
+        .query(`SELECT * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
+        .catch((err) => console.log(err));
+      return rta.rows;
+    }
+    else {
+      throw new Error("Debes proporcionar al menos un prametro de búsqueda: id, nombre, documento");
+    }
 
-  async getALl() {
-    console.log('jajja llegue');
-    const query = 'SELECT *, id as key FROM CLIENTE';
+  }
+
+  async getAllClientes() {
+    const query = 'SELECT *, customer_id as key FROM booking_data.customers';
     const rta = await this.pool.query(query);
     return rta.rows;
   }
 
-  async find_one(id) {
-    console.log(id);
-    const query = 'SELECT *, id as key FROM CLIENTE where id=' + id.id;
-    console.log(query);
-    const rta = await this.pool.query(query);
-    return rta.rows;
-  }
+
 }
 module.exports = clientesServices;

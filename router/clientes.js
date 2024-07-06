@@ -9,8 +9,24 @@ const cliente = new clientesServices();
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const dato = req.params;
-    const getData = await cliente.find_one(dato);
+    console.log(typeof req.params);
+    const id = req.params;
+    const getData = await cliente.getClientes( id );
+    res.json({
+      ok: true,
+      data: getData,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/nombres/:nombre', async (req, res, next) => {
+  try {
+    console.log(typeof req.params);
+    const nombre = req.params;
+    console.log(nombre);
+    const getData = await cliente.getClientes( nombre );
     res.json({
       ok: true,
       data: getData,
@@ -21,7 +37,7 @@ router.get('/:id', async (req, res, next) => {
 });
 router.get('/', async (req, res, next) => {
   try {
-    const getAll = await cliente.getALl();
+    const getAll = await cliente.getAllClientes();
     res.json({
       ok: true,
       data: getAll,
@@ -29,7 +45,6 @@ router.get('/', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-  // res.send('hola mundooooooo');
 });
 
 router.post('/', async (req, res, next) => {
@@ -54,11 +69,18 @@ router.patch(
       const body = req.body;
       const { id } = req.params;
       const actualizar = await cliente.actualizar(id, body);
-      console.log("actualizar",actualizar);
-      res.json({
-        ok: true,
-        message: "Datos actualizados correctamente"
-      })
+      if (actualizar == false) {
+        res.json({
+          ok: false,
+          message: "El registro no existe. ¡Actualiza e intenta de nuevo por favor!",
+        })
+      } else {
+        res.json({
+          ok: true,
+          message: "Datos actualizados correctamente"
+        })
+      }
+
     } catch (error) {
       next(error);
     }

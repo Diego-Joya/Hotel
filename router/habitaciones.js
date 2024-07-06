@@ -8,7 +8,7 @@ const habitaciones = new habitacionesServices();
 
 router.get('/', async (req, res, next) => {
   try {
-    const cat = await profile.buscar_todos();
+    const cat = await habitaciones.buscar_todos();
     res.json({
       ok: true,
       data: cat,
@@ -23,7 +23,7 @@ router.get(
   async (req, res, next) => {
     try {
       const { nombre } = req.params;
-      const cat = await profile.buscar_uno(nombre);
+      const cat = await habitaciones.buscar_uno(nombre);
       res.json({
         ok: true,
         data: cat,
@@ -41,12 +41,18 @@ router.post(
     try {
       const body = req.body;
       const crear = await habitaciones.createBedrooms(body);
+      console.log(crear);
+      const { ok } = crear
+      if (ok == false) {
+        res.send(crear);
+      } else {
+        res.json({
+          ok: true,
+          message: 'Registro creado exitosamente!',
+          data: crear,
+        });
+      }
 
-      res.json({
-        ok: true,
-        message: 'Registro creado exitosamente!',
-        data: crear,
-      });
     } catch (error) {
       next(error);
     }

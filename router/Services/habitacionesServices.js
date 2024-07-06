@@ -1,4 +1,5 @@
 const pool = require('../../libs/postgres.pool');
+const moment = require("moment");
 
 class habitacionesServices {
   constructor() {
@@ -17,12 +18,19 @@ class habitacionesServices {
     const type = body.type;
     const center_id = body.center_id;
     const created_by = body.created_by;
-    const updated_by = body.updated_by;
-    const created_at = body.created_at;
-    const updated_at = body.updated_at;
+    const created_at = fecha_hora;
 
-    const query = `INSERT INTO public.saldos_det(fecha, no_room, val_min, val_max, type, center_id, created_by, updated_by, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) RETURNING *`;
+    if (val_min > val_max) {
+      let resp = {
+        ok: false,
+        message: 'El valor minimo no puede ser superior al valor maximo. ¡Verifica e intenta de nuevo por favor!',
+      
+      }
+      return resp
+    }
+
+    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8 ) RETURNING *`;
     const rta = await this.pool
       .query(query, [
         fecha_hora,
@@ -32,9 +40,7 @@ class habitacionesServices {
         type,
         center_id,
         created_by,
-        updated_by,
         created_at,
-        updated_at,
       ])
       .catch((err) => console.log(err));
     return rta.rows;
@@ -76,6 +82,6 @@ class habitacionesServices {
       .catch((err) => console.log(err));
     return rta;
   }
- 
+
 }
 module.exports = habitacionesServices;
