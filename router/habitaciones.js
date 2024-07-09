@@ -66,12 +66,10 @@ router.patch(
     try {
       const { id } = req.params;
       const body = req.body;
-      const actualizar = await profile.actualizar(id, body);
-      if (actualizar == false) {
-        res.json({
-          ok: false,
-          messege: 'No se encontro el registro en la bd',
-        });
+      const actualizar = await habitaciones.actualizar(id, body);
+      const { ok } = actualizar
+      if (ok == false) {
+        res.send(actualizar);
       } else {
         res.json({
           ok: true,
