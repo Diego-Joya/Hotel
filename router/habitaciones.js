@@ -1,7 +1,6 @@
 const express = require('express');
-const validatorHandler = require('./../middlewares/validator.handler');
-const { crearCliente } = require('./schemas/clientes.schemas');
-const habitacionesServices = require("./services/habitacionesServices");
+// const validatorHandler = require('./../middlewares/validator.handler');
+const habitacionesServices = require("./Services/habitacionesServices");
 const router = express.Router();
 
 const habitaciones = new habitacionesServices();
@@ -13,17 +12,18 @@ router.get(
   async (req, res, next) => {
     try {
       console.log(req.query);
-      if(typeof req.query !='undefined'){
-        const {value} = req.query.nombre
+      let value = [];
+      if ( Object.keys(req.query).length > 0) {
+        const { params } = req.query
 
-        console.log(value)
+         value = await habitaciones.getHabitaciones(params);
+         console.log(params)
+        }else{
+          value = await habitaciones.getAllHabitaciones();
       }
-      // const { nombre } = req.params;
-      // const cat = await habitaciones.getHabitaciones(nombre);
       res.json({
         ok: true,
-        value:value,
-        // data: cat,
+        value: value,
       });
     } catch (error) {
       next(error);

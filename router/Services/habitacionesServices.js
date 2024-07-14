@@ -100,6 +100,8 @@ class habitacionesServices {
   async getHabitaciones({ id, numHabitacion, fecha_inicial, fecha_final }) {
     console.log('fecha_inicial', fecha_inicial);
     console.log('fecha_final', fecha_final);
+    console.log('numHabitacion', numHabitacion);
+    console.log('id', id);
     if (typeof id != 'undefined') {
       let query = `select * from booking_data.bedrooms where room_id=${id}`;
       let rta = await this.pool.query(query).catch((err) => console.log(err));
@@ -115,6 +117,12 @@ class habitacionesServices {
 
       throw new Error("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
     }
+  }
+
+  async getAllHabitaciones(pr) {
+    let query = `select * from booking_data.bedrooms`;
+      let rta = await this.pool.query(query).catch((err) => console.log(err));
+      return rta.rows
   }
 
 }
