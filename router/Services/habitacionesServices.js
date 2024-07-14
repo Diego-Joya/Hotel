@@ -97,12 +97,22 @@ class habitacionesServices {
     return rta.rows;
   }
 
-  async getHabitaciones({ id, numHabitacion, fecha }) {
-    if (id != undefined) {
-      const query = `select * from booking_data.bedrooms where room_id=${id}`;
+  async getHabitaciones({ id, numHabitacion, fecha_inicial, fecha_final }) {
+    console.log('fecha_inicial', fecha_inicial);
+    console.log('fecha_final', fecha_final);
+    if (typeof id != 'undefined') {
+      let query = `select * from booking_data.bedrooms where room_id=${id}`;
       let rta = await this.pool.query(query).catch((err) => console.log(err));
       return rta.rows
-    } else {
+    } else if (typeof fecha_inicial != 'undefined' && typeof fecha_final != 'undefined') {
+      let query = `select * from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
+      console.log(query);
+      let rta = await this.pool.query(query).catch((err) => console.log(err));
+      return rta.rows;
+    }
+    else {
+    console.log("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
+
       throw new Error("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
     }
   }

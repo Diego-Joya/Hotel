@@ -6,27 +6,24 @@ const router = express.Router();
 
 const habitaciones = new habitacionesServices();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const cat = await habitaciones.buscar_todos();
-    res.json({
-      ok: true,
-      data: cat,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+
 
 router.get(
-  '/:nombre',
+  '/',
   async (req, res, next) => {
     try {
-      const { nombre } = req.params;
-      const cat = await habitaciones.buscar_uno(nombre);
+      console.log(req.query);
+      if(typeof req.query !='undefined'){
+        const {value} = req.query.nombre
+
+        console.log(value)
+      }
+      // const { nombre } = req.params;
+      // const cat = await habitaciones.getHabitaciones(nombre);
       res.json({
         ok: true,
-        data: cat,
+        value:value,
+        // data: cat,
       });
     } catch (error) {
       next(error);
@@ -83,6 +80,24 @@ router.patch(
     }
   },
 );
+
+router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
+  try {
+    const { fecha_inicial, fecha_final } = req.params;
+    const consultar = await habitaciones.getHabitaciones({ fecha_inicial, fecha_final });
+    res.json({
+      ok: true,
+      data: consultar,
+    })
+    console.log(req.params);
+
+
+
+  } catch (error) {
+    next(error)
+
+  }
+})
 
 router.delete('/:id', async (req, res, next) => {
   try {
