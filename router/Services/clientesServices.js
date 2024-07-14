@@ -94,7 +94,7 @@ class clientesServices {
     return rta;
 
   }
-  async getClientes({ id, nombre, documento }) {
+  async getClientes({ id, nombre }) {
     if (id != undefined) {
       let rta = await this.pool
         .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)

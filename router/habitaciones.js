@@ -13,13 +13,13 @@ router.get(
     try {
       console.log(req.query);
       let value = [];
-      if ( Object.keys(req.query).length > 0) {
+      if (Object.keys(req.query).length > 0) {
         const { params } = req.query
 
-         value = await habitaciones.getHabitaciones(params);
-         console.log(params)
-        }else{
-          value = await habitaciones.getAllHabitaciones();
+        value = await habitaciones.getHabitaciones(params);
+        console.log(params)
+      } else {
+        value = await habitaciones.getAllHabitaciones();
       }
       res.json({
         ok: true,
@@ -102,12 +102,11 @@ router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const delete_cate = await profile.delete(id);
-    if (delete_cate == false) {
-      res.json({
-        ok: false,
-        message: 'No se encontro el registro en la bd',
-      });
+    const delete_cate = await habitaciones.deleteHabitacion(id);
+    const { ok } = delete_cate;
+
+    if (ok == false) {
+      res.send(delete_cate);
     } else {
       res.json({
         ok: true,

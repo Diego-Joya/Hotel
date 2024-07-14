@@ -113,16 +113,38 @@ class habitacionesServices {
       return rta.rows;
     }
     else {
-    console.log("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
+      console.log("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
 
       throw new Error("Debes proporcionar al menos un parametro para la busqueda: id, numero habitacion o rago de fechas");
     }
   }
 
-  async getAllHabitaciones(pr) {
+  async getAllHabitaciones() {
     let query = `select * from booking_data.bedrooms`;
-      let rta = await this.pool.query(query).catch((err) => console.log(err));
-      return rta.rows
+    let rta = await this.pool.query(query).catch((err) => console.log(err));
+    return rta.rows
+  }
+
+  async deleteHabitacion(id) {
+    const validate = await this.getHabitaciones({ id });
+    if (validate == "") {
+      return {
+        ok: false,
+        message: 'No se encontro el registro en la bd',
+      }
+    }
+    const query = `delete from booking_data.bedrooms where id=${id}`;
+    const rta = await this.pool.query(query).catch((err) => {
+      console.log(err)
+      if (err.code == '42703') {
+        return {
+          ok: false,
+          message: `Error al realizar el proceso ${err.message}`,
+        }
+      }
+    });
+    return rta;
+
   }
 
 }
