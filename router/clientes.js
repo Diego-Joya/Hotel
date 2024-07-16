@@ -1,5 +1,6 @@
 const express = require('express');
 // const validatorHandler = require('./../middlewares/validator.handler');
+const messageHandler = require('./../middlewares/message.handler');
 // const { crearCliente } = require('./schemas/clientes.schemas');
 const clientesServices = require('./Services/clientesServices');
 
@@ -11,7 +12,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     console.log(typeof req.params);
     const id = req.params;
-    const getData = await cliente.getClientes( id );
+    const getData = await cliente.getClientes(id);
     res.json({
       ok: true,
       data: getData,
@@ -26,7 +27,7 @@ router.get('/nombres/:nombre', async (req, res, next) => {
     console.log(typeof req.params);
     const nombre = req.params;
     console.log(nombre);
-    const getData = await cliente.getClientes( nombre );
+    const getData = await cliente.getClientes(nombre);
     res.json({
       ok: true,
       data: getData,
@@ -69,11 +70,9 @@ router.patch(
       const body = req.body;
       const { id } = req.params;
       const actualizar = await cliente.actualizar(id, body);
-      if (actualizar == false) {
-        res.json({
-          ok: false,
-          message: "El registro no existe. ¡Actualiza e intenta de nuevo por favor!",
-        })
+      const { ok } = actualizar;
+      if (ok == false) {
+        res.send(actualizar);
       } else {
         res.json({
           ok: true,

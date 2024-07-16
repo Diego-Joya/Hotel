@@ -1,5 +1,7 @@
+// const { object } = require('joi');
 const pool = require('../../libs/postgres.pool');
 const moment = require("moment");
+const messageHandler = require('./../../middlewares/message.handler');
 
 class clientesServices {
   constructor() {
@@ -7,7 +9,6 @@ class clientesServices {
     this.pool.on('error', (err) => console.error(err));
   }
   async crear(body) {
-    console.log(body);
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     // const customer_id = body.customer_id;
     const names = body.names;
@@ -51,13 +52,20 @@ class clientesServices {
         created_by,
         created_at
       ])
-      .catch((err) => console.log(err));
-
+      .catch((err)=>{
+        return messageHandler(err)
+      });
     return rta.rows;
 
   }
 
   async actualizar(id, body) {
+    if (Object.keys(body).length == 0) {
+      return {
+        ok: false,
+        message: "No se encotraron parametros a actualizar!"
+      }
+    }
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
     const surname = body.surname;
@@ -71,9 +79,11 @@ class clientesServices {
     const updated_at = fecha_hora;
     const consulExistencia = await this.getClientes({ id });
     if (consulExistencia == "") {
-      return false;
+      return {
+        ok: false,
+        message: "El registro no existe. ¡Actualiza e intenta de nuevo por favor!",
+      }
     }
-
     const rta = await this.pool.query(
       `UPDATE booking_data.customers
 	SET  names=$1, surname=$2, document_type=$3, no_document=$4, birthdate=$5, cell_phone=$6,
@@ -90,7 +100,9 @@ class clientesServices {
       updated_by,
       updated_at,
       id,
-    ]).catch((err) => console.log(err));
+    ]).catch((err) => {
+      return messageHandler(err)
+    });
     return rta;
 
   }
@@ -98,14 +110,18 @@ class clientesServices {
     if (id != undefined) {
       let rta = await this.pool
         .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
-        .catch((err) => console.log(err));
+        .catch((err)=>{
+          return messageHandler(err)
+        });
       return rta.rows;
 
     }
     else if (nombre != undefined) {
       let rta = await this.pool
         .query(`SELECT * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
-        .catch((err) => console.log(err));
+        .catch.catch((err)=>{
+          return messageHandler(err)
+        });
       return rta.rows;
     }
     else {
@@ -116,9 +132,12 @@ class clientesServices {
 
   async getAllClientes() {
     const query = 'SELECT *, customer_id as key FROM booking_data.customers';
-    const rta = await this.pool.query(query);
+    const rta = await this.pool.query(query).catch((err)=>{
+      return messageHandler(err)
+    });
     return rta.rows;
   }
+ 
 
 
 }
