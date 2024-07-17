@@ -107,7 +107,7 @@ class clientesServices {
 
   }
   async getClientes({ id, nombre }) {
-    if (id != undefined) {
+    if (typeof id != 'undefined') {
       let rta = await this.pool
         .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
         .catch((err)=>{
@@ -116,10 +116,10 @@ class clientesServices {
       return rta.rows;
 
     }
-    else if (nombre != undefined) {
+    else if ( typeof nombre != 'undefined') {
       let rta = await this.pool
         .query(`SELECT * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
-        .catch.catch((err)=>{
+        .catch((err)=>{
           return messageHandler(err)
         });
       return rta.rows;

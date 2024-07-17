@@ -1,6 +1,5 @@
 const express = require('express');
 // const validatorHandler = require('./../middlewares/validator.handler');
-const messageHandler = require('./../middlewares/message.handler');
 // const { crearCliente } = require('./schemas/clientes.schemas');
 const clientesServices = require('./Services/clientesServices');
 
@@ -39,10 +38,16 @@ router.get('/nombres/:nombre', async (req, res, next) => {
 router.get('/', async (req, res, next) => {
   try {
     const getAll = await cliente.getAllClientes();
-    res.json({
-      ok: true,
-      data: getAll,
-    });
+    const ok = getAll;
+    if (ok == false) {
+      res.send(getAll);
+    } else {
+      res.json({
+        ok: true,
+        data: getAll,
+      });
+    }
+
   } catch (error) {
     next(error);
   }
@@ -53,12 +58,16 @@ router.post('/', async (req, res, next) => {
     const body = req.body;
     const crear = await cliente.crear(body);
     console.log(crear);
-
-    res.json({
-      ok: true,
-      message: 'Registro creado exitosamente!',
-      data: crear,
-    });
+    const { ok } = crear;
+    if (ok == false) {
+      res.send(crear);
+    } else {
+      res.json({
+        ok: true,
+        message: 'Registro creado exitosamente!',
+        data: crear,
+      });
+    }
   } catch (error) {
     next(error);
   }

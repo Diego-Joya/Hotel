@@ -91,13 +91,37 @@ router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
     })
     console.log(req.params);
 
-
-
   } catch (error) {
     next(error)
 
   }
 })
+
+
+router.get('/habitaciones/:numhabitacion?',
+  async (req, res, next) => {
+    try {
+      const numHabitacion = req.params.numhabitacion;
+      console.log("numHabitacion:", numHabitacion);
+
+      const params = { numHabitacion };
+      console.log("Params:", params);
+
+      const consultar = await habitaciones.getHabitaciones(params);
+      console.log(consultar);
+      const { ok } = consultar;
+      if (ok == false) {
+        res.send(consultar);
+      }
+      res.json({
+        ok: true,
+        data: consultar,
+      })
+    } catch (error) {
+      next(error)
+    }
+
+  })
 
 router.delete('/:id', async (req, res, next) => {
   try {

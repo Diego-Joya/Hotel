@@ -46,7 +46,7 @@ class habitacionesServices {
         created_at,
         state,
       ])
-      .catch((err)=>{
+      .catch((err) => {
         return messageHandler(err)
       });
     return rta.rows;
@@ -97,25 +97,35 @@ class habitacionesServices {
         state,
         id,
       ])
-      .catch((err)=>{
+      .catch((err) => {
         return messageHandler(err)
       });
     return rta.rows;
   }
 
-  async getHabitaciones({ id, numHabitacion, fecha_inicial, fecha_final }) {
-    if (typeof id != 'undefined') {
+  async getHabitaciones({ id = null, numHabitacion = null, fecha_inicial = null, fecha_final = null }) {
+    // console.log("id", id);
+    // console.log("numHabitacion", numHabitacion);
+    // console.log("fecha_inicial", fecha_inicial);
+    // console.log("fecha_final", fecha_final);
+
+    if (id != null) {
       let query = `select * from booking_data.bedrooms where room_id=${id}`;
-      let rta = await this.pool.query(query).catch((err)=>{
+      let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
       return rta.rows
-    } else if (typeof fecha_inicial != 'undefined' && typeof fecha_final != 'undefined') {
+    } else if (fecha_inicial != null && fecha_final != null) {
       let query = `select * from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
-      console.log(query);
-      let rta = await this.pool.query(query).catch((err)=>{
+      let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
+      return rta.rows;
+    } if (numHabitacion != null) {
+      let query = `select * from  booking_data.bedrooms where no_room='${numHabitacion}'`;
+      let rta = await this.pool.query(query).catch((err) => {
+        return messageHandler(err);
+      })
       return rta.rows;
     }
     else {
@@ -127,7 +137,7 @@ class habitacionesServices {
 
   async getAllHabitaciones() {
     let query = `select * from booking_data.bedrooms`;
-    let rta = await this.pool.query(query).catch((err)=>{
+    let rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });
     return rta.rows
@@ -142,7 +152,7 @@ class habitacionesServices {
       }
     }
     const query = `delete from booking_data.bedrooms where id=${id}`;
-    const rta = await this.pool.query(query).catch((err)=>{
+    const rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });
     return rta;
