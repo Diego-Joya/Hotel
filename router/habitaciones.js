@@ -38,7 +38,6 @@ router.post(
     try {
       const body = req.body;
       const crear = await habitaciones.createBedrooms(body);
-      console.log(crear);
       const { ok } = crear
       if (ok == false) {
         res.send(crear);
@@ -89,7 +88,6 @@ router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
       ok: true,
       data: consultar,
     })
-    console.log(req.params);
 
   } catch (error) {
     next(error)
@@ -101,15 +99,12 @@ router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
 router.get('/habitaciones/:numhabitacion?',
   async (req, res, next) => {
     try {
-      const numHabitacion = req.params.numhabitacion;
-      console.log("numHabitacion:", numHabitacion);
+      const numHabitacion = req.params.numhabitacion; 
 
       const params = { numHabitacion };
-      console.log("Params:", params);
 
       const consultar = await habitaciones.getHabitaciones(params);
-      console.log(consultar);
-      const { ok } = consultar;
+      const {ok} = consultar;
       if (ok == false) {
         res.send(consultar);
       }
