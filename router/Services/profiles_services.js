@@ -64,7 +64,7 @@ class profiles_service {
     }
     const rta = await this.pool
       .query(
-        `DELETE FROM public.booking_config.profiles
+        `DELETE FROM  booking_config.profiles
     WHERE profile_id=$1`,
         [id_delete]
       )
