@@ -94,5 +94,26 @@ router.patch(
     }
   }
 )
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const delete_cate = await cliente.delete(id);
+    if (delete_cate == false) {
+      res.json({
+        ok: false,
+        message: "No se encontro el registro en la bd",
+      });
+    } else {
+      res.json({
+        ok: true,
+        message: "Registro eliminado correctamente!",
+        id,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 module.exports = router;

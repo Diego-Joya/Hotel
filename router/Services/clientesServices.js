@@ -52,7 +52,7 @@ class clientesServices {
         created_by,
         created_at
       ])
-      .catch((err)=>{
+      .catch((err) => {
         return messageHandler(err)
       });
     return rta.rows;
@@ -110,16 +110,16 @@ class clientesServices {
     if (typeof id != 'undefined') {
       let rta = await this.pool
         .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
-        .catch((err)=>{
+        .catch((err) => {
           return messageHandler(err)
         });
       return rta.rows;
 
     }
-    else if ( typeof nombre != 'undefined') {
+    else if (typeof nombre != 'undefined') {
       let rta = await this.pool
         .query(`SELECT * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
-        .catch((err)=>{
+        .catch((err) => {
           return messageHandler(err)
         });
       return rta.rows;
@@ -132,12 +132,29 @@ class clientesServices {
 
   async getAllClientes() {
     const query = 'SELECT *, customer_id as key FROM booking_data.customers';
-    const rta = await this.pool.query(query).catch((err)=>{
+    const rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });
     return rta.rows;
   }
- 
+
+  async delete(id) {
+
+    let consu = await this.getClientes({id});
+    console.log(consu);
+    if (consu == "") {
+      return false;
+    }
+    const rta = await this.pool
+      .query(
+        `DELETE FROM booking_data.customers
+    WHERE customer_id=$1`,
+        [id]
+      )
+      .catch((err) => console.log(err));
+    return rta;
+  }
+
 
 
 }
