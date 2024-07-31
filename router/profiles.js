@@ -1,5 +1,5 @@
 const expres = require("express");
-const profiles_service = require("./services/profiles_services");
+const profiles_service = require("../services/profiles_services");
 const router = expres.Router();
 const profile = new profiles_service();
 
