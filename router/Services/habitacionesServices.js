@@ -151,7 +151,7 @@ class habitacionesServices {
         message: 'No se encontro el registro en la bd',
       }
     }
-    const query = `delete from booking_data.bedrooms where id=${id}`;
+    const query = `delete from booking_data.bedrooms where room_id=${id}`;
     const rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });
