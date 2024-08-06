@@ -118,7 +118,7 @@ class clientesServices {
     }
     else if (typeof nombre != 'undefined') {
       let rta = await this.pool
-        .query(`SELECT * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
+        .query(`SELECT customer_id as key, * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
         .catch((err) => {
           return messageHandler(err)
         });
@@ -131,7 +131,7 @@ class clientesServices {
   }
 
   async getAllClientes() {
-    const query = 'SELECT *, customer_id as key FROM booking_data.customers';
+    const query = 'SELECT customer_id as key,*, customer_id as key FROM booking_data.customers';
     const rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });

@@ -23,7 +23,7 @@ router.get(
       }
       res.json({
         ok: true,
-        value: value,
+        data: value,
       });
     } catch (error) {
       next(error);

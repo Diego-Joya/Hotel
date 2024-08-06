@@ -110,19 +110,19 @@ class habitacionesServices {
     // console.log("fecha_final", fecha_final);
 
     if (id != null) {
-      let query = `select * from booking_data.bedrooms where room_id=${id}`;
+      let query = `select room_id as key, * from booking_data.bedrooms where room_id=${id}`;
       let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
       return rta.rows
     } else if (fecha_inicial != null && fecha_final != null) {
-      let query = `select * from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
+      let query = `select room_id as key,* from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
       let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
       return rta.rows;
     } if (numHabitacion != null) {
-      let query = `select * from  booking_data.bedrooms where no_room='${numHabitacion}'`;
+      let query = `select room_id as key,* from  booking_data.bedrooms where no_room='${numHabitacion}'`;
       let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err);
       })
@@ -136,7 +136,7 @@ class habitacionesServices {
   }
 
   async getAllHabitaciones() {
-    let query = `select * from booking_data.bedrooms`;
+    let query = `select room_id as key,* from booking_data.bedrooms`;
     let rta = await this.pool.query(query).catch((err) => {
       return messageHandler(err)
     });

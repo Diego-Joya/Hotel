@@ -1,10 +1,12 @@
 const clientes = require('./clientes');
 const habitaciones = require('./habitaciones');
 const perfiles = require('./profiles');
+const usuarios = require('./usuarios');
 
 function routerApi(app) {
   app.use('/clientes', clientes);
   app.use('/habitaciones', habitaciones);
   app.use('/perfiles', perfiles);
+  app.use('/usuarios', usuarios);
 }
 module.exports = routerApi;
