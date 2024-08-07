@@ -17,15 +17,19 @@ class clientesServices {
     const no_document = body.no_document;
     const birthdate = body.birthdate;
     const cell_phone = body.cell_phone;
+    if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {
+      body.cell_phone_emergency = 0;
+    }
     const cell_phone_emergency = body.cell_phone_emergency;
     const center_id = body.center_id;
     const created_by = body.created_by;
+    const email = body.email;
     const created_at = fecha_hora;
 
     const query = `INSERT INTO  booking_data.customers(
       names, surname, document_type, no_document, birthdate, cell_phone,
-      cell_phone_emergency, center_id, created_by, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
+      cell_phone_emergency, center_id, created_by, created_at,email)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11) RETURNING *`;
 
     // Construir la consulta SQL completa para depuración
     // const querybd = `
@@ -50,7 +54,8 @@ class clientesServices {
         cell_phone_emergency,
         center_id,
         created_by,
-        created_at
+        created_at,
+        email,
       ])
       .catch((err) => {
         return messageHandler(err)
@@ -77,6 +82,8 @@ class clientesServices {
     const center_id = body.center_id;
     const updated_by = body.created_by;
     const updated_at = fecha_hora;
+    const email = body.email;
+
     const consulExistencia = await this.getClientes({ id });
     if (consulExistencia == "") {
       return {
@@ -87,8 +94,8 @@ class clientesServices {
     const rta = await this.pool.query(
       `UPDATE booking_data.customers
 	SET  names=$1, surname=$2, document_type=$3, no_document=$4, birthdate=$5, cell_phone=$6,
-   cell_phone_emergency=$7, center_id=$8, updated_by=$9, updated_at=$10
-	WHERE customer_id=$11;`, [
+   cell_phone_emergency=$7, center_id=$8, updated_by=$9, updated_at=$10,email=$11
+	WHERE customer_id=$12;`, [
       names,
       surname,
       document_type,
@@ -99,6 +106,7 @@ class clientesServices {
       center_id,
       updated_by,
       updated_at,
+      email,
       id,
     ]).catch((err) => {
       return messageHandler(err)
@@ -140,7 +148,7 @@ class clientesServices {
 
   async delete(id) {
 
-    let consu = await this.getClientes({id});
+    let consu = await this.getClientes({ id });
     console.log(consu);
     if (consu == "") {
       return false;

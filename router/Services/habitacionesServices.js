@@ -22,6 +22,7 @@ class habitacionesServices {
     const created_by = body.created_by;
     const created_at = fecha_hora;
     const state = body.state;
+    const description = body.description;
 
     if (val_min > val_max) {
       let resp = {
@@ -32,8 +33,8 @@ class habitacionesServices {
       return resp
     }
 
-    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at, state)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9 ) RETURNING *`;
+    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at, state,description)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10 ) RETURNING *`;
     const rta = await this.pool
       .query(query, [
         fecha_hora,
@@ -45,6 +46,7 @@ class habitacionesServices {
         created_by,
         created_at,
         state,
+        description,
       ])
       .catch((err) => {
         return messageHandler(err)
@@ -62,6 +64,8 @@ class habitacionesServices {
     const updated_by = body.created_by;
     const updated_at = fecha_hora;
     const state = body.state;
+    const description = body.description;
+
 
     const consulExistencia = await this.getHabitaciones({ id });
     if (consulExistencia == "") {
@@ -83,8 +87,8 @@ class habitacionesServices {
     }
 
     const query = `UPDATE booking_data.bedrooms
-	SET  no_room=$1, val_min=$2, val_max=$3, type=$4, center_id=$5, updated_by=$6, updated_at=$7,state=$8
-	WHERE room_id=$9  RETURNING *`;
+	SET  no_room=$1, val_min=$2, val_max=$3, type=$4, center_id=$5, updated_by=$6, updated_at=$7,state=$8,description=$9
+	WHERE room_id=$10  RETURNING *`;
     const rta = await this.pool
       .query(query, [
         no_room,
@@ -95,6 +99,7 @@ class habitacionesServices {
         updated_by,
         updated_at,
         state,
+        description,
         id,
       ])
       .catch((err) => {
