@@ -23,7 +23,20 @@ class habitacionesServices {
     const created_at = fecha_hora;
     const state = body.state;
     const description = body.description;
+    const numHabitacion = body.no_room;
 
+    const params = { numHabitacion };
+
+    const validateNoRoom = await this.getHabitaciones(params);
+    console.log(validateNoRoom);
+    if (validateNoRoom.length > 0) {
+      let resp = {
+        ok: false,
+        message: 'El número de habitacion ya existe. ¡Verifica e intenta de nuevo por favor!',
+
+      }
+      return resp
+    }
     if (val_min > val_max) {
       let resp = {
         ok: false,
