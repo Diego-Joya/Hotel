@@ -99,6 +99,39 @@ class ingresoClientesServices {
             }
         }
     }
+    async getAll(params) {
+        try {
+            let where = "where  1=1 ";
+            if (typeof params.id != "undefined") {
+                 where += ` and entry_id =${params.id}`
+            }
+            // if (typeof params.fecha_inicial != "undefined") {
+            //      where += ` and created_at ='${params.fecha_inicial}'`
+
+            // }
+            if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined") {
+                 where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
+            }
+            if (typeof params.exit_date_inicial != "undefined" && typeof params.exit_date_final != "undefined") {
+                 where += ` and exit_date between '${params.exit_date_inicial}' and '${params.exit_date_final}'`
+            }
+            if (typeof params.room_id != "undefined" ) {
+                 where += ` and room_id = '${params.room_id}'`
+
+            }
+            if (typeof params.customer_id != "undefined" ) {
+                 where += ` and customer_id = '${params.customer_id}'`
+
+            }
+
+            let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
+           
+            return consulta.rows;
+
+        } catch (error) {
+            return messageHandler(error);
+        }
+    }
 
 }
 module.exports = ingresoClientesServices;

@@ -5,7 +5,8 @@ const router = express.Router();
 const ingresos = new ingresoClientesServices();
 router.get('/', async (req, res, next) => {
     try {
-        const consulta = await ingresos.getAll()
+        const valores = req.query
+        const consulta = await ingresos.getAll(valores);
         res.json({
             ok: true,
             data: consulta
@@ -20,7 +21,6 @@ router.post(
         try {
             const body = req.body;
             const crear = await ingresos.saveIngresoClientes(body);
-            console.log("llega crear", crear);
             if (typeof crear != "undefined") {
                 const { ok } = crear
                 if (ok == false) {
