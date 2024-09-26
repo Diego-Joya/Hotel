@@ -38,6 +38,72 @@ class usuariosServices {
         return rta.rows;
 
     }
+    async actualizar(body, id) {
+        console.log(body);
+        const names = body.names;
+        const surname = body.surname;
+        const email = body.email;
+        const username = body.username;
+        const cell_phone = body.cell_phone;
+        const address = body.address;
+        // const password = body.password;
+        const state = body.state;
+        const profile_id = body.profile_id;
+        const company_id = body.company_id;
+        const updated_by = body.updated_by;
+        const updated_at = moment().format('YYYY-MM-DD HH:mm:ss');
+        const center_id = body.center_id;
+
+        // const password_enc = await bcrypt.hash(password, 10);
+        // console.log(password_enc);
+
+        const query = `UPDATE booking_config.users
+	SET names=$1, surnames=$2, email=$3, username=$4, cell_phone=$5, address=$6, state=$7, profile_id=$8,  updated_by=$9, updated_at=$10, company_id=$11, center_id=$12
+	WHERE  user_id=$13;`
+        try {
+            const rta = await this.pool.query(query, [names, surname, email, username, cell_phone, address, state, profile_id,
+                updated_by, updated_at, company_id, center_id, id]).catch((error) => {
+                    return messageHandler(error);
+                })
+            return rta.rows;
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+    async consulta(params) {
+        try {
+            console.log(params);
+            let where = ` where 1=1`;
+            if (typeof params.id != "undefined") {
+                where += ` and user_id= ${params.id}`;
+            }
+            if (typeof params.profile_id != "undefined" && params.profile_id != "") {
+                where += ` and profile_id=${params.profile_id}`;
+            }
+            if (typeof params.username != "undefined" && params.username != "") {
+                where += ` and username=${params.username}`;
+            }
+            if (typeof params.state != "undefined" && params.state != "") {
+                where += ` and state=${params.state}`;
+            }
+            if (typeof params.company_id != "undefined" && params.company_id != "") {
+                where += ` and company_id=${params.company_id}`;
+            }
+            if (typeof params.center_id != "undefined" && params.center_id != "") {
+                where += ` and center_id=${params.center_id}`;
+            }
+
+            const query = `select user_id as key,* from  booking_config.users ${where}`;
+            console.log(query);
+            const rta = await this.pool.query(query);
+            console.log(rta.rows);
+            return rta.rows;
+
+        } catch (error) {
+            return messageHandler(error);
+        }
+    }
 
 }
 module.exports = usuariosServices;

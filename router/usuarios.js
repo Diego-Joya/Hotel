@@ -7,14 +7,18 @@ const usuarios = new usuariosServices();
 
 router.get('/', async (req, res, next) => {
     try {
-        console.log(req);
-        const usuarios = usuarios;
+        const parametros = req.query
+        const consulta = await usuarios.consulta(parametros);
+        res.json({
+            ok: true,
+            data: consulta
+        })
 
     } catch (error) {
-        next(error);
+        next(error); 
     }
 
-})
+});
 
 router.post('/', async (req, res, next) => {
     try {
@@ -29,6 +33,31 @@ router.post('/', async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-})
+});
+router.patch(
+    '/:id',
+    async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const body = req.body;
+            const actualizar = await usuarios.actualizar(id, body);
+            console.log("return",actualizar);
+            const { ok } = actualizar
+            if (ok == false) {
+                res.send(actualizar);
+            } else {
+                res.json({
+                    ok: true,
+                    message: 'Registro actualizado correctamente!',
+                    data: body,
+                    id,
+                });
+            }
+        } catch (error) {
+            next(error);
+        }
+    },
+);
+
 
 module.exports = router;

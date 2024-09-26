@@ -124,7 +124,9 @@ class ingresoClientesServices {
 
             }
 
-            let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
+
+            // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
+            let consulta = await this.pool.query(`SELECT  * FROM booking_data.view_entries ${where}`);
            
             return consulta.rows;
 
