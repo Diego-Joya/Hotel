@@ -157,7 +157,7 @@ class clientesServices {
 
       }
       if (typeof params.select != "undefined" && params.select == "true") {
-        fields = `customer_id as code,no_document as name , concat(names ||' '||surname) as full_name`
+        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
       }
       // else {
       //   fields = `customer_id as key,*, customer_id as key`
