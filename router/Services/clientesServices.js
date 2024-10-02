@@ -138,18 +138,55 @@ class clientesServices {
 
   }
 
-  async getAllClientes() {
-    const query = 'SELECT customer_id as key,*, customer_id as key FROM booking_data.customers';
-    const rta = await this.pool.query(query).catch((err) => {
-      return messageHandler(err)
-    });
-    return rta.rows;
+  async getAllClientes(params) {
+    try {
+      let where = 'where  1=1 ';
+      let fields = `customer_id as key,*, customer_id as key`;
+      if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined") {
+        where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
+      }
+      if (typeof params.exit_date_inicial != "undefined" && typeof params.exit_date_final != "undefined") {
+        where += ` and exit_date between '${params.exit_date_inicial}' and '${params.exit_date_final}'`
+      }
+      if (typeof params.room_id != "undefined") {
+        where += ` and room_id = '${params.room_id}'`
+
+      }
+      if (typeof params.customer_id != "undefined") {
+        where += ` and customer_id = '${params.customer_id}'`
+
+      }
+      if (typeof params.select != "undefined" && params.select == "true") {
+        fields = `customer_id as code,no_document as name , concat(names ||' '||surname) as full_name`
+      }
+      // else {
+      //   fields = `customer_id as key,*, customer_id as key`
+      // }
+
+
+      // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
+      let query=`SELECT  ${fields} FROM booking_data.customers ${where}`;
+      console.log("consulta", query);
+      let consulta = await this.pool.query(query);
+      return consulta.rows;
+
+    } catch (error) {
+      return messageHandler(error);
+
+    }
+
   }
+  // async getAllClientes() {
+  //   const query = 'SELECT customer_id as key,*, customer_id as key FROM booking_data.customers';
+  //   const rta = await this.pool.query(query).catch((err) => {
+  //     return messageHandler(err)
+  //   });
+  //   return rta.rows;
+  // }
 
   async delete(id) {
 
     let consu = await this.getClientes({ id });
-    console.log(consu);
     if (consu == "") {
       return false;
     }

@@ -37,7 +37,8 @@ router.get('/nombres/:nombre', async (req, res, next) => {
 });
 router.get('/', async (req, res, next) => {
   try {
-    const getAll = await cliente.getAllClientes();
+    const parametros= req.query
+    const getAll = await cliente.getAllClientes(parametros);
     const ok = getAll;
     if (ok == false) {
       res.send(getAll);
@@ -52,6 +53,23 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
+// router.get('/', async (req, res, next) => {
+//   try {
+//     const getAll = await cliente.getAllClientes();
+//     const ok = getAll;
+//     if (ok == false) {
+//       res.send(getAll);
+//     } else {
+//       res.json({
+//         ok: true,
+//         data: getAll,
+//       });
+//     }
+
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 router.post('/', async (req, res, next) => {
   try {
