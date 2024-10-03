@@ -11,16 +11,17 @@ router.get(
   '/',
   async (req, res, next) => {
     try {
+      const parametros = req.query;
       console.log(req.query);
       let value = [];
-      if (Object.keys(req.query).length > 0) {
-        const { params } = req.query
+      // if (Object.keys(req.query).length > 0) {
+      //   const { params } = req.query
 
-        value = await habitaciones.getHabitaciones(params);
-        console.log(params)
-      } else {
-        value = await habitaciones.getAllHabitaciones();
-      }
+      //   value = await habitaciones.getHabitaciones(params);
+      //   console.log(params)
+      // } else {
+      value = await habitaciones.getAllHabitaciones(parametros);
+      // }
       res.json({
         ok: true,
         data: value,
@@ -99,12 +100,12 @@ router.get('/fechas/:fecha_inicial/:fecha_final', async (req, res, next) => {
 router.get('/habitaciones/:numhabitacion?',
   async (req, res, next) => {
     try {
-      const numHabitacion = req.params.numhabitacion; 
+      const numHabitacion = req.params.numhabitacion;
 
       const params = { numHabitacion };
 
       const consultar = await habitaciones.getHabitaciones(params);
-      const {ok} = consultar;
+      const { ok } = consultar;
       if (ok == false) {
         res.send(consultar);
       }

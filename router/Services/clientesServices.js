@@ -142,17 +142,17 @@ class clientesServices {
     try {
       let where = 'where  1=1 ';
       let fields = `customer_id as key,*, customer_id as key`;
-      if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined") {
+      if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined" && params.fecha_inicial != "" && params.fecha_final != "") {
         where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
       }
-      if (typeof params.exit_date_inicial != "undefined" && typeof params.exit_date_final != "undefined") {
+      if (typeof params.exit_date_inicial != "undefined" && typeof params.exit_date_final != "undefined" && params.exit_date_inicial != "" && params.exit_date_final != "") {
         where += ` and exit_date between '${params.exit_date_inicial}' and '${params.exit_date_final}'`
       }
-      if (typeof params.room_id != "undefined") {
+      if (typeof params.room_id != "undefined" && params.room_id != "") {
         where += ` and room_id = '${params.room_id}'`
 
       }
-      if (typeof params.customer_id != "undefined") {
+      if (typeof params.customer_id != "undefined" && params.customer_id != "") {
         where += ` and customer_id = '${params.customer_id}'`
 
       }
@@ -165,7 +165,7 @@ class clientesServices {
 
 
       // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
-      let query=`SELECT  ${fields} FROM booking_data.customers ${where}`;
+      let query = `SELECT  ${fields} FROM booking_data.customers ${where}`;
       console.log("consulta", query);
       let consulta = await this.pool.query(query);
       return consulta.rows;

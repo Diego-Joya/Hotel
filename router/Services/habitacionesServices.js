@@ -153,12 +153,36 @@ class habitacionesServices {
     }
   }
 
-  async getAllHabitaciones() {
-    let query = `select room_id as key,* from booking_data.bedrooms`;
-    let rta = await this.pool.query(query).catch((err) => {
-      return messageHandler(err)
-    });
-    return rta.rows
+  async getAllHabitaciones(param) {
+    try {
+      let where = `where  1=1 `;
+      let fields = `room_id as key,*`;
+      if (typeof param.room_id != "undefined" && param.room_id != "") {
+        where += ` and room_id='${param.room_id}'`;
+      }
+      if (typeof param.no_room != "undefined" && param.no_room != "") {
+        where += ` and no_room='${param.no_room}'`;
+      }
+      if (typeof param.type != "undefined" && param.type != "") {
+        where += ` and type='${param.type}'`;
+      }
+      if (typeof param.fecha_inicial != "undefined" && typeof param.fecha_final != "undefined" && param.fecha_inicial != "" && param.fecha_final != "") {
+        where += ` and created_at between '${param.fecha_inicial}' and '${param.fecha_final}'`
+      }
+      if (typeof param.state != "undefined" && param.state != "") {
+        where += ` and state='${param.state}'`;
+      }
+      if (typeof param.select != "undefined" && param.select == "true") {
+        fields = `room_id as code, room_id as key, no_room as name`
+      }
+      let query = `select ${fields} from booking_data.bedrooms  ${where}`;
+      let rta = await this.pool.query(query);
+      return rta.rows
+
+    } catch (error) {
+      return messageHandler(error)
+    }
+
   }
 
   async deleteHabitacion(id) {
