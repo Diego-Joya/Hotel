@@ -11,8 +11,6 @@ class habitacionesServices {
 
   // CREAR BEDROOMS
   async createBedrooms(body) {
-    console.log(body);
-    // return; 
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const no_room = body.no_room;
     const val_min = body.val_min;
@@ -28,7 +26,6 @@ class habitacionesServices {
     const params = { numHabitacion };
 
     const validateNoRoom = await this.getHabitaciones(params);
-    console.log(validateNoRoom);
     if (validateNoRoom.length > 0) {
       let resp = {
         ok: false,
@@ -122,10 +119,6 @@ class habitacionesServices {
   }
 
   async getHabitaciones({ id = null, numHabitacion = null, fecha_inicial = null, fecha_final = null }) {
-    // console.log("id", id);
-    // console.log("numHabitacion", numHabitacion);
-    // console.log("fecha_inicial", fecha_inicial);
-    // console.log("fecha_final", fecha_final);
 
     if (id != null) {
       let query = `select room_id as key, * from booking_data.bedrooms where room_id=${id}`;

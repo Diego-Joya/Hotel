@@ -10,7 +10,6 @@ class clientesServices {
   }
   async crear(body) {
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
-    // const customer_id = body.customer_id;
     const names = body.names;
     const surname = body.surname;
     const document_type = body.document_type;
@@ -30,18 +29,6 @@ class clientesServices {
       names, surname, document_type, no_document, birthdate, cell_phone,
       cell_phone_emergency, center_id, created_by, created_at,email)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11) RETURNING *`;
-
-    // Construir la consulta SQL completa para depuración
-    // const querybd = `
-    //   INSERT INTO customers(
-    //     names, surname, document_type, no_document, birthdate, cell_phone,
-    //     cell_phone_emergency, center_id, created_by, created_at
-    //   ) VALUES (
-    //     '${names}', '${surname}', '${document_type}', '${no_document}', '${birthdate}', 
-    //     '${cell_phone}', '${cell_phone_emergency}', '${center_id}', '${created_by}', '${created_at}'
-    //   ) RETURNING *`;
-
-    // console.log('query:', querybd);
 
     const rta = await this.pool
       .query(query, [
@@ -154,19 +141,14 @@ class clientesServices {
       }
       if (typeof params.customer_id != "undefined" && params.customer_id != "") {
         where += ` and customer_id = '${params.customer_id}'`
-
+      }
+      if (typeof params.name != "undefined" && params.name != "") {
+        where += ` and (names ilike('%${params.name}%') or surname ilike('%${params.name}%'))`
       }
       if (typeof params.select != "undefined" && params.select == "true") {
         fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
       }
-      // else {
-      //   fields = `customer_id as key,*, customer_id as key`
-      // }
-
-
-      // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
       let query = `SELECT  ${fields} FROM booking_data.customers ${where}`;
-      console.log("consulta", query);
       let consulta = await this.pool.query(query);
       return consulta.rows;
 
@@ -176,13 +158,6 @@ class clientesServices {
     }
 
   }
-  // async getAllClientes() {
-  //   const query = 'SELECT customer_id as key,*, customer_id as key FROM booking_data.customers';
-  //   const rta = await this.pool.query(query).catch((err) => {
-  //     return messageHandler(err)
-  //   });
-  //   return rta.rows;
-  // }
 
   async delete(id) {
 

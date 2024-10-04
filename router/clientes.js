@@ -9,7 +9,6 @@ const cliente = new clientesServices();
 
 router.get('/:id', async (req, res, next) => {
   try {
-    console.log(typeof req.params);
     const id = req.params;
     const getData = await cliente.getClientes(id);
     res.json({
@@ -23,9 +22,7 @@ router.get('/:id', async (req, res, next) => {
 
 router.get('/nombres/:nombre', async (req, res, next) => {
   try {
-    console.log(typeof req.params);
     const nombre = req.params;
-    console.log(nombre);
     const getData = await cliente.getClientes(nombre);
     res.json({
       ok: true,
@@ -53,29 +50,11 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-// router.get('/', async (req, res, next) => {
-//   try {
-//     const getAll = await cliente.getAllClientes();
-//     const ok = getAll;
-//     if (ok == false) {
-//       res.send(getAll);
-//     } else {
-//       res.json({
-//         ok: true,
-//         data: getAll,
-//       });
-//     }
-
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 router.post('/', async (req, res, next) => {
   try {
     const body = req.body;
     const crear = await cliente.crear(body);
-    console.log(crear);
     const { ok } = crear;
     if (ok == false) {
       res.send(crear);
