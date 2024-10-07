@@ -166,7 +166,7 @@ class habitacionesServices {
         where += ` and state='${param.state}'`;
       }
       if (typeof param.select != "undefined" && param.select == "true") {
-        fields = `room_id as code, room_id as key, no_room as name`
+        fields = `room_id as code, room_id as key, no_room as name,val_min, val_max`
       }
       let query = `select ${fields} from booking_data.bedrooms  ${where}`;
       let rta = await this.pool.query(query);
