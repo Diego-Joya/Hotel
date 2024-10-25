@@ -82,7 +82,8 @@ router.patch(
       } else {
         res.json({
           ok: true,
-          message: "Datos actualizados correctamente"
+          message: "Datos actualizados correctamente",
+          data: body,
         })
       }
 
