@@ -30,7 +30,7 @@ class usuariosServices {
 
         const query = `INSERT INTO booking_config.users( names, surnames, email, username, cell_phone, address, password, state,
          profile_id, created_by,  created_at,  company_id, center_id)
-	    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`
+	    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)  RETURNING *`
         const rta = this.pool.query(query, [names, surname, email, username, cell_phone, address, password_enc, state, profile_id,
             created_by, created_at, company_id, center_id]).catch((error) => {
                 return messageHandler(error);
@@ -59,7 +59,7 @@ class usuariosServices {
 
         const query = `UPDATE booking_config.users
 	SET names=$1, surnames=$2, email=$3, username=$4, cell_phone=$5, address=$6, state=$7, profile_id=$8,  updated_by=$9, updated_at=$10, company_id=$11, center_id=$12
-	WHERE  user_id=$13;`
+	WHERE  user_id=$13  RETURNING *`
         try {
             const rta = await this.pool.query(query, [names, surname, email, username, cell_phone, address, state, profile_id,
                 updated_by, updated_at, company_id, center_id, id]).catch((error) => {

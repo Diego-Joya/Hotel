@@ -21,7 +21,7 @@ class ingresoClientesServices {
 
         const query = `INSERT INTO booking_data.entries(
             room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)  RETURNING *`;
 
         try {
             const result = await this.pool.query(query, [
@@ -35,7 +35,7 @@ class ingresoClientesServices {
                 created_by,
                 created_at
             ]);
-            return result.rows;
+            return result.rows[0];
         } catch (error) {
             return messageHandler(error);
         }
@@ -68,7 +68,7 @@ class ingresoClientesServices {
 
         const query = `UPDATE booking_data.entries
 	SET  room_id=$1, customer_id=$2, entry_date=$3, exit_date=$4, total_days=$5, total_amount_pay=$6,  updated_by=$7,  updated_at=$8, status=$9
-	WHERE  entry_id=$10`
+	WHERE  entry_id=$10   RETURNING *`
         try {
             const rta = await this.pool.query(query, [room_id,
                 customer_id,

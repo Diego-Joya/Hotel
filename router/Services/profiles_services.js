@@ -50,7 +50,7 @@ class profiles_service {
       .query(
         `UPDATE booking_config.profiles
     SET  profile=$1, company_id=$2, type=$3, fecha_modificacion=$4
-    WHERE profile_id=$5 `,
+    WHERE profile_id=$5  RETURNING *`,
         [nombre, company, type,  fecha_hora, idact]
       )
       .catch((err) => console.log(err));

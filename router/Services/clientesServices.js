@@ -47,7 +47,7 @@ class clientesServices {
       .catch((err) => {
         return messageHandler(err)
       });
-    return rta.rows;
+    return rta.rows[0];
 
   }
 
@@ -82,7 +82,7 @@ class clientesServices {
       `UPDATE booking_data.customers
 	SET  names=$1, surname=$2, document_type=$3, no_document=$4, birthdate=$5, cell_phone=$6,
    cell_phone_emergency=$7, center_id=$8, updated_by=$9, updated_at=$10,email=$11
-	WHERE customer_id=$12;`, [
+	WHERE customer_id=$12  RETURNING *`, [
       names,
       surname,
       document_type,
