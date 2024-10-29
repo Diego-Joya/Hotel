@@ -94,7 +94,7 @@ class usuariosServices {
                 where += ` and center_id=${params.center_id}`;
             }
 
-            const query = `select user_id as key,* from  booking_config.users ${where}`;
+            const query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
             console.log(query);
             const rta = await this.pool.query(query);
             console.log(rta.rows);

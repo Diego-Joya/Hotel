@@ -121,13 +121,13 @@ class habitacionesServices {
   async getHabitaciones({ id = null, numHabitacion = null, fecha_inicial = null, fecha_final = null }) {
 
     if (id != null) {
-      let query = `select room_id as key, * from booking_data.bedrooms where room_id=${id}`;
+      let query = `select room_id as key, *,updated_by::text as updated_by,created_at::text as created_at, fecha::text as fecha from booking_data.bedrooms where room_id=${id}`;
       let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
       return rta.rows
     } else if (fecha_inicial != null && fecha_final != null) {
-      let query = `select room_id as key,* from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
+      let query = `select room_id as key,*,updated_by::text as updated_by,created_at::text as created_at, fecha::text as fecha from   booking_data.bedrooms where fecha between '${fecha_inicial}' and '${fecha_final}'`;
       let rta = await this.pool.query(query).catch((err) => {
         return messageHandler(err)
       });
@@ -149,7 +149,7 @@ class habitacionesServices {
   async getAllHabitaciones(param) {
     try {
       let where = `where  1=1 `;
-      let fields = `room_id as key,*`;
+      let fields = `room_id as key,*,updated_by::text as updated_by,created_at::text as created_at, fecha::text as fecha`;
       if (typeof param.room_id != "undefined" && param.room_id != "") {
         where += ` and room_id='${param.room_id}'`;
       }

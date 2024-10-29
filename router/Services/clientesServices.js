@@ -104,7 +104,7 @@ class clientesServices {
   async getClientes({ id, nombre }) {
     if (typeof id != 'undefined') {
       let rta = await this.pool
-        .query(`SELECT *, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
+        .query(`SELECT *,birthdate::text as birthdate,updated_by::text as updated_by,created_at::text as created_at, customer_id as key FROM  booking_data.customers where customer_id=${id} `)
         .catch((err) => {
           return messageHandler(err)
         });
@@ -128,7 +128,7 @@ class clientesServices {
   async getAllClientes(params) {
     try {
       let where = 'where  1=1 ';
-      let fields = `customer_id as key,*, customer_id as key`;
+      let fields = `customer_id as key,*,birthdate::text as birthdate,updated_by::text as updated_by,created_at::text as created_at, customer_id as key`;
       if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined" && params.fecha_inicial != "" && params.fecha_final != "") {
         where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
       }
