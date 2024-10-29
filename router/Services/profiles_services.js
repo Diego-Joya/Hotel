@@ -16,13 +16,13 @@ class profiles_service {
     const query = `INSERT INTO booking_config.profiles (profile, company_id, type,fecha_creacion)
      VALUES ($1, $2, $3, $4) RETURNING *`;
     const rta = await this.pool
-      .query(query, [nombre, company, type,  fecha_hora])
+      .query(query, [nombre, company, type, fecha_hora])
       .catch((err) => console.log(err));
     return rta.rows;
   }
 
   async buscar_todos() {
-    const query = "SELECT *, profile_id as key FROM booking_config.profiles";
+    const query = "SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles";
     const rta = await this.pool.query(query);
     return rta.rows;
   }
@@ -30,7 +30,7 @@ class profiles_service {
   async buscar_uno(data) {
     const rta = await this.pool
       .query(
-        `SELECT *, profile_id as key FROM booking_config.profiles where profile ILIKE ('%${data}%') OR profile_id::text ILIKE ('%${data}%') `
+        `SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles where profile ILIKE ('%${data}%') OR profile_id::text ILIKE ('%${data}%') `
       )
       .catch((err) => console.log(err));
     return rta.rows;
@@ -51,7 +51,7 @@ class profiles_service {
         `UPDATE booking_config.profiles
     SET  profile=$1, company_id=$2, type=$3, fecha_modificacion=$4
     WHERE profile_id=$5  RETURNING *`,
-        [nombre, company, type,  fecha_hora, idact]
+        [nombre, company, type, fecha_hora, idact]
       )
       .catch((err) => console.log(err));
     return rta;

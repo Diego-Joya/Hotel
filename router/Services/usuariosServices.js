@@ -82,10 +82,10 @@ class usuariosServices {
                 where += ` and profile_id=${params.profile_id}`;
             }
             if (typeof params.username != "undefined" && params.username != "") {
-                where += ` and username=${params.username}`;
+                where += ` and username='${params.username}'`;
             }
             if (typeof params.state != "undefined" && params.state != "") {
-                where += ` and state=${params.state}`;
+                where += ` and state='${params.state}'`;
             }
             if (typeof params.company_id != "undefined" && params.company_id != "") {
                 where += ` and company_id=${params.company_id}`;
