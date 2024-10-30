@@ -18,10 +18,11 @@ class ingresoClientesServices {
         const created_by = body.created_by;
         const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
         const status = body.status;
+        const val_room = body.val_room;
 
         const query = `INSERT INTO booking_data.entries(
-            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)  RETURNING *`;
+            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10)  RETURNING *`;
 
         try {
             const result = await this.pool.query(query, [
@@ -33,7 +34,8 @@ class ingresoClientesServices {
                 total_days,
                 total_amount_pay,
                 created_by,
-                created_at
+                created_at,
+                val_room
             ]);
             return result.rows[0];
         } catch (error) {
@@ -51,6 +53,7 @@ class ingresoClientesServices {
         const updated_by = body.updated_by;
         const updated_at = moment().format('YYYY-MM-DD HH:mm:ss');
         const status = body.status;
+        const val_room = body.val_room;
 
 
         const consulExistencia = await this.getIngresosClientes({ id });
@@ -67,8 +70,8 @@ class ingresoClientesServices {
 
 
         const query = `UPDATE booking_data.entries
-	SET  room_id=$1, customer_id=$2, entry_date=$3, exit_date=$4, total_days=$5, total_amount_pay=$6,  updated_by=$7,  updated_at=$8, status=$9
-	WHERE  entry_id=$10   RETURNING *`
+	SET  room_id=$1, customer_id=$2, entry_date=$3, exit_date=$4, total_days=$5, total_amount_pay=$6,  updated_by=$7,  updated_at=$8, status=$9,val_room=$10
+	WHERE  entry_id=$11   RETURNING *`
         try {
             const rta = await this.pool.query(query, [room_id,
                 customer_id,
@@ -79,6 +82,7 @@ class ingresoClientesServices {
                 updated_by,
                 updated_at,
                 status,
+                val_room,
                 id])
             return rta.rows;
         } catch (error) {
