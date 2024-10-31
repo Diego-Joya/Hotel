@@ -11,8 +11,9 @@ class ingresoClientesServices {
     async saveIngresoClientes(body) {
         const room_id = body.room_id;
         const customer_id = body.customer_id;
-        const entry_date = moment().format('YYYY-MM-DD HH:mm:ss');
-        const exit_date = moment().format('YYYY-MM-DD HH:mm:ss');
+        const entry_date = body.entry_date;
+        const exit_date = body.exit_date;
+        // const exit_date = moment().format('YYYY-MM-DD HH:mm:ss');
         const total_days = body.total_days;
         const total_amount_pay = body.total_amount_pay;
         const created_by = body.created_by;
