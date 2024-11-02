@@ -1,7 +1,8 @@
 const pool = require('../../libs/postgres.pool');
 const moment = require('moment');
 const messageHandler = require('./../../middlewares/message.handler');
-
+const habitacionesServices = require('./habitacionesServices');
+const habitacion = new habitacionesServices();
 class ingresoClientesServices {
     constructor() {
         this.pool = pool;
@@ -21,12 +22,21 @@ class ingresoClientesServices {
         // const status = body.status;
         const status = 'INGRESADO';
         const val_room = body.val_room;
-
-        const query = `INSERT INTO booking_data.entries(
+        let array = [];
+        array.room_id = body.room_id;
+        array.state = 'OCUPADA';
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const actHabitacion = await habitacion.actualizarEstado(client, array);
+            const { ok } = actHabitacion
+            if (ok == false) {
+                return actHabitacion;
+            }
+            const query = `INSERT INTO booking_data.entries(
             room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10)  RETURNING *`;
 
-        try {
             const result = await this.pool.query(query, [
                 room_id,
                 customer_id,
@@ -39,8 +49,10 @@ class ingresoClientesServices {
                 created_at,
                 val_room
             ]);
+            await client.query('COMMIT');
             return result.rows[0];
         } catch (error) {
+            await client.query('ROLLBACK');
             return messageHandler(error);
         }
     }

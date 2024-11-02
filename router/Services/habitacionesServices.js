@@ -194,5 +194,20 @@ class habitacionesServices {
 
   }
 
+  async actualizarEstado(client,data) {
+    const query = `update  booking_data.bedrooms set state=$1 where  room_id=$2 RETURNING *`;
+  try {
+    const rta= await client.query(query,[
+      data.state,
+      data.room_id,
+    ]);
+    return rta.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    return messageHandler(error)
+  }
+  
+  }
+
 }
 module.exports = habitacionesServices;
