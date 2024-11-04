@@ -26,11 +26,20 @@ router.post(
                 if (ok == false) {
                     res.send(crear);
                 } else {
-                    res.json({
-                        ok: true,
-                        message: '¡Ingreso registro exitosamente!',
-                        data: crear,
-                    });
+                    if (typeof body.limit != "undefined" && body.limit != "") {
+                        const consul = await ingresos.getAll({ limit: body.limit });
+                        res.json({
+                            ok: true,
+                            message: '¡Ingreso registro exitosamente!',
+                            data: consul,
+                        });
+                    } else {
+                        res.json({
+                            ok: true,
+                            message: '¡Ingreso registro exitosamente!',
+                            data: crear,
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -50,12 +59,23 @@ router.patch(
             if (ok == false) {
                 res.send(actualizar);
             } else {
-                res.json({
-                    ok: true,
-                    message: 'Registro actualizado correctamente!',
-                    data: body,
-                    id,
-                });
+                if (typeof body.limit != "undefined" && body.limit != "") {
+                    const consul = await ingresos.getAll({ limit: body.limit });
+                    res.json({
+                        ok: true,
+                        message: 'Registro actualizado correctamente!',
+                        data: consul,
+                        id,
+                    });
+                } else {
+                    res.json({
+                        ok: true,
+                        message: 'Registro actualizado correctamente!',
+                        data: body,
+                        id,
+                    });
+                }
+
             }
         } catch (error) {
             next(error);
