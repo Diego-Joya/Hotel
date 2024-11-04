@@ -105,7 +105,7 @@ class ingresoClientesServices {
     }
 
 
-    async getIngresosClientes({ id = null, room_id = null }) {
+    async getIngresosClientes({ id = null }) {
         if (typeof id != "undefined") {
             try {
                 let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries where entry_id =${id}`);
