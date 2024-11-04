@@ -11,6 +11,6 @@ function routerApi(app) {
   app.use('/perfiles', perfiles);
   app.use('/usuarios', usuarios);
   app.use('/ingresos', ingresos);
-  app.use('/maestroHabitacion', maestroHabitacion);
+  app.use('/tipohabitacion', maestroHabitacion);
 }
 module.exports = routerApi;
