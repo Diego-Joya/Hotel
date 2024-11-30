@@ -71,6 +71,28 @@ class usuariosServices {
         }
 
     }
+    async saveToke(user, token) {
+        console.log("user",user);
+        console.log("token",token);
+        const fecha_creacion_token = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        // const password_enc = await bcrypt.hash(password, 10);
+        // console.log(password_enc);
+
+        const query = `UPDATE booking_config.users
+	SET token=$1, fecha_creacion_token=$2
+	WHERE  user_id=$3  RETURNING *`
+        try {
+            const rta = await this.pool.query(query, [token, fecha_creacion_token,user]).catch((error) => {
+                    return messageHandler(error);
+                })
+            return rta.rows;
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+
     async consulta(params) {
         try {
             console.log(params);
@@ -97,13 +119,31 @@ class usuariosServices {
             const query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
             console.log(query);
             const rta = await this.pool.query(query);
-            console.log(rta.rows);
             return rta.rows;
 
         } catch (error) {
             return messageHandler(error);
         }
     }
+    async delete(id) {
+        try {
+            let consu = await this.consulta(id);
+            if (consu == "") {
+                return false;
+            }
+            const rta = await this.pool
+                .query(
+                    `DELETE FROM   booking_config.users
+      WHERE user_id=$1`,
+                    [id]
+                )
+            return rta;
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+
 
 }
 module.exports = usuariosServices;

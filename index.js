@@ -11,6 +11,7 @@ app.use(cors({
 }));
 app.use(logErrors);
 app.use(errorhandler);
+require('./utils/auth');
 
 routerApi(app)
 

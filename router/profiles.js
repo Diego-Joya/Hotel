@@ -3,6 +3,8 @@ const profiles_service = require("./Services/profiles_services");
 const router = expres.Router();
 const profile = new profiles_service();
 
+const passport= require('passport')
+
 router.get("/", async (req, res, next) => {
   try {
     const cat = await profile.buscar_todos();
@@ -34,6 +36,7 @@ router.get(
 
 router.post(
   "/",
+  passport.authenticate('jwt', {session:false}),
   async (req, res, next) => {
     try {
       const body = req.body;
