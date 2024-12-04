@@ -11,12 +11,15 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
         // }
 
         const data = 'Usuario o clave incorrecto!';
-        const user = await usuarios.consulta(username);
+        console.log(username);
+        let dat = {};
+        dat.username = username;
+        const user = await usuarios.consulta(dat);
         console.log("console a revisar", user)
-        if (!user) {
+        if (user.length == 0) {
             done(data, false);
         }
-        const isMatch = await bcrypt.compare( password ,user[0].password);
+        const isMatch = await bcrypt.compare(password, user[0].password);
         console.log("isMatch", isMatch);
         if (!isMatch) {
             done(data, false);

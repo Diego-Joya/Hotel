@@ -30,8 +30,8 @@ router.post(
       const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '7d' });
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',  // Usa 'secure' en producción para cookies solo HTTPS
-        maxAge: 7 * 24 * 60 * 60 * 1000  // 7 días
+        secure: process.env.NODE_ENV === 'production',  
+        maxAge: 7 * 24 * 60 * 60 * 1000 
       });
 
 
@@ -39,7 +39,7 @@ router.post(
       res.json({
         user,
         token,
-        // refreshToken
+        refreshToken
       }
       );
     } catch (error) {
