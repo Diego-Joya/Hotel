@@ -29,8 +29,8 @@ router.post(
       const saveToke = await usuario.saveToke(user[0].user_id, token);
       const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '7d' });
       res.cookie('refreshToken', refreshToken, {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
 
