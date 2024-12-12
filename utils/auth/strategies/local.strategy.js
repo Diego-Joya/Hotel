@@ -17,7 +17,13 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
         const user = await usuarios.consulta(dat);
         console.log("console a revisar", user)
         if (user.length == 0) {
-            done(data, false);
+            done(unauthorized(data), false);
+            // done(
+            //   {
+            //     ok: false,
+            //     message: "Usuario o password incorrecta",
+            //   }
+            // );
         }
         const isMatch = await bcrypt.compare(password, user[0].password);
         console.log("isMatch", isMatch);
@@ -32,5 +38,14 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
 
 
 })
+
+function unauthorized(message = 'Unauthorized') {
+    return {
+        statusCode: 401, // Código de estado para "Unauthorized"
+        error: 'Unauthorized',
+        message: message,
+    };
+}
+
 
 module.exports = LocalStrategy
