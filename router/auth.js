@@ -7,39 +7,51 @@ const usuariosServices = require("./Services/usuariosServices");
 const usuario = new usuariosServices();
 
 const { config } = require('../config/config')
-
 router.post(
   "/login",
-  passport.authenticate('local', { session: false }),
+  (req, res, next) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      console.log('info', info);
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(200).json({
+        isAuteticanted: info.isAuteticanted,
+            message: info.message
+        });
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
   async (req, res, next) => {
     try {
-
       const user = req.user;
       const payload = {
         sub: user[0].user_id,
         profile_id: user[0].profile_id,
         company_id: user[0].company_id,
         center_id: user[0].center_id,
-
-      }
-      console.log(payload);
+      };
 
       const token = jwt.sign(payload, config.secret, { expiresIn: '1h' });
       await usuario.saveToken(user[0].user_id, token);
+
       const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '1d' });
       await usuario.saveRefreshToke(user[0].user_id, refreshToken);
+
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 0 * 0 * 60 * 60 * 1000
-        // maxAge: 1 * 24 * 60 * 60 * 1000
+        maxAge: 1 * 24 * 60 * 60 * 1000
       });
+
       res.json({
         user,
         token,
         refreshToken
-      }
-      );
+      });
     } catch (error) {
       next(error);
     }
