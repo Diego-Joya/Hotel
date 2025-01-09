@@ -71,7 +71,28 @@ class usuariosServices {
         }
 
     }
-    async saveToke(user, token) {
+    async saveRefreshToke(user, refreshToken) {
+        console.log("user",user);
+        console.log("refreshToken",refreshToken);
+        const fecha_creacion_token = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        // const password_enc = await bcrypt.hash(password, 10);
+        // console.log(password_enc);
+
+        const query = `UPDATE booking_config.users
+	SET refreshtoken=$1, fecha_creacion_refreshtoken=$2
+	WHERE  user_id=$3  RETURNING *`
+        try {
+            const rta = await this.pool.query(query, [refreshToken, fecha_creacion_token,user]).catch((error) => {
+                    return messageHandler(error);
+                })
+            return rta.rows;
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+    async saveToken(user, token) {
         console.log("user",user);
         console.log("token",token);
         const fecha_creacion_token = moment().format('YYYY-MM-DD HH:mm:ss');

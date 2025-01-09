@@ -12,12 +12,15 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
 
         const data = 'Usuario o clave incorrecto!';
         console.log(username);
-        let dat = {};
+        let dat = {}; 
         dat.username = username;
         const user = await usuarios.consulta(dat);
         console.log("console a revisar", user)
         if (user.length == 0) {
-            done(unauthorized(data), false);
+            // done(unauthorized(data), false);
+            done(null, false);
+            // return done(null, false, { message: '¡Usuario o clave incorrecto!' });
+
             // done(
             //   {
             //     ok: false,

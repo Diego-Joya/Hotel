@@ -24,18 +24,16 @@ router.post(
       }
       console.log(payload);
 
-
       const token = jwt.sign(payload, config.secret, { expiresIn: '1h' });
-      const saveToke = await usuario.saveToke(user[0].user_id, token);
-      const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '7d' });
+      await usuario.saveToken(user[0].user_id, token);
+      const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '1d' });
+      await usuario.saveRefreshToke(user[0].user_id, refreshToken);
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 1 * 24 * 60 * 60 * 1000
+        maxAge: 0 * 0 * 60 * 60 * 1000
+        // maxAge: 1 * 24 * 60 * 60 * 1000
       });
-
-
-
       res.json({
         user,
         token,
@@ -47,37 +45,41 @@ router.post(
     }
   }
 );
+
 router.post('/refresh-token', async (req, res, next) => {
   try {
-    // Obtener el refresh token de la cookie
     const refreshToken = req.cookies.refreshToken;
+    console.log("Cookies:", req.cookies);
+    console.log("refreshToken:", refreshToken);
 
     if (!refreshToken) {
       return res.status(401).json({ message: "No refresh token provided" });
     }
 
     // Verificar el refresh token
-    jwt.verify(refreshToken, config.secret, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ message: "Invalid or expired refresh token" });
-      }
+    const decoded = jwt.verify(refreshToken, config.secret);
 
-      // Crear un nuevo access token
-      const newAccessToken = jwt.sign(
-        {
-          sub: decoded.sub,
-          profile_id: decoded.profile_id,
-          company_id: decoded.company_id,
-          center_id: decoded.center_id
-        },
-        config.secret,
-        { expiresIn: '1h' }
-      );
+    // Crear un nuevo access token
+    const newAccessToken = jwt.sign(
+      {
+        sub: decoded.sub,
+        profile_id: decoded.profile_id,
+        company_id: decoded.company_id,
+        center_id: decoded.center_id,
+      },
+      config.secret,
+      { expiresIn: '1h' }
+    );
 
-      res.json({ accessToken: newAccessToken });
-    });
+    // Guardar el nuevo token en la base de datos
+    await usuario.saveToken(decoded.sub, newAccessToken);
+
+    res.json({ accessToken: newAccessToken });
 
   } catch (error) {
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return res.status(403).json({ message: "Invalid or expired refresh token" });
+    }
     next(error);
   }
 });
