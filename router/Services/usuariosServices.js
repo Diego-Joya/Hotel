@@ -115,9 +115,7 @@ class usuariosServices {
     }
 
     async consulta(params) {
-        console.log('params',params);
         try {
-            console.log(params);
             let where = ` where 1=1`;
             if (typeof params.id != "undefined") {
                 where += ` and user_id= ${params.id}`;
@@ -139,14 +137,11 @@ class usuariosServices {
             }
             let query = ''
             if (typeof params.fields != 'undefined' && params.fields != null) {
-console.log('jajaj');
                 query = `select user_id as key, ${params.fields} from  booking_config.users ${where}`;
             } else {
-
                 query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
             }
 
-            console.log(query);
             const rta = await this.pool.query(query);
             return rta.rows;
 

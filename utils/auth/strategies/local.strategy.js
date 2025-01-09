@@ -15,7 +15,6 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
         dat.username = username;
         dat.fields = ' user_id, names, surnames,  username, cell_phone, address,  profile_id, password, company_id, center_id';
         let user = await usuarios.consulta(dat);
-        console.log('user', user);
 
 
         if (user.length === 0) {
@@ -27,7 +26,6 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
             return done(null, false, data);
         }
 
-        // const userData = user[0];
 
         const userData = {
             ...user[0],
