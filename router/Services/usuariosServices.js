@@ -72,8 +72,8 @@ class usuariosServices {
 
     }
     async saveRefreshToke(user, refreshToken) {
-        console.log("user",user);
-        console.log("refreshToken",refreshToken);
+        console.log("user", user);
+        console.log("refreshToken", refreshToken);
         const fecha_creacion_token = moment().format('YYYY-MM-DD HH:mm:ss');
 
         // const password_enc = await bcrypt.hash(password, 10);
@@ -83,9 +83,9 @@ class usuariosServices {
 	SET refreshtoken=$1, fecha_creacion_refreshtoken=$2
 	WHERE  user_id=$3  RETURNING *`
         try {
-            const rta = await this.pool.query(query, [refreshToken, fecha_creacion_token,user]).catch((error) => {
-                    return messageHandler(error);
-                })
+            const rta = await this.pool.query(query, [refreshToken, fecha_creacion_token, user]).catch((error) => {
+                return messageHandler(error);
+            })
             return rta.rows;
         } catch (error) {
             return messageHandler(error);
@@ -93,8 +93,8 @@ class usuariosServices {
 
     }
     async saveToken(user, token) {
-        console.log("user",user);
-        console.log("token",token);
+        console.log("user", user);
+        console.log("token", token);
         const fecha_creacion_token = moment().format('YYYY-MM-DD HH:mm:ss');
 
         // const password_enc = await bcrypt.hash(password, 10);
@@ -104,9 +104,9 @@ class usuariosServices {
 	SET token=$1, fecha_creacion_token=$2
 	WHERE  user_id=$3  RETURNING *`
         try {
-            const rta = await this.pool.query(query, [token, fecha_creacion_token,user]).catch((error) => {
-                    return messageHandler(error);
-                })
+            const rta = await this.pool.query(query, [token, fecha_creacion_token, user]).catch((error) => {
+                return messageHandler(error);
+            })
             return rta.rows;
         } catch (error) {
             return messageHandler(error);
@@ -115,6 +115,7 @@ class usuariosServices {
     }
 
     async consulta(params) {
+        console.log('params',params);
         try {
             console.log(params);
             let where = ` where 1=1`;
@@ -136,8 +137,15 @@ class usuariosServices {
             if (typeof params.center_id != "undefined" && params.center_id != "") {
                 where += ` and center_id=${params.center_id}`;
             }
+            let query = ''
+            if (typeof params.fields != 'undefined' && params.fields != null) {
+console.log('jajaj');
+                query = `select user_id as key, ${params.fields} from  booking_config.users ${where}`;
+            } else {
 
-            const query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+                query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+            }
+
             console.log(query);
             const rta = await this.pool.query(query);
             return rta.rows;

@@ -1,6 +1,7 @@
 const { Strategy } = require('passport-local');
 const usuariosServices = require('../../../router/Services/usuariosServices');
 const bcrypt = require('bcrypt');
+const { use } = require('passport');
 const usuarios = new usuariosServices();
 const LocalStrategy = new Strategy(async (username, password, done) => {
     console.log("clave envio", password);
@@ -12,7 +13,10 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
 
         let dat = {};
         dat.username = username;
-        const user = await usuarios.consulta(dat);
+        dat.fields = ' user_id, names, surnames,  username, cell_phone, address,  profile_id, password';
+        let user = await usuarios.consulta(dat);
+        console.log('user', user);
+
 
         if (user.length === 0) {
             return done(null, false, data);
@@ -23,7 +27,12 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
             return done(null, false, data);
         }
 
-        done(null, user);
+        // const userData = user[0];
+
+        const userData = {
+            ...user[0],
+        };
+        done(null, userData);
     } catch (error) {
         done(error);
     }

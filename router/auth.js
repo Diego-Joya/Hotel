@@ -17,8 +17,8 @@ router.post(
       }
       if (!user) {
         return res.status(200).json({
-        isAuteticanted: info.isAuteticanted,
-            message: info.message
+          isAuteticanted: info.isAuteticanted,
+          message: info.message
         });
       }
       req.user = user;
@@ -28,29 +28,31 @@ router.post(
   async (req, res, next) => {
     try {
       const user = req.user;
+      console.log("user", user);
       const payload = {
-        sub: user[0].user_id,
-        profile_id: user[0].profile_id,
-        company_id: user[0].company_id,
-        center_id: user[0].center_id,
+        sub: user.user_id,
+        profile_id: user.profile_id,
+        company_id: user.company_id,
+        center_id: user.center_id,
       };
 
       const token = jwt.sign(payload, config.secret, { expiresIn: '1h' });
-      await usuario.saveToken(user[0].user_id, token);
+      await usuario.saveToken(user.user_id, token);
 
       const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '1d' });
-      await usuario.saveRefreshToke(user[0].user_id, refreshToken);
+      await usuario.saveRefreshToke(user.user_id, refreshToken);
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
         maxAge: 1 * 24 * 60 * 60 * 1000
       });
-
+      delete user.password
       res.json({
         user,
-        token,
-        refreshToken
+        isAuteticanted: true,
+        // token,
+        // refreshToken
       });
     } catch (error) {
       next(error);
