@@ -17,7 +17,7 @@ router.post(
       }
       if (!user) {
         return res.status(200).json({
-          isAuteticanted: info.isAuteticanted,
+          isAuthenticated: info.isAuthenticated,
           message: info.message
         });
       }
@@ -50,7 +50,7 @@ router.post(
       delete user.password
       res.json({
         user,
-        isAuteticanted: true,
+        isAuthenticated: true,
         // token,
         // refreshToken
       });
