@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const { use } = require('passport');
 const usuarios = new usuariosServices();
 const LocalStrategy = new Strategy(async (username, password, done) => {
-    console.log("clave envio", password);
     try {
         const data = {
             isAuthenticated: false,
