@@ -7,7 +7,7 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
     console.log("clave envio", password);
     try {
         const data = {
-            isAuteticanted: false,
+            isAuthenticated: false,
             message: 'Usuario o clave incorrecto!'
         };
 
