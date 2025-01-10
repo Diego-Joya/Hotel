@@ -38,13 +38,5 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
 
 })
 
-function unauthorized(message = 'Unauthorized') {
-    return {
-        statusCode: 401, // Código de estado para "Unauthorized"
-        error: 'Unauthorized',
-        message: message,
-    };
-}
-
 
 module.exports = LocalStrategy
