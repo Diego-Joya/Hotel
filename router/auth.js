@@ -42,11 +42,17 @@ router.post(
       const refreshToken = jwt.sign(payload, config.secret, { expiresIn: '1d' });
       await usuario.saveRefreshToke(user.user_id, refreshToken);
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: 1 * 24 * 60 * 60 * 1000
+      res.cookie('token', token, {
+        httpOnly: true, 
+        secure: true,  
+        maxAge: 1 * 60 * 60 * 1000, 
       });
+  
+      // res.cookie('refreshToken', refreshToken, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   maxAge: 1 * 24 * 60 * 60 * 1000, 
+      // });
       delete user.password
       res.json({
         user,
