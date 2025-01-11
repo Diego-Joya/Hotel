@@ -2,6 +2,7 @@ const express = require('express');
 // const validatorHandler = require('./../middlewares/validator.handler');
 const habitacionesServices = require("./Services/habitacionesServices");
 const router = express.Router();
+const passport = require("passport");
 
 const habitaciones = new habitacionesServices();
 
@@ -9,6 +10,7 @@ const habitaciones = new habitacionesServices();
 
 router.get(
   '/',
+    passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const parametros = req.query;

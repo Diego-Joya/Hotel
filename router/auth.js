@@ -57,7 +57,7 @@ router.post(
       res.json({
         user,
         isAuthenticated: true,
-        // token,
+        token,
         // refreshToken
       });
     } catch (error) {
