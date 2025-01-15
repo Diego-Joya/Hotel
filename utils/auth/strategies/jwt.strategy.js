@@ -10,10 +10,8 @@ const { config } = require('../../../config/config');
 
 const cookieExtractor = (req) => {
     let token = null;
-    console.log(req.cookies);
     if (req && req.cookies) {
       token = req.cookies['token']; 
-      console.log('mira pendejoooooooooooo');
     }
     return token;
   };

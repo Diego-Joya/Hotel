@@ -43,11 +43,11 @@ router.post(
       await usuario.saveRefreshToke(user.user_id, refreshToken);
 
       res.cookie('token', token, {
-        httpOnly: true, 
-        secure: true,  
-        maxAge: 1 * 60 * 60 * 1000, 
+        httpOnly: true,
+        secure: true,
+        maxAge: 1 * 60 * 60 * 1000,
       });
-  
+
       // res.cookie('refreshToken', refreshToken, {
       //   httpOnly: true,
       //   secure: true,
@@ -68,16 +68,22 @@ router.post(
 
 router.post('/refresh-token', async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
-    console.log("Cookies:", req.cookies);
-    console.log("refreshToken:", refreshToken);
+    const token = req.cookies.token;
 
-    if (!refreshToken) {
-      return res.status(401).json({ message: "No refresh token provided" });
+    if (!token) {
+      return res.status(401).json({ message: "No se envio token para validación" });
+    }
+
+    const validateToken = await usuario.queryToken(token);
+    console.log('valida token', validateToken);
+    // return;
+
+    if (validateToken.length == 0) {
+      return res.status(401).json({ message: "token invalido!" });
     }
 
     // Verificar el refresh token
-    const decoded = jwt.verify(refreshToken, config.secret);
+    const decoded = jwt.verify(token, config.secret);
 
     // Crear un nuevo access token
     const newAccessToken = jwt.sign(
@@ -91,14 +97,41 @@ router.post('/refresh-token', async (req, res, next) => {
       { expiresIn: '1h' }
     );
 
-    // Guardar el nuevo token en la base de datos
     await usuario.saveToken(decoded.sub, newAccessToken);
 
     res.json({ accessToken: newAccessToken });
 
   } catch (error) {
     if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
-      return res.status(403).json({ message: "Invalid or expired refresh token" });
+      return res.status(401).json({ message: "unauthorized" });
+    }
+    next(error);
+  }
+});
+router.post('/verify-sesion', async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: "No se envio token para validación" });
+    }
+
+    const validateToken = await usuario.queryToken(token);
+    console.log('valida token', validateToken);
+    // return;
+
+    if (validateToken.length == 0) {
+      return res.status(401).json({ message: "token invalido!" });
+    }
+
+    res.json({
+      ok: true,
+      data: validateToken,
+    });
+
+  } catch (error) {
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "unauthorized" });
     }
     next(error);
   }
