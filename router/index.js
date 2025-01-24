@@ -4,6 +4,7 @@ const perfiles = require('./profiles');
 const usuarios = require('./usuarios');
 const ingresos = require('./IngresosClientes');
 const maestroHabitacion = require('./maestroHabitacion');
+const company = require('./company');
 const auth = require('./auth');
 
 function routerApi(app) {
@@ -14,5 +15,6 @@ function routerApi(app) {
   app.use('/ingresos', ingresos);
   app.use('/tipohabitacion', maestroHabitacion);
   app.use('/auth', auth);
+  app.use('/company', company);
 }
 module.exports = routerApi;
