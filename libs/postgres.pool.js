@@ -7,6 +7,7 @@ const PASSWORD = encodeURIComponent(config.dbPassword);
 const URL = `postgres://${USER}:${PASSWORD}@${config.dbHots}:${config.dbPort}/${config.dbName}`;
 
 const pool = new Pool({ connectionString: URL });
+pool.setMaxListeners(20);
 // const pool = new Pool({
 //   host: 'monorail.proxy.rlwy.net',
 //   port: 22812,

@@ -33,7 +33,7 @@ router.post(
     async (req, res, next) => {
         try {
             const body = req.body;
-            const crear = await company.createCompany(body);
+            const crear = await company.registerCompany(body);
             const { ok } = crear
             if (ok == false) {
                 res.send(crear);
@@ -55,25 +55,25 @@ router.patch(
     '/:id',
     // validatorHandler(update_schema, 'body'),
     async (req, res, next) => {
-      try {
-        const { id } = req.params;
-        const body = req.body;
-        const actualizar = await company.updateCompany(id, body);
-        const { ok } = actualizar
-        console.log('actualizar',actualizar);
-        if (ok == false) {
-          res.send(actualizar);
-        } else {
-          res.json({
-            ok: true,
-            message: 'Registro actualizado correctamente',
-            data: body,
-            id,
-          });
+        try {
+            const { id } = req.params;
+            const body = req.body;
+            const actualizar = await company.updateCompany(id, body);
+            const { ok } = actualizar
+            console.log('actualizar', actualizar);
+            if (ok == false) {
+                res.send(actualizar);
+            } else {
+                res.json({
+                    ok: true,
+                    message: 'Registro actualizado correctamente',
+                    data: body,
+                    id,
+                });
+            }
+        } catch (error) {
+            next(error);
         }
-      } catch (error) {
-        next(error);
-      }
     },
-  );
+);
 module.exports = router;

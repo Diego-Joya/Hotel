@@ -9,34 +9,74 @@ class usuariosServices {
         this.pool.on('error', (err) => console.log(err));
     }
 
-    async crear(body) {
-        console.log(body);
-        const names = body.names;
-        const surname = body.surname;
-        const email = body.email;
-        const username = body.username;
-        const cell_phone = body.cell_phone;
-        const address = body.address;
-        const password = body.password;
-        const state = body.state;
-        const profile_id = body.profile_id;
-        const company_id = body.company_id;
-        const created_by = body.created_by;
-        const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
-        const center_id = body.center_id;
+    async crear(body, transaction = null) {
+        console.log('crear usuario', body);
+        try {
+            const names = body.names;
+            let surname = "";
+            if (typeof body.surnames != "undefined") {
 
-        const password_enc = await bcrypt.hash(password, 10);
-        console.log(password_enc);
+                surname = body.surnames;
+            } else if (typeof body.surname != "undefined") {
+                surname = body.surname;
+            }
+            const email = body.email;
 
-        const query = `INSERT INTO booking_config.users( names, surnames, email, username, cell_phone, address, password, state,
-         profile_id, created_by,  created_at,  company_id, center_id)
-	    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)  RETURNING *`
-        const rta = this.pool.query(query, [names, surname, email, username, cell_phone, address, password_enc, state, profile_id,
-            created_by, created_at, company_id, center_id]).catch((error) => {
-                return messageHandler(error);
-            })
-        return rta.rows;
+            let username = body.username;
+            if (typeof body.username == "undefined") {
 
+                username = body.email;
+            }
+
+            const cell_phone = body.cell_phone;
+            const address = body.address;
+            const password = body.password;
+            let state = "";
+            if (typeof body.state != "undefined") {
+                state = body.state;
+            } else {
+                state = 'Activo';
+            }
+            let profile_id = '';
+            if (typeof body.profile_id != "undefined") {
+
+                profile_id = body.profile_id;
+            } else {
+
+                profile_id = '1';
+            }
+            const company_id = body.company_id;
+            let created_by = "";
+            if (typeof body.created_by != "undefined") {
+                created_by = body.created_by;
+            } else {
+                created_by = 'Registro pagina';
+            }
+            created_by = body.created_by;
+            const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
+            const center_id = body.center_id;
+
+            const password_enc = await bcrypt.hash(password, 10);
+            console.log(password_enc);
+            let client = '';
+
+            if (transaction != null) {
+                client = transaction
+            } else {
+                client = this.pool;
+            }
+
+            const query = `INSERT INTO booking_config.users( names, surnames, email, username, cell_phone, address, password, state,
+            profile_id, created_by,  created_at,  company_id, center_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)  RETURNING *`
+            const rta = await client.query(query, [names, surname, email, username, cell_phone, address, password_enc, state, profile_id,
+                created_by, created_at, company_id, center_id]);
+
+            return rta.rows;
+
+        } catch (error) {
+            return messageHandler(error);
+        }
     }
     async actualizar(body, id) {
         console.log(body);
@@ -179,6 +219,35 @@ class usuariosServices {
             return messageHandler(error);
         }
 
+    }
+    async userCompany(body, transaction = null) {
+        console.log("body company", body);
+
+        // const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
+        const company_id = body.company_id;
+        const user_id = body.user_id;
+        let client = '';
+
+        if (transaction != null) {
+            client = transaction
+        } else {
+            client = this.pool;
+        }
+        try {
+            const query = `INSERT INTO booking_config.companys_users(
+	 company_id, user_id) VALUES ($1, $2) RETURNING *`;
+
+            const rta = await client
+                .query(query, [
+                    company_id,
+                    user_id,
+                ])
+            return rta.rows;
+
+        } catch (error) {
+            return messageHandler(error)
+
+        }
     }
 
 
