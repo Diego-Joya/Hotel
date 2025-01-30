@@ -125,8 +125,8 @@ router.post('/verify-sesion', async (req, res, next) => {
     }
 
     res.json({
-      ok: true,
-      data: validateToken,
+      isAuthenticated: true,
+      user: validateToken[0],
     });
 
   } catch (error) {
