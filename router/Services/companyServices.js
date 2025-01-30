@@ -1,5 +1,4 @@
 const pool = require('../../libs/postgres.pool');
-const moment = require("moment");
 const messageHandler = require('./../../middlewares/message.handler');
 const usuariosServices = require('./usuariosServices');
 const centerServices = require('./centerServices');

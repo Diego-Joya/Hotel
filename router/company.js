@@ -34,6 +34,7 @@ router.post(
         try {
             const body = req.body;
             const crear = await company.registerCompany(body);
+            console.log('datos retorna');
             const { ok } = crear
             if (ok == false) {
                 res.send(crear);

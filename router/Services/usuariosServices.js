@@ -157,7 +157,9 @@ class usuariosServices {
 
         try {
             let where = ` where token='${token}'`
-            const query = `select user_id as key,user_id, names, surnames,  username, cell_phone, address,  profile_id, password, company_id, center_id from  booking_config.users  ${where}`;
+       let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
+
+            const query = `select ${fields} from  booking_config.users  ${where}`;
             console.log(query);
             const rta = await this.pool.query(query);
             return rta.rows;
