@@ -6,6 +6,7 @@ const ingresos = require('./IngresosClientes');
 const maestroHabitacion = require('./maestroHabitacion');
 const company = require('./company');
 const auth = require('./auth');
+const location = require('./location');
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -16,5 +17,6 @@ function routerApi(app) {
   app.use('/tipohabitacion', maestroHabitacion);
   app.use('/auth', auth);
   app.use('/company', company);
+  app.use('/location', location);
 }
 module.exports = routerApi;
