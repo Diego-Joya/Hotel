@@ -41,5 +41,21 @@ class locationServices {
         }
 
     }
+    async getAllDepartament(param) {
+        try {
+            let where = `where  1=1 `;
+            let fields = `id as key,*,updated_at::text as updated_at,created_at::text as created_at`;
+            if (typeof param.select != "undefined" && param.select == "true") {
+                fields = `id as code, id as key, city as name`
+            }
+            let query = `select ${fields} from booking_config.departaments  ${where}`;
+            let rta = await this.pool.query(query);
+            return rta.rows
+
+        } catch (error) {
+            return messageHandler(error)
+        }
+
+    }
 }
 module.exports = locationServices;

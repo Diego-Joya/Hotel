@@ -41,6 +41,23 @@ router.get(
         }
     },
 );
+router.get(
+    '/departament/',
+    async (req, res, next) => {
+        try {
+            const parametros = req.query;
+            console.log(req.query);
+            let value = [];
+            value = await location.getAllDepartament(parametros);
+            res.json({
+                ok: true,
+                data: value,
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+);
 
 
 module.exports = router;
