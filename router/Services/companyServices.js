@@ -16,72 +16,70 @@ class companyServices {
         const datauser = body.user;
         const dataCompany = body.company;
         const transaction = await pool.connect();
-        
+
         await transaction.query('BEGIN');
-        
+
         let array = [];
-        
+
         // Verificar retorno de createCompany
         const crear = await this.createCompany(dataCompany, transaction);
         console.log("Retorno de createCompany:", crear);
-        
+
         if (!crear || (Array.isArray(crear) && crear.length === 0)) {
             await transaction.query('ROLLBACK');
             return { ok: false, message: "Error al crear la empresa" };
         }
-        
         let ok = crear?.ok ?? (Array.isArray(crear) ? crear[0]?.ok : undefined);
         if (ok === false) {
             await transaction.query('ROLLBACK');
             return crear;
         }
-        
         array.push(crear);
         dataCompany.company_id = crear[0]?.company_id;
-        
+
         if (!dataCompany.company_id) {
             await transaction.query('ROLLBACK');
             return { ok: false, message: "Error: No se obtuvo company_id" };
         }
-        
+
         const createCenter = await center.createCenter(dataCompany);
         console.log("Retorno de createCenter:", createCenter);
-        
+
         if (createCenter?.ok === false) {
             await transaction.query('ROLLBACK');
             return createCenter;
         }
-        
+
         array.push(createCenter);
         datauser.center_id = createCenter[0]?.centers_id;
         datauser.company_id = crear[0]?.company_id;
-        
+
         const crearUser = await user.crear(datauser, transaction);
         console.log("Retorno de crearUser:", crearUser);
-        
+
         if (crearUser?.ok === false) {
             await transaction.query('ROLLBACK');
             return crearUser;
         }
-        
+
         array.push(crearUser);
-        
+
         const arrayUser = {
             company_id: datauser.company_id,
             user_id: crearUser[0].user_id
         };
-        
+
         const userCompany = await user.userCompany(arrayUser, transaction);
         console.log("Retorno de userCompany:", userCompany);
-        
+
         if (userCompany?.ok === false) {
             await transaction.query('ROLLBACK');
             return userCompany;
         }
-        
+
         array.push(userCompany);
         await transaction.query('COMMIT');
-        
+
         return array;
     }
 
@@ -110,6 +108,15 @@ class companyServices {
             client = this.pool;
         }
         try {
+            let array = [];
+            array.no_identification = no_identification;
+            const validate = await this.getCompany(array);
+            console.log("valida nit", validate);
+            if (validate.length > 0) {
+                return { ok: false, message: "Error al crear la empresa. ¡El nit ya existe en la base de datos!" };
+            }
+
+
             const query = `INSERT INTO booking_config.companys(
         company_name, no_identification, address, phone, country, city) VALUES ($1, $2, $3, $4, $5, $6 ) RETURNING *`;
 
@@ -178,8 +185,13 @@ class companyServices {
     }
 
     async getCompany(param) {
+        console.log(param);
         try {
-            let query = `select company_id as key,* from booking_config.companys `;
+            let where = 'where 1=1 '
+            if (typeof param.no_identification != "undefined" && param.no_identification != "") {
+                where += `and no_identification='${param.no_identification}'`;
+            }
+            let query = `select company_id as key,* from booking_config.companys ${where}`;
             let rta = await this.pool.query(query);
             return rta.rows
 

@@ -27,6 +27,12 @@ class usuariosServices {
 
                 username = body.email;
             }
+            let array = [];
+            array.username = username;
+            const validate = await this.consulta(array);
+            if (validate.length > 0) {
+                return { ok: false, message: "¡El usuario ya existe en la base de datos!" };
+            }
 
             const cell_phone = body.cell_phone;
             const address = body.address;
@@ -157,7 +163,7 @@ class usuariosServices {
 
         try {
             let where = ` where token='${token}'`
-       let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
+            let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
 
             const query = `select ${fields} from  booking_config.users  ${where}`;
             console.log(query);
@@ -196,6 +202,7 @@ class usuariosServices {
             } else {
                 query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
             }
+            console.log("query", query);
 
             const rta = await this.pool.query(query);
             return rta.rows;
