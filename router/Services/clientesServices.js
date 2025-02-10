@@ -148,6 +148,12 @@ class clientesServices {
       if (typeof params.select != "undefined" && params.select == "true") {
         fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
       }
+      if (typeof params.company_id != "undefined" && params.company_id != "") {
+        where += ` and company_id=${params.company_id}`;
+      }
+      if (typeof params.center_id != "undefined" && params.center_id != "") {
+        where += ` and center_id=${params.center_id}`;
+      }
       let query = `SELECT  ${fields} FROM booking_data.customers ${where}`;
       let consulta = await this.pool.query(query);
       return consulta.rows;

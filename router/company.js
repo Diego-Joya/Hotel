@@ -2,7 +2,6 @@
 const express = require('express');
 
 const router = express.Router();
-const passport = require('passport');
 const companyServices = require("./Services/companyServices");
 
 const company = new companyServices();
