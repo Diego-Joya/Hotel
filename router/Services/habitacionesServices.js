@@ -22,6 +22,7 @@ class habitacionesServices {
     const state = body.state;
     const description = body.description;
     const numHabitacion = body.no_room;
+    const company_id = body.company_id;
 
     const params = { numHabitacion };
 
@@ -43,8 +44,8 @@ class habitacionesServices {
       return resp
     }
 
-    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at, state,description)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10 ) RETURNING *`;
+    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at, state,description,company_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10,$11 ) RETURNING *`;
     const rta = await this.pool
       .query(query, [
         fecha_hora,
@@ -57,6 +58,7 @@ class habitacionesServices {
         created_at,
         state,
         description,
+        company_id
       ])
       .catch((err) => {
         return messageHandler(err)

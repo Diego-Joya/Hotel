@@ -16,6 +16,7 @@ class clientesServices {
     const no_document = body.no_document;
     const birthdate = body.birthdate;
     const cell_phone = body.cell_phone;
+    const company_id = body.company_id;
     if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {
       body.cell_phone_emergency = 0;
     }
@@ -25,29 +26,30 @@ class clientesServices {
     const email = body.email;
     const created_at = fecha_hora;
 
-    const query = `INSERT INTO  booking_data.customers(
-      names, surname, document_type, no_document, birthdate, cell_phone,
-      cell_phone_emergency, center_id, created_by, created_at,email)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11) RETURNING *`;
-
-    const rta = await this.pool
-      .query(query, [
-        names,
-        surname,
-        document_type,
-        no_document,
-        birthdate,
-        cell_phone,
-        cell_phone_emergency,
-        center_id,
-        created_by,
-        created_at,
-        email,
-      ])
-      .catch((err) => {
-        return messageHandler(err)
-      });
-    return rta.rows[0];
+    try {
+      const query = `INSERT INTO  booking_data.customers(
+    names, surname, document_type, no_document, birthdate, cell_phone,
+    cell_phone_emergency, center_id, created_by, created_at,email,company_id)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *`;
+      const rta = await this.pool
+        .query(query, [
+          names,
+          surname,
+          document_type,
+          no_document,
+          birthdate,
+          cell_phone,
+          cell_phone_emergency,
+          center_id,
+          created_by,
+          created_at,
+          email,
+          company_id
+        ]);
+      return rta.rows[0];
+    } catch (error) {
+      return messageHandler(error)
+    }
 
   }
 

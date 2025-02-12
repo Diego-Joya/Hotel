@@ -22,6 +22,8 @@ class ingresoClientesServices {
         // const status = body.status;
         const status = 'INGRESADO';
         const val_room = body.val_room;
+        const company_id = body.company_id;
+
         let array = [];
         array.room_id = body.room_id;
         array.state = 'OCUPADA';
@@ -34,8 +36,8 @@ class ingresoClientesServices {
                 return actHabitacion;
             }
             const query = `INSERT INTO booking_data.entries(
-            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10)  RETURNING *`;
+            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room,company_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11)  RETURNING *`;
 
             const result = await this.pool.query(query, [
                 room_id,
@@ -47,7 +49,8 @@ class ingresoClientesServices {
                 total_amount_pay,
                 created_by,
                 created_at,
-                val_room
+                val_room,
+                company_id
             ]);
             await client.query('COMMIT');
             return result.rows[0];
