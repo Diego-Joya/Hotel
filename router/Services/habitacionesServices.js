@@ -29,17 +29,17 @@ class habitacionesServices {
     data.no_room = no_room;
     data.center_id = center_id;
 
-    const validateNoRoom = await this.getAllHabitaciones(data);
+    // const validateNoRoom = await this.getAllHabitaciones(data);
 
-    console.log("validateNoRoom", validateNoRoom);
-    if (validateNoRoom.length > 0) {
-      let resp = {
-        ok: false,
-        message: 'El número de habitacion ya existe. ¡Verifica e intenta de nuevo por favor!',
+    // console.log("validateNoRoom", validateNoRoom);
+    // if (validateNoRoom.length > 0) {
+    //   let resp = {
+    //     ok: false,
+    //     message: 'El número de habitacion ya existe. ¡Verifica e intenta de nuevo por favor!',
 
-      }
-      return resp
-    }
+    //   }
+    //   return resp
+    // }
     if (val_min > val_max) {
       let resp = {
         ok: false,
@@ -68,7 +68,11 @@ class habitacionesServices {
       .catch((err) => {
         return messageHandler(err)
       });
-    return rta.rows;
+    let values = rta.rows;
+    values[0].key = values[0].room_id;
+    console.log("values", values);
+    return values;
+
   }
   // ACTUALIZAR
   async actualizar(id, body) {
