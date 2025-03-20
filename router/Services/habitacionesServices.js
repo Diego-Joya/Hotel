@@ -11,6 +11,9 @@ class habitacionesServices {
 
   // CREAR BEDROOMS
   async createBedrooms(body) {
+    if (typeof body.state == "undefined" || body.state == null) {
+      body.state = 'DISPONIBLE';
+    }
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const no_room = body.no_room;
     const val_min = body.val_min;
@@ -21,12 +24,14 @@ class habitacionesServices {
     const created_at = fecha_hora;
     const state = body.state;
     const description = body.description;
-    const numHabitacion = body.no_room;
     const company_id = body.company_id;
+    const data = {};
+    data.no_room = no_room;
+    data.center_id = center_id;
 
-    const params = { numHabitacion };
+    const validateNoRoom = await this.getAllHabitaciones(data);
 
-    const validateNoRoom = await this.getHabitaciones(params);
+    console.log("validateNoRoom", validateNoRoom);
     if (validateNoRoom.length > 0) {
       let resp = {
         ok: false,
@@ -172,12 +177,13 @@ class habitacionesServices {
       }
       if (typeof param.company_id != "undefined" && param.company_id != "") {
         where += ` and company_id=${param.company_id}`;
-    }
-    if (typeof param.center_id != "undefined" && param.center_id != "") {
+      }
+      if (typeof param.center_id != "undefined" && param.center_id != "") {
         where += ` and center_id=${param.center_id}`;
-    }
+      }
 
       let query = `select ${fields} from booking_data.bedrooms  ${where}`;
+      console.log('query que hace', query);
       let rta = await this.pool.query(query);
       return rta.rows
 
@@ -203,19 +209,19 @@ class habitacionesServices {
 
   }
 
-  async actualizarEstado(client,data) {
+  async actualizarEstado(client, data) {
     const query = `update  booking_data.bedrooms set state=$1 where  room_id=$2 RETURNING *`;
-  try {
-    const rta= await client.query(query,[
-      data.state,
-      data.room_id,
-    ]);
-    return rta.rows[0];
-  } catch (error) {
-    await client.query('ROLLBACK');
-    return messageHandler(error)
-  }
-  
+    try {
+      const rta = await client.query(query, [
+        data.state,
+        data.room_id,
+      ]);
+      return rta.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      return messageHandler(error)
+    }
+
   }
 
 }

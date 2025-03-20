@@ -31,7 +31,8 @@ class usuariosServices {
             array.username = username;
             const validate = await this.consulta(array);
             if (validate.length > 0) {
-                return { ok: false, message: "¡El usuario ya existe en la base de datos!" };
+                return { ok: false,
+                         message: "¡El usuario ya existe en la base de datos!" };
             }
 
             const cell_phone = body.cell_phone;

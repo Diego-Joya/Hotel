@@ -25,6 +25,17 @@ class clientesServices {
     const created_by = body.created_by;
     const email = body.email;
     const created_at = fecha_hora;
+    let data = {};
+    data.no_document = no_document
+    // data.center_id = center_id
+    const validarExistencia = await this.getAllClientes(data);
+    console.log("validar existen", validarExistencia);
+    if (validarExistencia.length > 0) {
+      return {
+        ok: false,
+        message: "El registro no existe. ¡Actualiza e intenta de nuevo por favor!",
+      }
+    }
 
     try {
       const query = `INSERT INTO  booking_data.customers(
@@ -131,6 +142,9 @@ class clientesServices {
     try {
       let where = 'where  1=1 ';
       let fields = `customer_id as key,*,birthdate::text as birthdate,updated_by::text as updated_by,created_at::text as created_at, customer_id as key`;
+      if (typeof params.select != "undefined" && params.select == "true") {
+        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
+      }
       if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined" && params.fecha_inicial != "" && params.fecha_final != "") {
         where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
       }
@@ -144,12 +158,13 @@ class clientesServices {
       if (typeof params.customer_id != "undefined" && params.customer_id != "") {
         where += ` and customer_id = '${params.customer_id}'`
       }
+      if (typeof params.no_document != "undefined" && params.no_document != "") {
+        where += ` and no_document = '${params.no_document}'`
+      }
       if (typeof params.name != "undefined" && params.name != "") {
         where += ` and (names ilike('%${params.name}%') or surname ilike('%${params.name}%'))`
       }
-      if (typeof params.select != "undefined" && params.select == "true") {
-        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
-      }
+
       if (typeof params.company_id != "undefined" && params.company_id != "") {
         where += ` and company_id=${params.company_id}`;
       }

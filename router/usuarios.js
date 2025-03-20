@@ -27,6 +27,10 @@ router.post('/', async (req, res, next) => {
     try {
         const body = req.body;
         const crear = await usuarios.crear(body);
+        const { ok } = crear;
+        if (!ok) {
+            res.send(crear);
+        }
         res.json({
             ok: true,
             message: "Datos guardados correctamente!",
