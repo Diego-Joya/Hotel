@@ -1,5 +1,6 @@
 const pool = require('../../libs/postgres.pool');
 const messageHandler = require('./../../middlewares/message.handler');
+// const moment = require("moment");
 
 
 class centerServices {
@@ -42,6 +43,58 @@ class centerServices {
             return messageHandler(error)
 
         }
+    }
+    async actaulizar(id, body) {
+        try {
+            const center_name = body.company_name;
+            const address = body.address;
+            const phone = body.phone;
+            const city = body.city;
+            const company_id = body.company_id;
+
+            const query = `UPDATE booking_config.centers
+	SET  center_name=$1, address=$2, phone=$3, city=$4, company_id=$5
+WHERE id=$6 RETURNING *`;
+            const result = await this.pool.query(query, [
+                center_name,
+                address,
+                phone,
+                city,
+                company_id,
+                id
+            ]);
+
+            return result.rows[0];
+
+
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+
+    async getAll(param) {
+        try {
+            let where = `where  1=1 `;
+            let fields = `centers_id as key, centers_id, center_name, address, phone, city, company_id`;
+            if (typeof param.center_id != "undefined" && param.centers_id != "") {
+                where += ` and centers_id='${param.centers_id}'`;
+            }
+            if (typeof param.center_name != "undefined" && param.center_name != "") {
+                where += ` and center_name ilike ('%${param.center_name}%')`;
+            }
+            if (typeof param.company_id != "undefined" && param.company_id != "") {
+                where += ` and company_id='${param.company_id}'`;
+            }
+
+            let query = `select ${fields} from booking_config.centers  ${where}`;
+            let rta = await this.pool.query(query);
+            return rta.rows
+
+        } catch (error) {
+            return messageHandler(error)
+        }
+
     }
 
 }

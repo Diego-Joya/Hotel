@@ -7,6 +7,7 @@ const maestroHabitacion = require('./maestroHabitacion');
 const company = require('./company');
 const auth = require('./auth');
 const location = require('./location');
+const center = require("./centers")
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -18,5 +19,6 @@ function routerApi(app) {
   app.use('/auth', auth);
   app.use('/company', company);
   app.use('/location', location);
+  app.use("/centers",center);
 }
 module.exports = routerApi;
