@@ -11,7 +11,7 @@ class clientesServices {
   async crear(body) {
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
-    const surname = body.surname;
+    const surnames = body.surnames;
     const document_type = body.document_type;
     const no_document = body.no_document;
     const birthdate = body.birthdate;
@@ -39,13 +39,13 @@ class clientesServices {
 
     try {
       const query = `INSERT INTO  booking_data.customers(
-    names, surname, document_type, no_document, birthdate, cell_phone,
+    names, surnames, document_type, no_document, birthdate, cell_phone,
     cell_phone_emergency, center_id, created_by, created_at,email,company_id)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *`;
       const rta = await this.pool
         .query(query, [
           names,
-          surname,
+          surnames,
           document_type,
           no_document,
           birthdate,
@@ -73,7 +73,7 @@ class clientesServices {
     }
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
-    const surname = body.surname;
+    const surnames = body.surnames;
     const document_type = body.document_type;
     const no_document = body.no_document;
     const birthdate = body.birthdate;
@@ -93,11 +93,11 @@ class clientesServices {
     }
     const rta = await this.pool.query(
       `UPDATE booking_data.customers
-	SET  names=$1, surname=$2, document_type=$3, no_document=$4, birthdate=$5, cell_phone=$6,
+	SET  names=$1, surnames=$2, document_type=$3, no_document=$4, birthdate=$5, cell_phone=$6,
    cell_phone_emergency=$7, center_id=$8, updated_by=$9, updated_at=$10,email=$11
 	WHERE customer_id=$12  RETURNING *`, [
       names,
-      surname,
+      surnames,
       document_type,
       no_document,
       birthdate,
@@ -126,7 +126,7 @@ class clientesServices {
     }
     else if (typeof nombre != 'undefined') {
       let rta = await this.pool
-        .query(`SELECT customer_id as key, * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surname ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
+        .query(`SELECT customer_id as key, * FROM booking_data.customers where names ILIKE  ('%${nombre}%')  or surnames ilike ('%${nombre}%')  or  no_document ilike ('%${nombre}%') `)
         .catch((err) => {
           return messageHandler(err)
         });
@@ -143,7 +143,7 @@ class clientesServices {
       let where = 'where  1=1 ';
       let fields = `customer_id as key,*,birthdate::text as birthdate,updated_by::text as updated_by,created_at::text as created_at, customer_id as key`;
       if (typeof params.select != "undefined" && params.select == "true") {
-        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surname) as fullname`
+        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surnames) as fullname`
       }
       if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined" && params.fecha_inicial != "" && params.fecha_final != "") {
         where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
@@ -162,7 +162,7 @@ class clientesServices {
         where += ` and no_document = '${params.no_document}'`
       }
       if (typeof params.name != "undefined" && params.name != "") {
-        where += ` and (names ilike('%${params.name}%') or surname ilike('%${params.name}%'))`
+        where += ` and (names ilike('%${params.name}%') or surnames ilike('%${params.name}%'))`
       }
 
       if (typeof params.company_id != "undefined" && params.company_id != "") {
