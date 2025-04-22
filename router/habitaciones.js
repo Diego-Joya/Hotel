@@ -3,9 +3,20 @@ const express = require('express');
 const habitacionesServices = require("./Services/habitacionesServices");
 const router = express.Router();
 const passport = require("passport");
-
+const multer = require('multer');
+const path = require('path');
 const habitaciones = new habitacionesServices();
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/habitaciones'); // Carpeta donde guardarás las fotos
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
 
+const upload = multer({ storage });
 
 
 router.get(
@@ -34,14 +45,48 @@ router.get(
   },
 );
 
+// router.post(
+//   '/',
+//   // validatorHandler(create_schema, 'body'),
+//   async (req, res, next) => {
+//     try {
+//       const body = req.body;
+//       const crear = await habitaciones.createBedrooms(body);
+//       const { ok } = crear
+//       if (ok == false) {
+//         res.send(crear);
+//       } else {
+//         res.json({
+//           ok: true,
+//           message: 'Registro creado exitosamente!',
+//           data: crear,
+//         });
+//       }
+
+//     } catch (error) {
+//       next(error);
+//     }
+//   },
+// );
+
+// IMAGENES
 router.post(
   '/',
-  // validatorHandler(create_schema, 'body'),
+  upload.array('fotos', 5), // acepta hasta 5 fotos. El name="fotos" debe coincidir con el input del frontend
   async (req, res, next) => {
     try {
       const body = req.body;
+      const files = req.files;
+
+      // Obtiene las rutas de las imágenes
+      const imageUrls = files.map(file => `/uploads/habitaciones/${file.filename}`);
+
+      // Añade las URLs al body para guardarlas en la BD
+      body.imagenes = imageUrls;
+
       const crear = await habitaciones.createBedrooms(body);
-      const { ok } = crear
+      const { ok } = crear;
+
       if (ok == false) {
         res.send(crear);
       } else {
@@ -55,7 +100,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  },
+  }
 );
 
 router.patch(

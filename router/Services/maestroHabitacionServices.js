@@ -10,14 +10,14 @@ class maestroHabitacionServices {
     async crear(body) {
         try {
             const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
-            const username = body.username;
+            const username = body.created_by;
             const center_id = body.centrer_id;
             const company_id = body.company_id;
             const name = body.name;
             const type = body.type;
 
             const query = `INSERT INTO booking_data.room_type(
-	 created_at, username, center_id, company_id, name, type)
+	 created_at, created_by, center_id, company_id, name, type)
 	VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
             const result = await this.pool.query(query, [
                 created_at,
@@ -41,14 +41,14 @@ class maestroHabitacionServices {
     async actaulizar(id, body) {
         try {
             const update_at = moment().format('YYYY-MM-DD HH:mm:ss');
-            const username = body.username;
+            const username = body.updated_by;
             const center_id = body.center_id;
             const company_id = body.company_id;
             const name = body.name;
             const type = body.type;
 
             const query = `UPDATE booking_data.room_type
-SET username=$1, center_id=$2, company_id=$3, name=$4, type=$5, update_at=$6
+SET updated_by=$1, center_id=$2, company_id=$3, name=$4, type=$5, update_at=$6
 WHERE id=$7 RETURNING *`;
             const result = await this.pool.query(query, [
                 username,

@@ -10,6 +10,7 @@ const location = require('./location');
 const center = require("./centers");
 const bank = require("./banks");
 const bankAccounts = require("./bankAccounts");
+const reservations = require("./reservations");
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -24,5 +25,6 @@ function routerApi(app) {
   app.use("/centers",center);
   app.use("/banks",bank);
   app.use("/bankAccounts",bankAccounts);
+  app.use("/reservations",reservations);
 }
 module.exports = routerApi;
