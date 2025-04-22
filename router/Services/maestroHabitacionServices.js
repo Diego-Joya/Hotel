@@ -48,8 +48,8 @@ class maestroHabitacionServices {
             const type = body.type;
 
             const query = `UPDATE booking_data.room_type
-SET updated_by=$1, center_id=$2, company_id=$3, name=$4, type=$5, update_at=$6
-WHERE id=$7 RETURNING *`;
+SET updated_by=$1, center_id=$2, company_id=$3, name=$4, type=$5, updated_at=$6
+WHERE id_room_type=$7 RETURNING *`;
             const result = await this.pool.query(query, [
                 username,
                 center_id,
@@ -78,8 +78,8 @@ WHERE id=$7 RETURNING *`;
             if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined") {
                 where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
             }
-            if (typeof params.id != "undefined") {
-                where += ` and id = '${params.id}'`
+            if (typeof params.id_room_type != "undefined") {
+                where += ` and id_room_type = '${params.id}'`
 
             }
             if (typeof params.name != "undefined") {
@@ -90,7 +90,7 @@ WHERE id=$7 RETURNING *`;
             }
 
             // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
-            let consulta = await this.pool.query(`SELECT  *, id as key, update_at::text as update_at, created_at::text as created_at  FROM booking_data.room_type ${where}`);
+            let consulta = await this.pool.query(`SELECT  *, id_room_type as key, updated_at::text as updated_at, created_at::text as created_at  FROM booking_data.room_type ${where}`);
 
             return consulta.rows;
 
