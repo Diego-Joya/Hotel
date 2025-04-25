@@ -28,6 +28,7 @@ class habitacionesServices {
     const data = {};
     data.no_room = no_room;
     data.center_id = center_id;
+    data.company_id = company_id;
 
     const validateNoRoom = await this.getAllHabitaciones(data);
 
@@ -35,7 +36,7 @@ class habitacionesServices {
     if (validateNoRoom.length > 0) {
       let resp = {
         ok: false,
-        message: 'El número de habitacion ya existe. ¡Verifica e intenta de nuevo por favor!',
+        message: 'El número de habitacion ya existe para este centro y esta empresa. ¡Verifica e intenta de nuevo por favor!',
 
       }
       return resp

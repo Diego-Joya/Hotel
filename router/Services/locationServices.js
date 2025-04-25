@@ -32,6 +32,12 @@ class locationServices {
             if (typeof param.select != "undefined" && param.select == "true") {
                 fields = `id as code, id as key, city as name`
             }
+            if (typeof param.departament_id != "undefined" && param.departament_id != "") {
+                where += `and departament_id=${param.departament_id}`
+            }
+            if (typeof param.code_city != "undefined" && param.code_city != "") {
+                where += `and code_city='${param.code_city}'`
+            }
             let query = `select ${fields} from booking_config.cities  ${where}`;
             let rta = await this.pool.query(query);
             return rta.rows
