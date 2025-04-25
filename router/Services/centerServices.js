@@ -13,7 +13,7 @@ class centerServices {
     async createCenter(body, transaction = null) {
         console.log('crear center', body);
         // const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
-        const center_name = body.company_name;
+        const center_name = body.center_name;
         const address = body.address;
         const phone = body.phone;
         const city = body.city;
@@ -46,7 +46,7 @@ class centerServices {
     }
     async actaulizar(id, body) {
         try {
-            const center_name = body.company_name;
+            const center_name = body.center_name;
             const address = body.address;
             const phone = body.phone;
             const city = body.city;
