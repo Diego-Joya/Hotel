@@ -1,20 +1,19 @@
 
 const express = require("express");
-const usuariosServices = require('./Services/usuariosServices');
-const passport = require("passport");
+const reservationService = require('./Services/reservationService');
+// const passport = require("passport");
 
 const router = express.Router();
-const usuarios = new usuariosServices();
+const reservation = new reservationService();
 
 
 router.post('/', async (req, res, next) => {
     try {
         const body = req.body;
         console.log(body);
-        return;
-        const crear = await usuarios.crear(body);
+        const crear = await reservation.createReservation(body);
         const { ok } = crear;
-        if (!ok) {
+        if (ok == false) {
             res.send(crear);
         }
         res.json({

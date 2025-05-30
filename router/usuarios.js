@@ -28,7 +28,7 @@ router.post('/', async (req, res, next) => {
         const body = req.body;
         const crear = await usuarios.crear(body);
         const { ok } = crear;
-        if (!ok) {
+        if (ok == false) {
             res.send(crear);
         }
         res.json({
