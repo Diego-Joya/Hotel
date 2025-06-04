@@ -76,18 +76,18 @@ WHERE id=$6 RETURNING *`;
     async getAll(param) {
         try {
             let where = `where  1=1 `;
-            let fields = `centers_id as key, centers_id, center_name, address, phone, city, company_id`;
+            let fields = `a.centers_id as key, a.centers_id, a.center_name, a.address, a.phone, a.city, a.company_id,b.city as city_name`;
             if (typeof param.center_id != "undefined" && param.centers_id != "") {
-                where += ` and centers_id='${param.centers_id}'`;
+                where += ` and a.centers_id='${param.centers_id}'`;
             }
             if (typeof param.center_name != "undefined" && param.center_name != "") {
-                where += ` and center_name ilike ('%${param.center_name}%')`;
+                where += ` and a.center_name ilike ('%${param.center_name}%')`;
             }
             if (typeof param.company_id != "undefined" && param.company_id != "") {
-                where += ` and company_id='${param.company_id}'`;
+                where += ` and a.company_id='${param.company_id}'`;
             }
 
-            let query = `select ${fields} from booking_config.centers  ${where}`;
+            let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
             let rta = await this.pool.query(query);
             return rta.rows
 
