@@ -47,6 +47,7 @@ router.patch(
         try {
             const { id } = req.params;
             const body = req.body;
+            console.log(body);
             const actualizar = await usuarios.actualizar(id, body);
             console.log("return", actualizar);
             const { ok } = actualizar

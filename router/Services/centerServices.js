@@ -44,7 +44,7 @@ class centerServices {
 
         }
     }
-    async actaulizar(id, body) {
+    async actualizar(id, body) {
         try {
             const center_name = body.center_name;
             const address = body.address;
@@ -54,7 +54,7 @@ class centerServices {
 
             const query = `UPDATE booking_config.centers
 	SET  center_name=$1, address=$2, phone=$3, city=$4, company_id=$5
-WHERE id=$6 RETURNING *`;
+WHERE centers_id=$6 RETURNING *`;
             const result = await this.pool.query(query, [
                 center_name,
                 address,

@@ -31,8 +31,10 @@ class usuariosServices {
             array.username = username;
             const validate = await this.consulta(array);
             if (validate.length > 0) {
-                return { ok: false,
-                         message: "¡El usuario ya existe en la base de datos!" };
+                return {
+                    ok: false,
+                    message: "¡El usuario ya existe en la base de datos!"
+                };
             }
 
             const cell_phone = body.cell_phone;
@@ -85,7 +87,7 @@ class usuariosServices {
             return messageHandler(error);
         }
     }
-    async actualizar(body, id) {
+    async actualizar(id, body) {
         console.log(body);
         const names = body.names;
         const surname = body.surname;
@@ -104,15 +106,15 @@ class usuariosServices {
         // const password_enc = await bcrypt.hash(password, 10);
         // console.log(password_enc);
 
-        const query = `UPDATE booking_config.users
-	SET names=$1, surnames=$2, email=$3, username=$4, cell_phone=$5, address=$6, state=$7, profile_id=$8,  updated_by=$9, updated_at=$10, company_id=$11, center_id=$12
-	WHERE  user_id=$13  RETURNING *`
         try {
-            const rta = await this.pool.query(query, [names, surname, email, username, cell_phone, address, state, profile_id,
-                updated_by, updated_at, company_id, center_id, id]).catch((error) => {
-                    return messageHandler(error);
-                })
-            return rta.rows;
+            const query = `UPDATE booking_config.users
+	SET names=$1, surnames=$2, email=$3, username=$4, cell_phone=$5, address=$6, state=$7, profile_id=$8,
+     updated_by=$9, updated_at=$10, company_id=$11, center_id=$12
+	WHERE  user_id=$13  RETURNING *`
+            const rta = await this.pool.query(query,
+                [names, surname, email, username, cell_phone, address, state, profile_id,
+                    updated_by, updated_at, company_id, center_id, id])
+            return rta;
         } catch (error) {
             return messageHandler(error);
         }

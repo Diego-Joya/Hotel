@@ -30,12 +30,13 @@ router.post('/',
     }
 )
 
-router.patch('/',
+router.patch('/:id',
     async (req, res, next) => {
         try {
             const { id } = req.params;
             const body = req.body;
-            const actualizar = await center.actaulizar(id, body);
+
+            const actualizar = await center.actualizar(id, body);
             const { ok } = actualizar;
             if (ok == false) {
                 res.send(actualizar);
