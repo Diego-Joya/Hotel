@@ -37,7 +37,13 @@ class centerServices {
                     city,
                     company_id
                 ])
-            return rta.rows;
+            // return rta.rows;
+             let params = {};
+            params.centers_id = rta.rows[0].centers_id;
+            console.log("params", params);
+            let consulta = await this.getAll(params);
+            console.log("consulta", consulta);
+            return consulta;
 
         } catch (error) {
             return messageHandler(error)
@@ -64,7 +70,13 @@ WHERE centers_id=$6 RETURNING *`;
                 id
             ]);
 
-            return result.rows[0];
+            // return result.rows[0];
+            let params = {};
+            params.centers_id = result.rows[0].centers_id;
+            console.log("params", params);
+            let consulta = await this.getAll(params);
+            console.log("consulta", consulta);
+            return consulta;
 
 
         } catch (error) {
@@ -74,10 +86,11 @@ WHERE centers_id=$6 RETURNING *`;
     }
 
     async getAll(param) {
+        console.log("llegaa", param.centers_id);
         try {
             let where = `where  1=1 `;
             let fields = `a.centers_id as key, a.centers_id, a.center_name, a.address, a.phone, a.city, a.company_id,b.city as city_name`;
-            if (typeof param.center_id != "undefined" && param.centers_id != "") {
+            if (typeof param.centers_id != "undefined" && param.centers_id != "") {
                 where += ` and a.centers_id='${param.centers_id}'`;
             }
             if (typeof param.center_name != "undefined" && param.center_name != "") {
@@ -88,6 +101,7 @@ WHERE centers_id=$6 RETURNING *`;
             }
 
             let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
+            console.log('query', query);
             let rta = await this.pool.query(query);
             return rta.rows
 
@@ -96,10 +110,10 @@ WHERE centers_id=$6 RETURNING *`;
         }
 
     }
-     async delete(id) {
+    async delete(id) {
         try {
-            let paramns=[];
-            paramns.centers_id=id;
+            let paramns = [];
+            paramns.centers_id = id;
             let consu = await this.getAll(paramns);
             if (consu == "") {
                 return false;
