@@ -96,6 +96,25 @@ WHERE centers_id=$6 RETURNING *`;
         }
 
     }
+     async delete(id) {
+        try {
+            let paramns=[];
+            paramns.centers_id=id;
+            let consu = await this.getAll(paramns);
+            if (consu == "") {
+                return false;
+            }
+            const rta = await this.pool
+                .query(
+                    `DELETE FROM   booking_config.centers
+      WHERE centers_id=$1`,
+                    [id]
+                )
+            return rta;
+        } catch (error) {
+            return messageHandler(error);
+        }
+    }
 
 }
 module.exports = centerServices;

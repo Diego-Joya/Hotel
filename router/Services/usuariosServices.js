@@ -230,11 +230,8 @@ class usuariosServices {
         } catch (error) {
             return messageHandler(error);
         }
-
     }
     async userCompany(body, transaction = null) {
-        console.log("body company", body);
-
         // const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
         const company_id = body.company_id;
         const user_id = body.user_id;
