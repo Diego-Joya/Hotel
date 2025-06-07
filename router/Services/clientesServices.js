@@ -28,12 +28,14 @@ class clientesServices {
     let data = {};
     data.no_document = no_document
     // data.center_id = center_id
-    const validarExistencia = await this.getAllClientes(data);
-    console.log("validar existen", validarExistencia);
-    if (validarExistencia.length > 0) {
-      return {
-        ok: false,
-        message: "El registro no existe. ¡Actualiza e intenta de nuevo por favor!",
+    if (body.validar == "undefined" || body.validar!= false) {
+      const validarExistencia = await this.getAllClientes(data);
+      console.log("validar existen", validarExistencia);
+      if (validarExistencia.length > 0) {
+        return {
+          ok: false,
+          message: "El registro ya existe. ¡Verifica e intenta de nuevo por favor!",
+        }
       }
     }
 
