@@ -36,6 +36,7 @@ class companyServices {
         }
         array.push(crear);
         dataCompany.company_id = crear[0]?.company_id;
+        dataCompany.center_name =body.company.company_name;
 
         if (!dataCompany.company_id) {
             await transaction.query('ROLLBACK');
@@ -51,7 +52,7 @@ class companyServices {
         }
 
         array.push(createCenter);
-        datauser.center_id = createCenter[0]?.centers_id;
+        datauser.center_id = createCenter.centers_id;
         datauser.company_id = crear[0]?.company_id;
 
         const crearUser = await user.crear(datauser, transaction);

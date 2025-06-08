@@ -31,7 +31,9 @@ router.post(
 
     async (req, res, next) => {
         try {
+            console.log(req);
             const body = req.body;
+
             const crear = await company.registerCompany(body);
             console.log('datos retorna');
             const { ok } = crear
