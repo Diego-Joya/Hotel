@@ -57,7 +57,7 @@ router.patch(
                 res.json({
                     ok: true,
                     message: 'Registro actualizado correctamente!',
-                    data: body,
+                    data: actualizar,
                     id,
                 });
             }

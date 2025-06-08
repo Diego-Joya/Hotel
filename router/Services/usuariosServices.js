@@ -90,9 +90,18 @@ class usuariosServices {
     async actualizar(id, body) {
         console.log(body);
         const names = body.names;
-        const surname = body.surname;
+        // const surname = body.surname;
         const email = body.email;
         const username = body.username;
+        let surname = "";
+        if (typeof body.surnames != "undefined") {
+
+            surname = body.surnames;
+        } else if (typeof body.surname != "undefined") {
+            surname = body.surname;
+        }
+
+
         const cell_phone = body.cell_phone;
         const address = body.address;
         // const password = body.password;
@@ -114,7 +123,7 @@ class usuariosServices {
             const rta = await this.pool.query(query,
                 [names, surname, email, username, cell_phone, address, state, profile_id,
                     updated_by, updated_at, company_id, center_id, id])
-            return rta;
+            return rta.rows;
         } catch (error) {
             return messageHandler(error);
         }
@@ -135,7 +144,17 @@ class usuariosServices {
             const rta = await this.pool.query(query, [refreshToken, fecha_creacion_token, user]).catch((error) => {
                 return messageHandler(error);
             })
-            return rta.rows;
+            // return rta.rows;
+            if (typeof rta.rows[0] != 'undefined') {
+                return rta.rows[0];
+            } else {
+                return rta.rows;
+
+            }
+
+
+
+
         } catch (error) {
             return messageHandler(error);
         }
