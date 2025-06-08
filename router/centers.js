@@ -44,7 +44,7 @@ router.patch('/:id',
                 res.json({
                     ok: true,
                     message: "Datos actualizados correctamente",
-                    data: body,
+                    data: actualizar,
                 })
             }
         } catch (error) {

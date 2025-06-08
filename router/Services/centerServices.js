@@ -38,12 +38,19 @@ class centerServices {
                     company_id
                 ])
             // return rta.rows;
-             let params = {};
-            params.centers_id = rta.rows[0].centers_id;
-            console.log("params", params);
-            let consulta = await this.getAll(params);
-            console.log("consulta", consulta);
-            return consulta;
+            if (rta.rows[0] != 'undefined') {
+
+                let params = {};
+                params.centers_id = rta.rows[0].centers_id;
+                console.log("params", params);
+                let consulta = await this.getAll(params);
+                console.log("consulta", consulta);
+                return consulta;
+            } else {
+                console.log("rta.rows", rta.rows);
+
+                return rta;
+            }
 
         } catch (error) {
             return messageHandler(error)
@@ -69,14 +76,21 @@ WHERE centers_id=$6 RETURNING *`;
                 company_id,
                 id
             ]);
+            console.log("rta.rows", result.rows[0]);
 
-            // return result.rows[0];
-            let params = {};
-            params.centers_id = result.rows[0].centers_id;
-            console.log("params", params);
-            let consulta = await this.getAll(params);
-            console.log("consulta", consulta);
-            return consulta;
+            if (typeof result.rows[0] != 'undefined') {
+
+                let params = {};
+                params.centers_id = result.rows[0].centers_id;
+                console.log("params", params);
+                let consulta = await this.getAll(params);
+                console.log("consulta", consulta);
+                return consulta;
+            } else {
+                console.log("rta.rows", result.rows);
+
+                return result.rows;
+            }
 
 
         } catch (error) {
@@ -103,7 +117,7 @@ WHERE centers_id=$6 RETURNING *`;
             let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
             console.log('query', query);
             let rta = await this.pool.query(query);
-            return rta.rows
+            return rta.rows[0];
 
         } catch (error) {
             return messageHandler(error)
