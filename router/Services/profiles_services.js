@@ -1,6 +1,7 @@
 // const boom = require("@hapi/boom");
 const pool = require("../../libs/postgres.pool");
 const moment = require("moment");
+const messageHandler= require('../../middlewares/message.handler')
 
 class profiles_service {
   constructor() {
@@ -21,10 +22,16 @@ class profiles_service {
     return rta.rows;
   }
 
-  async buscar_todos() {
-    const query = "SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles";
-    const rta = await this.pool.query(query);
-    return rta.rows;
+  async buscar_todos(params) {
+try {
+  
+  const query = "SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles";
+  const rta = await this.pool.query(query);
+  return rta.rows;
+} catch (error) {
+    return messageHandler(error)
+}
+
   }
 
   async buscar_uno(data) {

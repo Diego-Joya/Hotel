@@ -59,9 +59,11 @@ router.get(
     async (req, res, next) => {
         try {
             const parametros = req.query;
+            parametros.return_all = true;
             console.log(req.query);
             let value = [];
             value = await center.getAll(parametros);
+            console.log(value);
             res.json({
                 ok: true,
                 data: value,

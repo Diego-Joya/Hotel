@@ -117,7 +117,11 @@ WHERE centers_id=$6 RETURNING *`;
             let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
             console.log('query', query);
             let rta = await this.pool.query(query);
-            return rta.rows[0];
+            if (typeof param.return_all && param.return_all == true) {
+                return rta.rows;
+            } else {
+                return rta.rows[0];
+            }
 
         } catch (error) {
             return messageHandler(error)
