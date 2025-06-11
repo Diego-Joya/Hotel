@@ -201,30 +201,50 @@ class usuariosServices {
         try {
             let where = ` where 1=1`;
             if (typeof params.id != "undefined") {
-                where += ` and user_id= ${params.id}`;
+                where += ` and a.user_id= ${params.id}`;
             }
             if (typeof params.profile_id != "undefined" && params.profile_id != "") {
-                where += ` and profile_id=${params.profile_id}`;
+                where += ` and a.profile_id=${params.profile_id}`;
             }
             if (typeof params.username != "undefined" && params.username != "") {
-                where += ` and username='${params.username}'`;
+                where += ` and a.username='${params.username}'`;
             }
             if (typeof params.state != "undefined" && params.state != "") {
-                where += ` and state='${params.state}'`;
+                where += ` and a.state='${params.state}'`;
             }
             if (typeof params.company_id != "undefined" && params.company_id != "") {
-                where += ` and company_id=${params.company_id}`;
+                where += ` and A.company_id=${params.company_id}`;
             }
             if (typeof params.center_id != "undefined" && params.center_id != "") {
-                where += ` and center_id=${params.center_id}`;
+                where += ` and a.center_id=${params.center_id}`;
             }
             let query = ''
             if (typeof params.fields != 'undefined' && params.fields != null) {
-                query = `select user_id as key, ${params.fields} from  booking_config.users ${where}`;
+                query = `select a.user_id as key, ${params.fields} from  booking_config.users a ${where}`;
             } else {
-                query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+                // query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+                query = `SELECT
+                        A.USER_ID AS KEY,
+                        	A.USER_ID,
+                            A.NAMES,
+                            A.EMAIL,
+                            A.SURNAMES,
+                            A.USERNAME,
+                            A.CELL_PHONE,
+                            A.ADDRESS,
+                            A.STATE,
+                            A.PROFILE_ID,
+                            A.COMPANY_ID,
+                            A.CENTER_ID,
+                        A.UPDATED_BY::TEXT AS UPDATED_BY,
+                        A.CREATED_AT::TEXT AS CREATED_AT,
+                        B.PROFILE,
+                        C.CENTER_NAME
+                    FROM
+                        BOOKING_CONFIG.USERS A
+                        LEFT JOIN BOOKING_CONFIG.PROFILES B ON (A.PROFILE_ID = B.PROFILE_ID)
+                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID) ${where}`;
             }
-            console.log("query", query);
 
             const rta = await this.pool.query(query);
             return rta.rows;
