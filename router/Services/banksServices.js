@@ -38,9 +38,9 @@ class banksServices {
 
     async getAllBanks(param) {
         try {
-            let fields=`bank_id, bank_name, centers_id, company_id`;
+            let fields = `bank_id, bank_name, centers_id, company_id`;
             let where = `where  1=1 `;
-             if (typeof param.select != "undefined" && param.select == "true") {
+            if (typeof param.select != "undefined" && param.select == "true") {
                 fields = `bank_id as code, bank_id as key, bank_name as name`
             }
             if (typeof param.centers_id != "undefined" && param.centers_id != "") {
@@ -120,6 +120,7 @@ class banksServices {
 
             let query = `SELECT
                         A.BANK_ACCOUNT_ID,
+                        A.BANK_ACCOUNT_ID AS KEY,
                         A.NUMBER_ACCOUNTS,
                         A.TYPE,
                         A.CENTERS_ID,
