@@ -38,7 +38,11 @@ class banksServices {
 
     async getAllBanks(param) {
         try {
+            let fields=`bank_id, bank_name, centers_id, company_id`;
             let where = `where  1=1 `;
+             if (typeof param.select != "undefined" && param.select == "true") {
+                fields = `bank_id as code, bank_id as key, bank_name as name`
+            }
             if (typeof param.centers_id != "undefined" && param.centers_id != "") {
                 where += ` and centers_id='${param.centers_id}'`;
             }
@@ -49,7 +53,7 @@ class banksServices {
                 where += ` and bank_name ilike('%${param.bank_name}%')`;
             }
 
-            let query = `SELECT bank_id, bank_name, centers_id, company_id
+            let query = `SELECT ${fields}
 	FROM booking_config.banks  ${where}`;
             console.log('query que hace', query);
             let rta = await this.pool.query(query);
