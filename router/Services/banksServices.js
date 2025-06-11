@@ -100,26 +100,35 @@ class banksServices {
         try {
             let where = `where  1=1 `;
             if (typeof param.number_accounts != "undefined" && param.number_accounts != "") {
-                where += ` and number_accounts='${param.number_accounts}'`;
+                where += ` and a.number_accounts='${param.number_accounts}'`;
             }
             if (typeof param.type != "undefined" && param.type != "") {
-                where += ` and type='${param.type}'`;
+                where += ` and a.type='${param.type}'`;
             }
             if (typeof param.company_id != "undefined" && param.company_id != "") {
-                where += ` and company_id='${param.company_id}'`;
+                where += ` and a.company_id='${param.company_id}'`;
             }
             if (typeof param.centers_id != "undefined" && param.centers_id != "") {
-                where += ` and centers_id='${param.centers_id}'`;
+                where += ` and a.centers_id='${param.centers_id}'`;
             }
             if (typeof param.bank_id != "undefined" && param.bank_id != "") {
-                where += ` and bank_id='${param.bank_id}'`;
+                where += ` and a.bank_id='${param.bank_id}'`;
             }
             if (typeof param.bank_name != "undefined" && param.bank_name != "") {
-                where += ` and bank_name ilike('%${param.bank_name}%')`;
+                where += ` and a.bank_name ilike('%${param.bank_name}%')`;
             }
 
-            let query = `SELECT bank_account_id, number_accounts, type, centers_id, company_id, bank_id
-	FROM booking_config.bank_accounts  ${where}`;
+            let query = `SELECT
+                        A.BANK_ACCOUNT_ID,
+                        A.NUMBER_ACCOUNTS,
+                        A.TYPE,
+                        A.CENTERS_ID,
+                        A.COMPANY_ID,
+                        A.BANK_ID,
+                        B.CENTER_NAME
+                    FROM
+                        BOOKING_CONFIG.BANK_ACCOUNTS A
+                        LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTERS_ID = B.CENTERS_ID)  ${where}`;
             console.log('query que hace', query);
             let rta = await this.pool.query(query);
             return rta.rows
