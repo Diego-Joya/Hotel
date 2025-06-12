@@ -45,6 +45,7 @@ class centerServices {
                 console.log("params", params);
                 let consulta = await this.getAll(params);
                 console.log("consulta", consulta);
+                delete consulta.key;
                 return consulta;
             } else {
                 console.log("rta.rows", rta.rows);

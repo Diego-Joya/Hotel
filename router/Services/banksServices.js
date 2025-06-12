@@ -70,7 +70,9 @@ class banksServices {
         const centers_id = body.centers_id;
         const company_id = body.company_id;
         const bank_id = body.bank_id;
+        body.return_all = true;
         const validarExistencia = await this.getAllAccounts(body);
+
         console.log("validar existen", validarExistencia);
         if (validarExistencia.length > 0) {
             return {
@@ -91,7 +93,23 @@ class banksServices {
                     company_id,
                     bank_id
                 ]);
-            return rta.rows[0];
+            // return rta.rows[0];
+            if (typeof rta.rows[0] != 'undefined') {
+
+                let params = {};
+                params.bank_account_id = rta.rows[0].bank_account_id;
+                console.log("params", params);
+                let consulta = await this.getAllAccounts(params);
+                console.log("consulta", consulta);
+                delete consulta.key;
+                return consulta;
+            } else {
+                console.log("rta.rows", rta.rows);
+                return rta.rows;
+            }
+
+
+
         } catch (error) {
             return messageHandler(error)
         }
@@ -101,6 +119,9 @@ class banksServices {
             let where = `where  1=1 `;
             if (typeof param.number_accounts != "undefined" && param.number_accounts != "") {
                 where += ` and a.number_accounts='${param.number_accounts}'`;
+            }
+            if (typeof param.bank_account_id != "undefined" && param.bank_account_id != "") {
+                where += ` and a.bank_account_id='${param.bank_account_id}'`;
             }
             if (typeof param.type != "undefined" && param.type != "") {
                 where += ` and a.type='${param.type}'`;
@@ -134,7 +155,11 @@ class banksServices {
                         LEFT JOIN BOOKING_CONFIG.BANKS C ON (A.BANK_ID = C.BANK_ID)  ${where}`;
             console.log('query que hace', query);
             let rta = await this.pool.query(query);
-            return rta.rows
+            if (typeof param.return_all && param.return_all == true) {
+                return rta.rows;
+            } else {
+                return rta.rows[0];
+            }
 
         } catch (error) {
             return messageHandler(error)

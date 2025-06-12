@@ -29,7 +29,9 @@ class usuariosServices {
             }
             let array = [];
             array.username = username;
+            array.return_all = true;
             const validate = await this.consulta(array);
+            console.log('validate', validate);
             if (validate.length > 0) {
                 return {
                     ok: false,
@@ -74,14 +76,25 @@ class usuariosServices {
             } else {
                 client = this.pool;
             }
-
             const query = `INSERT INTO booking_config.users( names, surnames, email, username, cell_phone, address, password, state,
             profile_id, created_by,  created_at,  company_id, center_id)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)  RETURNING *`
             const rta = await client.query(query, [names, surname, email, username, cell_phone, address, password_enc, state, profile_id,
                 created_by, created_at, company_id, center_id]);
 
-            return rta.rows;
+            // return rta.rows;
+            if (typeof rta.rows[0] != 'undefined') {
+                let params = {};
+                params.user_id = rta.rows[0].user_id;
+                console.log("params", params);
+                let consulta = await this.consulta(params);
+                console.log("consulta", consulta);
+                return consulta;
+            } else {
+                console.log("rta.rows", rta.rows);
+
+                return rta.rows;
+            }
 
         } catch (error) {
             return messageHandler(error);
@@ -246,8 +259,12 @@ class usuariosServices {
                         LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID) ${where}`;
             }
 
-            const rta = await this.pool.query(query);
-            return rta.rows;
+            let rta = await this.pool.query(query);
+            if (typeof params.return_all && params.return_all == true) {
+                return rta.rows;
+            } else {
+                return rta.rows[0];
+            }
 
         } catch (error) {
             return messageHandler(error);

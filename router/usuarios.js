@@ -11,6 +11,7 @@ router.get('/',
     async (req, res, next) => {
         try {
             const parametros = req.query
+            parametros.return_all = true;
             const consulta = await usuarios.consulta(parametros);
             res.json({
                 ok: true,
