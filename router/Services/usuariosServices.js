@@ -249,6 +249,7 @@ class usuariosServices {
                             A.PROFILE_ID,
                             A.COMPANY_ID,
                             A.CENTER_ID,
+                            A.PASSWORD,
                         A.UPDATED_BY::TEXT AS UPDATED_BY,
                         A.CREATED_AT::TEXT AS CREATED_AT,
                         B.PROFILE,

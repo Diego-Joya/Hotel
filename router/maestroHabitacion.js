@@ -63,5 +63,28 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+router.delete("/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const eliminar = await maestro.delete(id);
+        if (eliminar == false) {
+            res.json({
+                ok: false,
+                message: "No se encontro el registro en la bd",
+            });
+        } else {
+            res.json({
+                ok: true,
+                message: "Registro eliminado correctamente!",
+                id,
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+
+
+})
+
 
 module.exports = router;

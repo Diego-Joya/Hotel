@@ -101,7 +101,6 @@ WHERE centers_id=$6 RETURNING *`;
     }
 
     async getAll(param) {
-        console.log("llegaa", param.centers_id);
         try {
             let where = `where  1=1 `;
             let fields = `a.centers_id as key, a.centers_id, a.center_name, a.address, a.phone, a.city, a.company_id,b.city as city_name`;
@@ -118,7 +117,6 @@ WHERE centers_id=$6 RETURNING *`;
                 fields = `a.centers_id as code, a.centers_id as key, a.center_name as name`
             }
             let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
-            console.log('query', query);
             let rta = await this.pool.query(query);
             if (typeof param.return_all && param.return_all == true) {
                 return rta.rows;
