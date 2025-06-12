@@ -114,7 +114,9 @@ WHERE centers_id=$6 RETURNING *`;
             if (typeof param.company_id != "undefined" && param.company_id != "") {
                 where += ` and a.company_id='${param.company_id}'`;
             }
-
+            if (typeof param.select != "undefined" && param.select == "true") {
+                fields = `a.centers_id as code, a.centers_id as key, a.center_name as name`
+            }
             let query = `select ${fields} from booking_config.centers a left join  booking_config.cities b on (a.city=b.id)   ${where}`;
             console.log('query', query);
             let rta = await this.pool.query(query);
