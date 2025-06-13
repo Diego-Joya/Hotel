@@ -1,7 +1,7 @@
 // const boom = require("@hapi/boom");
 const pool = require("../../libs/postgres.pool");
 const moment = require("moment");
-const messageHandler= require('../../middlewares/message.handler')
+const messageHandler = require('../../middlewares/message.handler')
 
 class profiles_service {
   constructor() {
@@ -23,24 +23,47 @@ class profiles_service {
   }
 
   async buscar_todos(params) {
-try {
-  
-  const query = "SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles";
-  const rta = await this.pool.query(query);
-  return rta.rows;
-} catch (error) {
-    return messageHandler(error)
-}
+    try {
+      let where = `where  1=1 `;
+      let fields = `*, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion`;
+      if (typeof params.profile_id != "undefined" && params.profile_id != "") {
+        where += ` and profile_id='${params.profile_id}'`;
+      }
+      if (typeof params.company_id != "undefined" && params.company_id != "") {
+        where += ` and company_id='${params.company_id}'`;
+      }
+      if (typeof params.type != "undefined" && params.type != "") {
+        where += ` and type='${params.type}'`;
+      }
+      if (typeof params.profile != "undefined" && params.profile != "") {
+        where += ` and profile ilike('%${params.profile}%')`;
+      }
+      if (typeof params.select != "undefined" && params.select == "true") {
+        fields = `profile_id as code, profile_id as key, profile as name`
+      }
+
+      const query = `SELECT ${fields} FROM booking_config.profiles ${where}`;
+      const rta = await this.pool.query(query);
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error)
+    }
 
   }
 
   async buscar_uno(data) {
-    const rta = await this.pool
-      .query(
-        `SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles where profile ILIKE ('%${data}%') OR profile_id::text ILIKE ('%${data}%') `
-      )
-      .catch((err) => console.log(err));
-    return rta.rows;
+    try {
+
+      const rta = await this.pool
+        .query(
+          `SELECT *, profile_id as key,fecha_modificacion::text as fecha_modificacion, fecha_creacion::text as fecha_creacion FROM booking_config.profiles where profile ILIKE ('%${data}%') OR profile_id::text ILIKE ('%${data}%') `
+        )
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error);
+
+
+    }
   }
   async actualizar(idact, body) {
     const nombre = body.profile;

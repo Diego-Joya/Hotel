@@ -7,7 +7,9 @@ const passport= require('passport')
 
 router.get("/", async (req, res, next) => {
   try {
-    const cat = await profile.buscar_todos();
+       const parametros = req.query;
+            // parametros.return_all = true;
+    const cat = await profile.buscar_todos(parametros);
     res.json({
       ok:true,
       data: cat,
