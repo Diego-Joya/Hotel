@@ -48,8 +48,8 @@ class maestroHabitacionServices {
             const type = body.type;
 
             const query = `UPDATE booking_data.room_type
-SET updated_by=$1, center_id=$2, company_id=$3, name=$4, type=$5, updated_at=$6
-WHERE id_room_type=$7 RETURNING *`;
+                SET updated_by=$1, center_id=$2, company_id=$3, name=$4, type=$5, updated_at=$6
+                WHERE id_room_type=$7 RETURNING *`;
             const result = await this.pool.query(query, [
                 username,
                 center_id,
@@ -72,11 +72,11 @@ WHERE id_room_type=$7 RETURNING *`;
     async getAll(params) {
         try {
             let where = "where  1=1 ";
-      let fields = `*, id_room_type as key, updated_at::text as updated_at, created_at::text as created_at`;
+            let fields = `*, id_room_type as key, updated_at::text as updated_at, created_at::text as created_at`;
 
             if (typeof params.select != "undefined" && params.select == "true") {
                 fields = `id_room_type as code, id_room_type as key, name,*`
-              }
+            }
             if (typeof params.limit != "undefined") {
                 where += `order by key desc limit ${params.limit}`
             }
@@ -84,7 +84,7 @@ WHERE id_room_type=$7 RETURNING *`;
                 where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
             }
             if (typeof params.id_room_type != "undefined") {
-                where += ` and id_room_type = '${params.id}'`
+                where += ` and id_room_type = '${params.id_room_type}'`
 
             }
             if (typeof params.name != "undefined") {
@@ -96,12 +96,29 @@ WHERE id_room_type=$7 RETURNING *`;
 
             // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);
             let consulta = await this.pool.query(`SELECT  ${fields}  FROM booking_data.room_type ${where}`);
-
             return consulta.rows;
 
         } catch (error) {
             return messageHandler(error);
         }
+    }
+    async delete(id_delete) {
+        let param = {};
+        param.id_room_type = id_delete;
+        let consu = await this.getAll(param);
+    console.log('consu',consu);
+
+        if (consu.length == 0) {
+            return false;
+        }
+        const rta = await this.pool
+            .query(
+                `DELETE FROM  booking_data.room_type
+                 WHERE id_room_type=$1`,
+                [id_delete]
+            )
+            .catch((err) => console.log(err));
+        return rta;
     }
 
 

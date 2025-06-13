@@ -9,10 +9,10 @@ router.get("/", async (req, res, next) => {
   try {
        const parametros = req.query;
             // parametros.return_all = true;
-    const cat = await profile.buscar_todos(parametros);
+    const consulta = await profile.buscar_todos(parametros);
     res.json({
       ok:true,
-      data: cat,
+      data: consulta,
     });
   } catch (error) {
     next(error);
