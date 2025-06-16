@@ -3,20 +3,20 @@ const express = require('express');
 const habitacionesServices = require("./Services/habitacionesServices");
 const router = express.Router();
 const passport = require("passport");
-const multer = require('multer');
-const path = require('path');
+// const multer = require('multer');
+// const path = require('path');
 const habitaciones = new habitacionesServices();
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/habitaciones'); // Carpeta donde guardarás las fotos
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + file.originalname;
-    cb(null, uniqueName);
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/habitaciones'); // Carpeta donde guardarás las fotos
+//   },
+//   filename: (req, file, cb) => {
+//     const uniqueName = Date.now() + '-' + file.originalname;
+//     cb(null, uniqueName);
+//   }
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
 
 router.get(

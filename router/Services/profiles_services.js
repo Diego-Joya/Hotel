@@ -19,7 +19,7 @@ class profiles_service {
     const rta = await this.pool
       .query(query, [nombre, company, type, fecha_hora])
       .catch((err) => console.log(err));
-    return rta.rows;
+    return rta.rows[0];
   }
 
   async buscar_todos(params) {
