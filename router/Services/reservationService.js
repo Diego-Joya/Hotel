@@ -57,7 +57,7 @@ class reservationServices {
         const surnames = body.surnames;
         const no_document = body.no_document;
         const reservation_date = fecha_hora;
-        const state ='SIN CONFIRMAR';
+        const state = 'SIN CONFIRMAR';
         const center_id = body.center_id;
         const bed_type = body.bed_type;
         const room_id = body.room_id;
@@ -89,6 +89,58 @@ class reservationServices {
             return messageHandler(error)
         }
 
+    }
+
+
+    async gellAllReservations(params) {
+        try {
+            let where = ` where 1=1`;
+            if (typeof params.usernames != "undefined" && params.usernames != "") {
+                where += ` and a.usernames='${params.usernames}'`;
+            }
+            if (typeof params.state != "undefined" && params.state != "") {
+                where += ` and a.state='${params.state}'`;
+            }
+            if (typeof params.company_id != "undefined" && params.company_id != "") {
+                where += ` and A.company_id=${params.company_id}`;
+            }
+            if (typeof params.center_id != "undefined" && params.center_id != "") {
+                where += ` and a.center_id=${params.center_id}`;
+            }
+            if (typeof params.bed_type != "undefined" && params.bed_type != "") {
+                where += ` and a.bed_type=${params.bed_type}`;
+            }
+            if (typeof params.room_id != "undefined" && params.room_id != "") {
+                where += ` and a.bed_type=${params.room_id}`;
+            }
+            let query = ''
+            if (typeof params.fields != 'undefined' && params.fields != null) {
+                query = `select a.user_id as key, ${params.fields} from  booking_config.users a ${where}`;
+            } else {
+                // query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+                query = `SELECT
+                        A.*,
+                        B.CENTER_NAME,
+                        C.NAME AS ROO_TYPE_NAME,
+                        D.NO_ROOM,
+                        D.TYPE AS TYPE_ROOM
+                    FROM
+                        BOOKING_DATA.BOOKINGS A
+                        LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
+                        LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (A.BED_TYPE = C.ID_ROOM_TYPE)
+                        LEFT JOIN BOOKING_DATA.BEDROOMS D ON (A.ROOM_ID = D.ROOM_ID) ${where}`;
+            }
+
+            let rta = await this.pool.query(query);
+            if (typeof params.return_all && params.return_all == true) {
+                return rta.rows;
+            } else {
+                return rta.rows[0];
+            }
+
+        } catch (error) {
+            return messageHandler(error);
+        }
     }
 
 

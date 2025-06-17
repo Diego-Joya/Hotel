@@ -26,6 +26,22 @@ router.post('/', async (req, res, next) => {
         next(error);
     }
 });
+router.get('/',
+    // passport.authenticate('jwt', { session: false }),
+    async (req, res, next) => {
+        try {
+            const parametros = req.query
+            parametros.return_all = true;
+            const consulta = await reservation.gellAllReservations(parametros);
+            res.json({
+                ok: true,
+                data: consulta
+            })
 
+        } catch (error) {
+            next(error);
+        }
+
+    });
 
 module.exports = router;
