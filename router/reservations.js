@@ -26,6 +26,39 @@ router.post('/', async (req, res, next) => {
         next(error);
     }
 });
+
+router.patch(
+    '/:id',
+    async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const body = req.body;
+            console.log(body);
+            res.send({
+                ok: false,
+                message: 'En desarrollo... Aguanta puto'
+            });
+            return;
+            const actualizar = await reservation.actualizar(id, body);
+            console.log("return", actualizar);
+            const { ok } = actualizar
+            if (ok == false) {
+                res.send(actualizar);
+            } else {
+                res.json({
+                    ok: true,
+                    message: 'Registro actualizado correctamente!',
+                    data: actualizar,
+                    id,
+                });
+            }
+        } catch (error) {
+            next(error);
+        }
+    },
+);
+
+
 router.get('/',
     // passport.authenticate('jwt', { session: false }),
     async (req, res, next) => {
