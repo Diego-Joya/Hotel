@@ -30,7 +30,7 @@ class habitacionesServices {
       data.no_room = no_room;
       data.center_id = center_id;
       data.company_id = company_id;
-
+      data.return_all = true;
       const validateNoRoom = await this.getAllHabitaciones(data);
 
       console.log("validateNoRoom", validateNoRoom);
