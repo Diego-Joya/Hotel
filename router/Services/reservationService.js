@@ -59,7 +59,7 @@ class reservationServices {
         const reservation_date = fecha_hora;
         const state = 'SIN CONFIRMAR';
         const center_id = body.center_id;
-        const bed_type = body.bed_type;
+        const room_type = body.room_type;
         const room_id = body.room_id;
         const created_by = body.created_by;
         const created_at = fecha_hora;
@@ -68,7 +68,7 @@ class reservationServices {
 
         try {
             const query = `INSERT INTO booking_data.bookings(
-	 names, surnames, no_document, reservation_date, state, center_id, bed_type, room_id, created_by,  created_at,  company_id, customer_id)
+	 names, surnames, no_document, reservation_date, state, center_id, room_type, room_id, created_by,  created_at,  company_id, customer_id)
 	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *`;
             const rta = await this.pool.query(query, [
                 names,
@@ -77,7 +77,7 @@ class reservationServices {
                 reservation_date,
                 state,
                 center_id,
-                bed_type,
+                room_type,
                 room_id,
                 created_by,
                 created_at,
@@ -107,11 +107,11 @@ class reservationServices {
             if (typeof params.center_id != "undefined" && params.center_id != "") {
                 where += ` and a.center_id=${params.center_id}`;
             }
-            if (typeof params.bed_type != "undefined" && params.bed_type != "") {
-                where += ` and a.bed_type=${params.bed_type}`;
+            if (typeof params.room_type != "undefined" && params.room_type != "") {
+                where += ` and a.room_type=${params.room_type}`;
             }
             if (typeof params.room_id != "undefined" && params.room_id != "") {
-                where += ` and a.bed_type=${params.room_id}`;
+                where += ` and a.room_id=${params.room_id}`;
             }
             let query = ''
             if (typeof params.fields != 'undefined' && params.fields != null) {
