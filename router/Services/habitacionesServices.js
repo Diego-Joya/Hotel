@@ -11,123 +11,129 @@ class habitacionesServices {
 
   // CREAR BEDROOMS
   async createBedrooms(body) {
-    if (typeof body.state == "undefined" || body.state == null) {
-      body.state = 'DISPONIBLE';
-    }
-    const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
-    const no_room = body.no_room;
-    const val_min = body.val_min;
-    const val_max = body.val_max;
-    const type = body.type;
-    const center_id = body.center_id;
-    const created_by = body.created_by;
-    const created_at = fecha_hora;
-    const state = body.state;
-    const description = body.description;
-    const company_id = body.company_id;
-    const data = {};
-    data.no_room = no_room;
-    data.center_id = center_id;
-    data.company_id = company_id;
-
-    const validateNoRoom = await this.getAllHabitaciones(data);
-
-    console.log("validateNoRoom", validateNoRoom);
-    if (validateNoRoom.length > 0) {
-      let resp = {
-        ok: false,
-        message: 'El número de habitacion ya existe para este centro y esta empresa. ¡Verifica e intenta de nuevo por favor!',
-
+    try {
+      if (typeof body.state == "undefined" || body.state == null) {
+        body.state = 'DISPONIBLE';
       }
-      return resp
-    }
-    if (val_min > val_max) {
-      let resp = {
-        ok: false,
-        message: 'El valor minimo no puede ser superior al valor maximo. ¡Verifica e intenta de nuevo por favor!',
+      const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
+      const no_room = body.no_room;
+      const val_min = body.val_min;
+      const val_max = body.val_max;
+      const type = body.room_type;
+      const center_id = body.center_id;
+      const created_by = body.created_by;
+      const created_at = fecha_hora;
+      const state = body.state;
+      const description = body.description;
+      const company_id = body.company_id;
+      const data = {};
+      data.no_room = no_room;
+      data.center_id = center_id;
+      data.company_id = company_id;
 
+      const validateNoRoom = await this.getAllHabitaciones(data);
+
+      console.log("validateNoRoom", validateNoRoom);
+      if (validateNoRoom.length > 0) {
+        let resp = {
+          ok: false,
+          message: 'El número de habitacion ya existe para este centro y esta empresa. ¡Verifica e intenta de nuevo por favor!',
+
+        }
+        return resp
       }
-      return resp
-    }
+      if (val_min > val_max) {
+        let resp = {
+          ok: false,
+          message: 'El valor minimo no puede ser superior al valor maximo. ¡Verifica e intenta de nuevo por favor!',
 
-    const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, type, center_id, created_by, created_at, state,description,company_id)
+        }
+        return resp
+      }
+
+      const query = `INSERT INTO booking_data.bedrooms(fecha, no_room, val_min, val_max, room_type, center_id, created_by, created_at, state,description,company_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10,$11 ) RETURNING *`;
-    const rta = await this.pool
-      .query(query, [
-        fecha_hora,
-        no_room,
-        val_min,
-        val_max,
-        type,
-        center_id,
-        created_by,
-        created_at,
-        state,
-        description,
-        company_id
-      ])
-      .catch((err) => {
-        return messageHandler(err)
-      });
-    let values = rta.rows;
-    values[0].key = values[0].room_id;
-    console.log("values", values);
-    return values;
+      const rta = await this.pool
+        .query(query, [
+          fecha_hora,
+          no_room,
+          val_min,
+          val_max,
+          type,
+          center_id,
+          created_by,
+          created_at,
+          state,
+          description,
+          company_id
+        ]);
+      let values = rta.rows;
+      values[0].key = values[0].room_id;
+      console.log("values", values);
+      return values;
+    } catch (error) {
+      console.log("validando error", error);
+      return messageHandler(error)
+    }
+
+
+
 
   }
   // ACTUALIZAR
   async actualizar(id, body) {
-    const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
-    const no_room = body.no_room;
-    const val_min = body.val_min;
-    const val_max = body.val_max;
-    const type = body.type;
-    const center_id = body.center_id;
-    const updated_by = body.created_by;
-    const updated_at = fecha_hora;
-    const state = body.state;
-    const description = body.description;
+    try {
+      const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
+      const no_room = body.no_room;
+      const val_min = body.val_min;
+      const val_max = body.val_max;
+      const type = body.room_type;
+      const center_id = body.center_id;
+      const updated_by = body.created_by;
+      const updated_at = fecha_hora;
+      const state = body.state;
+      const description = body.description;
 
 
-    const consulExistencia = await this.getHabitaciones({ id });
-    if (consulExistencia == "") {
-      let resp = {
-        ok: false,
-        message: '¡El dato que intentas actualizar no existe en la base de datos!',
+      const consulExistencia = await this.getHabitaciones({ id });
+      if (consulExistencia == "") {
+        let resp = {
+          ok: false,
+          message: '¡El dato que intentas actualizar no existe en la base de datos!',
 
+        }
+        return resp
       }
-      return resp
-    }
 
-    if (val_min > val_max) {
-      let resp = {
-        ok: false,
-        message: 'El valor minimo no puede ser superior al valor maximo. ¡Verifica e intenta de nuevo por favor!',
+      if (val_min > val_max) {
+        let resp = {
+          ok: false,
+          message: 'El valor minimo no puede ser superior al valor maximo. ¡Verifica e intenta de nuevo por favor!',
 
+        }
+        return resp
       }
-      return resp
-    }
 
-    const query = `UPDATE booking_data.bedrooms
-	SET  no_room=$1, val_min=$2, val_max=$3, type=$4, center_id=$5, updated_by=$6, updated_at=$7,state=$8,description=$9
+      const query = `UPDATE booking_data.bedrooms
+	SET  no_room=$1, val_min=$2, val_max=$3, room_type=$4, center_id=$5, updated_by=$6, updated_at=$7,state=$8,description=$9
 	WHERE room_id=$10  RETURNING *`;
-    const rta = await this.pool
-      .query(query, [
-        no_room,
-        val_min,
-        val_max,
-        type,
-        center_id,
-        updated_by,
-        updated_at,
-        state,
-        description,
-        id,
-      ])
-      .catch((err) => {
-        return messageHandler(err)
-      });
-    return rta.rows;
+      const rta = await this.pool
+        .query(query, [
+          no_room,
+          val_min,
+          val_max,
+          type,
+          center_id,
+          updated_by,
+          updated_at,
+          state,
+          description,
+          id,
+        ]);
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error)
+    }
   }
 
   async getHabitaciones({ id = null, numHabitacion = null, fecha_inicial = null, fecha_final = null }) {
@@ -168,8 +174,8 @@ class habitacionesServices {
       if (typeof param.no_room != "undefined" && param.no_room != "") {
         where += ` and no_room='${param.no_room}'`;
       }
-      if (typeof param.type != "undefined" && param.type != "") {
-        where += ` and type='${param.type}'`;
+      if (typeof param.room_type != "undefined" && param.room_type != "") {
+        where += ` and room_type='${param.room_type}'`;
       }
       if (typeof param.fecha_inicial != "undefined" && typeof param.fecha_final != "undefined" && param.fecha_inicial != "" && param.fecha_final != "") {
         where += ` and created_at between '${param.fecha_inicial}' and '${param.fecha_final}'`
