@@ -19,7 +19,7 @@ class habitacionesServices {
       const no_room = body.no_room;
       const val_min = body.val_min;
       const val_max = body.val_max;
-      const type = body.room_type;
+      const room_type = body.room_type;
       const center_id = body.center_id;
       const created_by = body.created_by;
       const created_at = fecha_hora;
@@ -59,7 +59,7 @@ class habitacionesServices {
           no_room,
           val_min,
           val_max,
-          type,
+          room_type,
           center_id,
           created_by,
           created_at,
@@ -67,10 +67,21 @@ class habitacionesServices {
           description,
           company_id
         ]);
-      let values = rta.rows;
-      values[0].key = values[0].room_id;
-      console.log("values", values);
-      return values;
+      // values[0].key = values[0].room_id;
+      console.log('valores de save', rta);
+      if (typeof rta.rows[0] != 'undefined') {
+        let dat = {};
+        dat.room_id = rta.rows[0].room_id;
+        // values[0].key = values[0].room_id;
+        const consult = await this.getAllHabitaciones(dat);
+
+        return consult;
+      } else {
+        console.log("rta.rows", rta.rows);
+
+        return rta.rows;
+      }
+
     } catch (error) {
       console.log("validando error", error);
       return messageHandler(error)
@@ -130,10 +141,31 @@ class habitacionesServices {
           description,
           id,
         ]);
-      return rta.rows;
+
+
+      console.log('valores de save', rta);
+      if (typeof rta.rows[0] != 'undefined') {
+        let dat = {};
+        dat.room_id = rta.rows[0].room_id;
+        // values[0].key = values[0].room_id;
+        const consult = await this.getAllHabitaciones(dat);
+
+        return consult;
+      } else {
+        console.log("rta.rows", rta.rows);
+        return rta.rows;
+      }
+
     } catch (error) {
+      console.log("validando error", error);
       return messageHandler(error)
     }
+
+
+
+
+
+
   }
 
   async getHabitaciones({ id = null, numHabitacion = null, fecha_inicial = null, fecha_final = null }) {
@@ -167,41 +199,49 @@ class habitacionesServices {
   async getAllHabitaciones(param) {
     try {
       let where = `where  1=1 `;
-      let fields = `room_id as key,*,updated_by::text as updated_by,created_at::text as created_at, fecha::text as fecha`;
+      let fields = `a.room_id as key,a.*,a.updated_by::text as updated_by,a.created_at::text as created_at, a.fecha::text as fecha,b.name as room_type_name`;
       if (typeof param.room_id != "undefined" && param.room_id != "") {
-        where += ` and room_id='${param.room_id}'`;
+        where += ` and a.room_id='${param.room_id}'`;
       }
       if (typeof param.no_room != "undefined" && param.no_room != "") {
-        where += ` and no_room='${param.no_room}'`;
+        where += ` and a.no_room='${param.no_room}'`;
       }
       if (typeof param.room_type != "undefined" && param.room_type != "") {
-        where += ` and room_type='${param.room_type}'`;
+        where += ` and a.room_type='${param.room_type}'`;
       }
       if (typeof param.fecha_inicial != "undefined" && typeof param.fecha_final != "undefined" && param.fecha_inicial != "" && param.fecha_final != "") {
-        where += ` and created_at between '${param.fecha_inicial}' and '${param.fecha_final}'`
+        where += ` and a.created_at between '${param.fecha_inicial}' and '${param.fecha_final}'`
       }
       if (typeof param.state != "undefined" && param.state != "") {
-        where += ` and state='${param.state}'`;
+        where += ` and a.state='${param.state}'`;
       }
       if (typeof param.select != "undefined" && param.select == "true") {
-        fields = `room_id as code, room_id as key, no_room as name,val_min, val_max`
+        fields = `a.room_id as code, a.room_id as key, a.no_room as name, a.val_min, a.val_max`
       }
       if (typeof param.company_id != "undefined" && param.company_id != "") {
-        where += ` and company_id=${param.company_id}`;
+        where += ` and a.company_id=${param.company_id}`;
       }
       if (typeof param.center_id != "undefined" && param.center_id != "") {
-        where += ` and center_id=${param.center_id}`;
+        where += ` and a.center_id=${param.center_id}`;
       }
 
-      let query = `select ${fields} from booking_data.bedrooms  ${where}`;
+      // let query = `select ${fields} from booking_data.bedrooms  ${where}`;
+
+
+      let query = `select ${fields} from  booking_data.bedrooms a left join booking_data.room_type b on (a.room_type = b.id_room_type)  ${where}`;
       console.log('query que hace', query);
       let rta = await this.pool.query(query);
-      return rta.rows
+      // return rta.rows
+
+      if (typeof param.return_all && param.return_all == true) {
+        return rta.rows;
+      } else {
+        return rta.rows[0];
+      }
 
     } catch (error) {
       return messageHandler(error)
     }
-
   }
 
   async deleteHabitacion(id) {

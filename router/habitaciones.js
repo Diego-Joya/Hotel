@@ -21,10 +21,11 @@ const habitaciones = new habitacionesServices();
 
 router.get(
   '/',
-    passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const parametros = req.query;
+      parametros.return_all = true
       console.log(req.query);
       let value = [];
       // if (Object.keys(req.query).length > 0) {
@@ -118,7 +119,7 @@ router.patch(
         res.json({
           ok: true,
           message: 'Registro actualizado correctamente',
-          data: body,
+          data: actualizar,
           id,
         });
       }
