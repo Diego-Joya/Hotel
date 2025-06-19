@@ -84,7 +84,21 @@ class reservationServices {
                 company_id,
                 customer_id
             ]);
-            return rta.rows[0];
+            // return rta.rows[0];
+   if (typeof rta.rows[0] != 'undefined') {
+        let dat = {};
+        dat.booking_id = rta.rows[0].booking_id;
+        // values[0].key = values[0].room_id;
+        const consult = await this.gellAllReservations(dat);
+
+        return consult;
+      } else {
+        console.log("rta.rows", rta.rows);
+        return rta.rows;
+      }
+
+
+
         } catch (error) {
             return messageHandler(error)
         }
@@ -123,11 +137,11 @@ class reservationServices {
                         B.CENTER_NAME,
                         C.NAME AS ROO_TYPE_NAME,
                         D.NO_ROOM,
-                        D.TYPE AS TYPE_ROOM
+                        D.ROOM_TYPE AS TYPE_ROOM
                     FROM
                         BOOKING_DATA.BOOKINGS A
                         LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
-                        LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (A.BED_TYPE = C.ID_ROOM_TYPE)
+                        LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (A.ROOM_TYPE = C.ID_ROOM_TYPE)
                         LEFT JOIN BOOKING_DATA.BEDROOMS D ON (A.ROOM_ID = D.ROOM_ID) ${where}`;
             }
 
