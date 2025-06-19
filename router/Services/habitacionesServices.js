@@ -74,7 +74,8 @@ class habitacionesServices {
         dat.room_id = rta.rows[0].room_id;
         // values[0].key = values[0].room_id;
         const consult = await this.getAllHabitaciones(dat);
-
+        delete consult.room_id;
+        delete consult.key;
         return consult;
       } else {
         console.log("rta.rows", rta.rows);
