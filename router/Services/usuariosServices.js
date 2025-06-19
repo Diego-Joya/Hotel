@@ -233,7 +233,10 @@ class usuariosServices {
             }
             let query = ''
             if (typeof params.fields != 'undefined' && params.fields != null) {
-                query = `select a.user_id as key, ${params.fields} from  booking_config.users a ${where}`;
+                query = `select a.user_id as key, ${params.fields}   FROM
+                        BOOKING_CONFIG.USERS A
+                        LEFT JOIN BOOKING_CONFIG.PROFILES B ON (A.PROFILE_ID = B.PROFILE_ID)
+                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID) ${where}`;
             } else {
                 // query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
                 query = `SELECT

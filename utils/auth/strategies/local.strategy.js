@@ -13,7 +13,7 @@ const LocalStrategy = new Strategy(async (username, password, done) => {
         let dat = {};
         dat.username = username;
         dat.return_all = true;
-        dat.fields = ' user_id, names, surnames,  username, cell_phone, address,  profile_id, password, company_id, center_id';
+        dat.fields = ' a.user_id, a.names, a.surnames,  a.username, a.cell_phone, a.address,  a.profile_id, a.password, a.company_id, a.center_id, b.profile, c.center_name';
         let user = await usuarios.consulta(dat);
 
 
