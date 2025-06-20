@@ -236,31 +236,34 @@ class usuariosServices {
                 query = `select a.user_id as key, ${params.fields}   FROM
                         BOOKING_CONFIG.USERS A
                         LEFT JOIN BOOKING_CONFIG.PROFILES B ON (A.PROFILE_ID = B.PROFILE_ID)
-                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID) ${where}`;
+                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID)
+                        LEFT JOIN BOOKING_CONFIG.COMPANYS D ON (C.COMPANY_ID = D.COMPANY_ID) ${where}`;
             } else {
                 // query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
                 query = `SELECT
                         A.USER_ID AS KEY,
-                        	A.USER_ID,
-                            A.NAMES,
-                            A.EMAIL,
-                            A.SURNAMES,
-                            A.USERNAME,
-                            A.CELL_PHONE,
-                            A.ADDRESS,
-                            A.STATE,
-                            A.PROFILE_ID,
-                            A.COMPANY_ID,
-                            A.CENTER_ID,
-                            A.PASSWORD,
+                        A.USER_ID,
+                        A.NAMES,
+                        A.EMAIL,
+                        A.SURNAMES,
+                        A.USERNAME,
+                        A.CELL_PHONE,
+                        A.ADDRESS,
+                        A.STATE,
+                        A.PROFILE_ID,
+                        A.COMPANY_ID,
+                        A.CENTER_ID,
+                        A.PASSWORD,
                         A.UPDATED_BY::TEXT AS UPDATED_BY,
                         A.CREATED_AT::TEXT AS CREATED_AT,
                         B.PROFILE,
-                        C.CENTER_NAME
+                        C.CENTER_NAME,
+                        D.COMPANY_NAME
                     FROM
                         BOOKING_CONFIG.USERS A
                         LEFT JOIN BOOKING_CONFIG.PROFILES B ON (A.PROFILE_ID = B.PROFILE_ID)
-                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID) ${where}`;
+                        LEFT JOIN BOOKING_CONFIG.CENTERS C ON (A.CENTER_ID = C.CENTERS_ID)
+                        LEFT JOIN BOOKING_CONFIG.COMPANYS D ON (C.COMPANY_ID = D.COMPANY_ID) ${where}`;
             }
 
             let rta = await this.pool.query(query);
