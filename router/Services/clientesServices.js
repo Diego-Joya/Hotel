@@ -143,37 +143,39 @@ class clientesServices {
   async getAllClientes(params) {
     try {
       let where = 'where  1=1 ';
-      let fields = `customer_id as key,*,birthdate::text as birthdate,updated_by::text as updated_by,created_at::text as created_at, customer_id as key`;
+      let fields = `a.customer_id as key,a.*,a.birthdate::text as birthdate,a.updated_by::text as updated_by,
+      a.created_at::text as created_at,b.center_name, c.company_name`;
       if (typeof params.select != "undefined" && params.select == "true") {
-        fields = `customer_id as code, customer_id as key, no_document as name , concat(names ||' '||surnames) as fullname`
+        fields = `a.customer_id as code, a.customer_id as key, a.no_document as name , concat(names ||' '||surnames) as fullname`
       }
       if (typeof params.fecha_inicial != "undefined" && typeof params.fecha_final != "undefined" && params.fecha_inicial != "" && params.fecha_final != "") {
-        where += ` and created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
+        where += ` and a.created_at between '${params.fecha_inicial}' and '${params.fecha_final}'`
       }
       if (typeof params.exit_date_inicial != "undefined" && typeof params.exit_date_final != "undefined" && params.exit_date_inicial != "" && params.exit_date_final != "") {
-        where += ` and exit_date between '${params.exit_date_inicial}' and '${params.exit_date_final}'`
+        where += ` and a.exit_date between '${params.exit_date_inicial}' and '${params.exit_date_final}'`
       }
       if (typeof params.room_id != "undefined" && params.room_id != "") {
-        where += ` and room_id = '${params.room_id}'`
+        where += ` and a.room_id = '${params.room_id}'`
 
       }
       if (typeof params.customer_id != "undefined" && params.customer_id != "") {
-        where += ` and customer_id = '${params.customer_id}'`
+        where += ` and a.customer_id = '${params.customer_id}'`
       }
       if (typeof params.no_document != "undefined" && params.no_document != "") {
-        where += ` and no_document = '${params.no_document}'`
+        where += ` and a.no_document = '${params.no_document}'`
       }
       if (typeof params.name != "undefined" && params.name != "") {
-        where += ` and (names ilike('%${params.name}%') or surnames ilike('%${params.name}%'))`
+        where += ` and (a.names ilike('%${params.name}%') or a.surnames ilike('%${params.name}%'))`
       }
 
       if (typeof params.company_id != "undefined" && params.company_id != "") {
-        where += ` and company_id=${params.company_id}`;
+        where += ` and a.company_id=${params.company_id}`;
       }
       if (typeof params.center_id != "undefined" && params.center_id != "") {
-        where += ` and center_id=${params.center_id}`;
+        where += ` and a.center_id=${params.center_id}`;
       }
-      let query = `SELECT  ${fields} FROM booking_data.customers ${where}`;
+      let query = `SELECT  ${fields} FROM  booking_data.customers a left join booking_config.centers b
+       on (a.center_id= b.centers_id) left join booking_config.companys c on (b.company_id = c.company_id) ${where}`;
       let consulta = await this.pool.query(query);
       return consulta.rows;
 
