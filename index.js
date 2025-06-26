@@ -22,6 +22,7 @@ const allowedOrigins = [
 //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 //   credentials: true,
 // }));
+
 app.use(cors({
   origin: function (origin, callback) {
     // Permite solicitudes sin origen (como desde Postman)
