@@ -1,12 +1,16 @@
 const express = require('express');
-
+const menuServices = require('./Services/menuServices');
 const router = express.Router();
-
-router.get('/', (req, res, next) => {
+const services = new menuServices();
+router.get('/', async(req, res, next) => {
     try {
-        res.send('Lista de menús');
-        
-    } catch (error) {
+      const menus = await services.getAllMenus();
+      console.log('retorno de menus', menus);
+        res.json({
+            ok: true,
+            data: menus
+        })
+        } catch (error) {
         next(error);
     }
 });
