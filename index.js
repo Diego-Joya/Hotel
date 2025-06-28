@@ -13,7 +13,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'http://192.168.0.11:5173'
+  'http://192.168.0.11:5173',
+  'http://192.168.1.100:3000'
 ];
 
 

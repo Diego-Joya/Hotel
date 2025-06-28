@@ -44,7 +44,7 @@ router.post(
 
       res.cookie('token', token, {
         httpOnly: true,
-        secure: true,
+        secure: false,
         maxAge: 1 * 60 * 60 * 1000,
       });
 
@@ -109,6 +109,7 @@ router.post('/refresh-token', async (req, res, next) => {
 });
 router.post('/verify-sesion', async (req, res, next) => {
   try {
+    console.log(req.headers.cookie)
     const token = req.cookies.token;
     console.log('token aqui llega PUTO:', token);  
 
