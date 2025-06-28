@@ -46,6 +46,7 @@ router.post(
         httpOnly: true,
         secure: false,
         maxAge: 1 * 60 * 60 * 1000,
+         sameSite: 'lax'
       });
 
       // res.cookie('refreshToken', refreshToken, {
