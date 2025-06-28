@@ -44,6 +44,6 @@ require('./utils/auth');
 
 routerApi(app)
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log("mi puerto es " + port);
 })
