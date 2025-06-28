@@ -110,7 +110,7 @@ router.post('/refresh-token', async (req, res, next) => {
 router.post('/verify-sesion', async (req, res, next) => {
   try {
     const token = req.cookies.token;
-    console.log('token aqui llega puto:', token);  
+    console.log('token aqui llega PUTO:', token);  
 
     if (!token) {
       return res.status(401).json({ message: "No se envio token para validación" });
