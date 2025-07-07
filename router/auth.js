@@ -46,7 +46,7 @@ router.post(
         httpOnly: true,
         secure: false,
         maxAge: 1 * 60 * 60 * 1000,
-         sameSite: 'lax'
+        sameSite: 'lax'
       });
 
       // res.cookie('refreshToken', refreshToken, {
@@ -112,13 +112,25 @@ router.post('/verify-sesion', async (req, res, next) => {
   try {
     console.log(req.headers.cookie)
     const token = req.cookies.token;
-    console.log('token aqui llega PUTO:', token);  
+    console.log('token aqui llega PUTO:', token);
 
     if (!token) {
       return res.status(401).json({ message: "No se envio token para validación" });
     }
+    const decoded = jwt.decode(token);
 
-    const validateToken = await usuario.queryToken(token);
+    console.log('verrrrrrrr', decoded);
+    if (decoded == null) {
+      return res.status(401).json({ message: "Token no válido" });
+    }
+    let data = [];
+    data.user_id = decoded.sub;
+    data.profile_id = decoded.profile_id;
+    data.company_id = decoded.company_id;
+    data.center_id = decoded.center_id;
+
+
+    const validateToken = await usuario.queryToken(token, data);
     console.log('valida token', validateToken);
     // return;
 
@@ -135,6 +147,41 @@ router.post('/verify-sesion', async (req, res, next) => {
     if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "unauthorized" });
     }
+    next(error);
+  }
+});
+
+router.post('/logout', async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    console.log('token aqui llega PUTO:', token);
+
+    if (!token) {
+      return res.status(401).json({ message: "No se envio token para validación" });
+    }
+    const decoded = jwt.decode(token);
+
+    console.log('verrrrrrrr', decoded);
+
+    let data = [];
+    data.user_id = decoded.sub;
+    data.profile_id = decoded.profile_id;
+    data.company_id = decoded.company_id;
+    data.center_id = decoded.center_id;
+    if (!token) {
+      return res.status(400).json({ message: "No hay token para cerrar sesión" });
+    }
+
+    let deleteToken = await usuario.deleteToken(data);
+console.log('valores de deleteToken', deleteToken );
+    // res.clearCookie('token');
+    // res.clearCookie('refreshToken');
+
+    res.json({
+       isAuthenticated: true,
+      message: "Sesión cerrada correctamente" });
+
+  } catch (error) {
     next(error);
   }
 });

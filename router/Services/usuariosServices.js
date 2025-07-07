@@ -194,10 +194,34 @@ class usuariosServices {
         }
 
     }
-    async queryToken(token) {
+    async deleteToken(user, token) {
+        console.log("user", user);
+        console.log("token", token);
+        const fecha_delete_token = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        // const password_enc = await bcrypt.hash(password, 10);
+        // console.log(password_enc);
+        token = null;
+        const query = `UPDATE booking_config.users
+	SET token=$1, fecha_delete_token=$2,refreshtoken=null
+	WHERE  user_id=$3  RETURNING *`
+        try {
+            const rta = await this.pool.query(query, [token, fecha_delete_token, user.user_id]).catch((error) => {
+                return messageHandler(error);
+            })
+            return rta.rows;
+        } catch (error) {
+            return messageHandler(error);
+        }
+
+    }
+    async queryToken(token, user = null) {
 
         try {
             let where = ` where token='${token}'`
+            if( user != null) {
+                where += ` and user_id=${user.user_id}`;
+            }
             let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
 
             const query = `select ${fields} from  booking_config.users  ${where}`;
