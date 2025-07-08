@@ -174,7 +174,7 @@ router.post('/logout', async (req, res, next) => {
 
     let deleteToken = await usuario.deleteToken(data);
 console.log('valores de deleteToken', deleteToken );
-    // res.clearCookie('token');
+    res.clearCookie('token');
     // res.clearCookie('refreshToken');
 
     res.json({
