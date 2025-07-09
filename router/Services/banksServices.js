@@ -117,6 +117,15 @@ class banksServices {
     async getAllAccounts(param) {
         try {
             let where = `where  1=1 `;
+             let fields= `A.BANK_ACCOUNT_ID,
+                        A.BANK_ACCOUNT_ID AS KEY,
+                        A.NUMBER_ACCOUNTS,
+                        A.TYPE,
+                        A.CENTERS_ID,
+                        A.COMPANY_ID,
+                        A.BANK_ID,
+                        B.CENTER_NAME,
+                        C.BANK_NAME`;
             if (typeof param.number_accounts != "undefined" && param.number_accounts != "") {
                 where += ` and a.number_accounts='${param.number_accounts}'`;
             }
@@ -138,22 +147,16 @@ class banksServices {
             if (typeof param.bank_name != "undefined" && param.bank_name != "") {
                 where += ` and a.bank_name ilike('%${param.bank_name}%')`;
             }
+           if (typeof param.select != "undefined" && param.select == "true") {
+               fields = `A.BANK_ACCOUNT_ID as code, A.BANK_ACCOUNT_ID as key, CONCAT( C.BANK_NAME, ' ',  A.NUMBER_ACCOUNTS ) as name`;
+            }
 
             let query = `SELECT
-                        A.BANK_ACCOUNT_ID,
-                        A.BANK_ACCOUNT_ID AS KEY,
-                        A.NUMBER_ACCOUNTS,
-                        A.TYPE,
-                        A.CENTERS_ID,
-                        A.COMPANY_ID,
-                        A.BANK_ID,
-                        B.CENTER_NAME,
-                        C.BANK_NAME
+                        ${fields}
                     FROM
                         BOOKING_CONFIG.BANK_ACCOUNTS A
                         LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTERS_ID = B.CENTERS_ID)
                         LEFT JOIN BOOKING_CONFIG.BANKS C ON (A.BANK_ID = C.BANK_ID)  ${where}`;
-            console.log('query que hace', query);
             let rta = await this.pool.query(query);
             if (typeof param.return_all && param.return_all == true) {
                 return rta.rows;
