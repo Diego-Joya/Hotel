@@ -25,6 +25,8 @@ router.post(
       next();
     })(req, res, next);
   },
+
+
   async (req, res, next) => {
     try {
       const user = req.user;
@@ -67,47 +69,6 @@ router.post(
   }
 );
 
-router.post('/refresh-token', async (req, res, next) => {
-  try {
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({ message: "No se envio token para validación" });
-    }
-
-    const validateToken = await usuario.queryToken(token);
-    console.log('valida token', validateToken);
-    // return;
-
-    if (validateToken.length == 0) {
-      return res.status(401).json({ message: "token invalido!" });
-    }
-
-    // Verificar el refresh token
-    const decoded = jwt.verify(token, config.secret);
-
-    // Crear un nuevo access token
-    const newAccessToken = jwt.sign(
-      {
-        sub: decoded.sub,
-        profile_id: decoded.profile_id,
-        company_id: decoded.company_id,
-        center_id: decoded.center_id,
-      },
-      config.secret,
-      { expiresIn: '1h' }
-    );
-
-    await usuario.saveToken(decoded.sub, newAccessToken);
-
-    res.json({ accessToken: newAccessToken });
-
-  } catch (error) {
-    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "unauthorized" });
-    }
-    next(error);
-  }
-});
 router.post('/verify-sesion', async (req, res, next) => {
   try {
     console.log(req.headers.cookie)
@@ -173,15 +134,87 @@ router.post('/logout', async (req, res, next) => {
     }
 
     let deleteToken = await usuario.deleteToken(data);
-console.log('valores de deleteToken', deleteToken );
+    console.log('valores de deleteToken', deleteToken);
     res.clearCookie('token');
     // res.clearCookie('refreshToken');
 
     res.json({
-       isAuthenticated: true,
-      message: "Sesión cerrada correctamente" });
+      isAuthenticated: true,
+      message: "Sesión cerrada correctamente"
+    });
 
   } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/refresh-token', async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ message: "No se envio token para validación" });
+    }
+    const dataToken = jwt.decode(token);
+
+    console.log('verrrrrrrr', dataToken);
+
+    let data = [];
+    data.user_id = dataToken.sub;
+    data.profile_id = dataToken.profile_id;
+    data.company_id = dataToken.company_id;
+    data.center_id = dataToken.center_id;
+
+
+    const validateToken = await usuario.queryToken(token, data);
+    console.log('valida token', validateToken);
+    // return;
+
+    if (validateToken.length == 0) {
+      return res.status(401).json({ message: "token invalido!" });
+    }
+
+    // Verificar el refresh token
+    const decoded = jwt.verify(token, config.secret);
+
+    // Crear un nuevo access token
+    const newAccessToken = jwt.sign(
+      {
+        sub: decoded.sub,
+        profile_id: decoded.profile_id,
+        company_id: decoded.company_id,
+        center_id: decoded.center_id,
+      },
+      config.secret,
+      { expiresIn: '1h' }
+    );
+
+    await usuario.saveToken(decoded.sub, newAccessToken);
+
+    
+      res.cookie('token', newAccessToken, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 1 * 60 * 60 * 1000,
+        sameSite: 'lax'
+      });
+
+      // res.cookie('refreshToken', refreshToken, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   maxAge: 1 * 24 * 60 * 60 * 1000, 
+      // });
+      res.json({
+        user: validateToken[0],
+        isAuthenticated: true,
+        token: newAccessToken,
+        // refreshToken
+      });
+
+
+  } catch (error) {
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "unauthorized" });
+    }
     next(error);
   }
 });
