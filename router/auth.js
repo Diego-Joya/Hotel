@@ -163,15 +163,29 @@ router.post('/refresh-token', async (req, res, next) => {
     data.profile_id = dataToken.profile_id;
     data.company_id = dataToken.company_id;
     data.center_id = dataToken.center_id;
+    data.verify = true;
 
 
     const validateToken = await usuario.queryToken(token, data);
-    console.log('valida token', validateToken);
+    console.log('valida token a', validateToken);
     // return;
 
     if (validateToken.length == 0) {
       return res.status(401).json({ message: "token invalido!" });
     }
+
+    //validar refresh token
+    try {
+      const verifyRefreshToken = jwt.verify(validateToken[0].refreshtoken, config.secret);
+      console.log('verifyRefreshToken', verifyRefreshToken);
+
+    } catch (err) {
+  if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Refresh token expirado' });
+      }
+      return res.status(401).json({ message: 'Refresh token inválido' });
+    }
+
 
     // Verificar el refresh token
     const decoded = jwt.verify(token, config.secret);
@@ -190,25 +204,25 @@ router.post('/refresh-token', async (req, res, next) => {
 
     await usuario.saveToken(decoded.sub, newAccessToken);
 
-    
-      res.cookie('token', newAccessToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: 1 * 60 * 60 * 1000,
-        sameSite: 'lax'
-      });
 
-      // res.cookie('refreshToken', refreshToken, {
-      //   httpOnly: true,
-      //   secure: true,
-      //   maxAge: 1 * 24 * 60 * 60 * 1000, 
-      // });
-      res.json({
-        user: validateToken[0],
-        isAuthenticated: true,
-        token: newAccessToken,
-        // refreshToken
-      });
+    res.cookie('token', newAccessToken, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 1 * 60 * 60 * 1000,
+      sameSite: 'lax'
+    });
+
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   secure: true,
+    //   maxAge: 1 * 24 * 60 * 60 * 1000, 
+    // });
+    res.json({
+      user: validateToken[0],
+      isAuthenticated: true,
+      token: newAccessToken,
+      // refreshToken
+    });
 
 
   } catch (error) {

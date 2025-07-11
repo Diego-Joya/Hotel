@@ -219,10 +219,13 @@ class usuariosServices {
 
         try {
             let where = ` where token='${token}'`
-            if( user != null) {
+            if (user != null) {
                 where += ` and user_id=${user.user_id}`;
             }
             let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
+            if (typeof user.verify != 'undefined' && user.verify == true) {
+                fields += ', refreshtoken, fecha_creacion_refreshtoken';
+            }
 
             const query = `select ${fields} from  booking_config.users  ${where}`;
             console.log(query);
