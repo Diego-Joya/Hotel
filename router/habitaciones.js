@@ -28,14 +28,7 @@ router.get(
       parametros.return_all = true
       console.log(req.query);
       let value = [];
-      // if (Object.keys(req.query).length > 0) {
-      //   const { params } = req.query
-
-      //   value = await habitaciones.getHabitaciones(params);
-      //   console.log(params)
-      // } else {
       value = await habitaciones.getAllHabitaciones(parametros);
-      // }
       res.json({
         ok: true,
         data: value,

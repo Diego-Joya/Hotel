@@ -12,6 +12,7 @@ router.post('/', async (req, res, next) => {
         const body = req.body;
         console.log(body);
         const crear = await reservation.createReservation(body);
+        console.log("crear", crear);
         const { ok } = crear;
         if (ok == false) {
             res.send(crear);
