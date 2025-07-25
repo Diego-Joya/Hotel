@@ -2,9 +2,11 @@ const { array } = require('joi');
 const pool = require('../../libs/postgres.pool');
 const messageHandler = require('./../../middlewares/message.handler');
 const clientesServices = require('./clientesServices');
+const habitacionesServices = require('./habitacionesServices');
 const moment = require('moment');
 
 const clientes = new clientesServices();
+const habitaciones = new habitacionesServices();
 
 class reservationServices {
   constructor() {
@@ -59,8 +61,8 @@ class reservationServices {
         let booking_id = crearReserva.booking_id;
         let arrayRegisterBedrooms = [];
         for (let i = 0; i < body.rooms_reservations.length; i++) {
-         body.rooms_reservations[i].booking_id = booking_id;
-         let rooms_reservations= body.rooms_reservations[i];
+          body.rooms_reservations[i].booking_id = booking_id;
+          let rooms_reservations = body.rooms_reservations[i];
           let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
           console.log('registerBedrooms', registerBedrooms);
           if (registerBedrooms.ok == false) {
@@ -68,12 +70,24 @@ class reservationServices {
             return registerBedrooms;
           }
           arrayRegisterBedrooms.push(registerBedrooms[0]);
+
+
+          if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
+            let data = {};
+            data.room_id = rooms_reservations.room;
+            data.state = 'RESERVADA';
+            let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
+            if (stateBedroom.ok == false) {
+              await transaction.query('ROLLBACK');
+              return stateBedroom;
+            }
+          }
         }
 
-console.log ('arrayRegisterBedrooms', arrayRegisterBedrooms);
-console.log('arrayData', arrayData);
+        console.log('arrayRegisterBedrooms', arrayRegisterBedrooms);
+        console.log('arrayData', arrayData);
 
-arrayData.rooms_reservations= arrayRegisterBedrooms;
+        arrayData.rooms_reservations = arrayRegisterBedrooms;
 
 
         // arrayData.push(arrayRegisterBedrooms);
@@ -89,18 +103,17 @@ arrayData.rooms_reservations= arrayRegisterBedrooms;
   }
   async crear(body, transaction = null) {
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
-    const names = body.names;
-    const surnames = body.surnames;
     const no_document = body.no_document;
-    const reservation_date = fecha_hora;
+    const entry_date = body.entry_date;
     const state = 'SIN CONFIRMAR';
     const center_id = body.center_id;
-    // const room_type = body.room_type;
-    // const room_id = body.room_id;
     const created_by = body.created_by;
     const created_at = fecha_hora;
     const company_id = body.company_id;
     const customer_id = body.customer_id;
+    const exit_date = body.exit_date;
+    const total_days = body.total_days;
+    const number_persons = body.number_persons;
 
     try {
       let client = '';
@@ -109,22 +122,24 @@ arrayData.rooms_reservations= arrayRegisterBedrooms;
       } else {
         client = this.pool;
       }
+      //     const query = `INSERT INTO booking_data.bookings(
+      //   no_document, reservation_date, state, center_id, created_by,  created_at,  company_id, customer_id)
+      // VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
       const query = `INSERT INTO booking_data.bookings(
-	 names, surnames, no_document, reservation_date, state, center_id, created_by,  created_at,  company_id, customer_id)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
+	   no_document, entry_date, state, center_id, created_by, created_at, company_id, customer_id, exit_date, total_days, number_persons)
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 ) RETURNING *`;
       const rta = await client.query(query, [
-        names,
-        surnames,
         no_document,
-        reservation_date,
+        entry_date,
         state,
         center_id,
-        // room_type,
-        // room_id,
         created_by,
         created_at,
         company_id,
-        customer_id
+        customer_id,
+        exit_date,
+        total_days,
+        number_persons,
       ]);
       // return rta.rows[0];
       if (typeof rta.rows[0] != 'undefined') {
@@ -153,10 +168,10 @@ arrayData.rooms_reservations= arrayRegisterBedrooms;
     const room = body.room;
     const price = body.price;
     const room_type = body.room_type;
-  console.log('booking_id', booking_id);
-  console.log('room', room);
-  console.log('price', price);
-  console.log('room_type', room_type);
+    console.log('booking_id', booking_id);
+    console.log('room', room);
+    console.log('price', price);
+    console.log('room_type', room_type);
 
     try {
       let client = '';
@@ -168,7 +183,7 @@ arrayData.rooms_reservations= arrayRegisterBedrooms;
       const query = `INSERT INTO booking_data.rooms_reservations(
 	 room_type, room_id, price, booking_id)
 	VALUES ( $1, $2, $3, $4) RETURNING *`;
-  console.log('query', query);
+      console.log('query', query);
       const rta = await client.query(query, [
         room_type,
         room,
