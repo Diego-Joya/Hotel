@@ -16,7 +16,6 @@ class reservationServices {
   }
   async createReservation(body) {
     try {
-      console.log(body);
       const transaction = await pool.connect();
 
       await transaction.query('BEGIN');
@@ -24,7 +23,6 @@ class reservationServices {
       let arrayData = [];
 
       if (typeof body.customer_id == "undefined" || body.customer_id == '0' || body.customer_id == '') {
-        console.log('jajaj');
         let cliente = [];
         cliente.names = body.names;
         cliente.surnames = body.surnames;
@@ -39,7 +37,6 @@ class reservationServices {
         cliente.email = null;
         cliente.validar = false
         const crearCliente = await clientes.crear(cliente, transaction);
-        console.log("resul crear cliente", crearCliente);
         let { ok } = crearCliente;
         if (ok == false) {
           await transaction.query('ROLLBACK');
@@ -51,7 +48,6 @@ class reservationServices {
       }
 
       const crearReserva = await this.crear(body);
-      console.log("crearReserva", crearReserva);
       if (crearReserva.ok == false) {
         await transaction.query('ROLLBACK');
         return crearReserva;
@@ -64,12 +60,16 @@ class reservationServices {
           body.rooms_reservations[i].booking_id = booking_id;
           let rooms_reservations = body.rooms_reservations[i];
           let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
-          console.log('registerBedrooms', registerBedrooms);
           if (registerBedrooms.ok == false) {
             await transaction.query('ROLLBACK');
             return registerBedrooms;
           }
-          arrayRegisterBedrooms.push(registerBedrooms[0]);
+          let room = {};
+          room.no_room = rooms_reservations.room_text;
+          room.type_room = rooms_reservations.room_type_text;
+
+
+          arrayRegisterBedrooms.push(room);
 
 
           if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
@@ -84,16 +84,18 @@ class reservationServices {
           }
         }
 
-        console.log('arrayRegisterBedrooms', arrayRegisterBedrooms);
+        // arrayData.no_room = arrayRegisterBedrooms;
+        const resultado = arrayData.map((item, index) => {
+          return {
+            ...item,
+            no_room: arrayRegisterBedrooms[index]  // asigna según la posición
+          };
+        });
+
         console.log('arrayData', arrayData);
-
-        arrayData.rooms_reservations = arrayRegisterBedrooms;
-
-
-        // arrayData.push(arrayRegisterBedrooms);
-        console.log('arrayData', arrayData);
+        console.log('resultado', resultado);
         await transaction.query('COMMIT');
-        return arrayData;
+        return resultado;
       }
 
 
