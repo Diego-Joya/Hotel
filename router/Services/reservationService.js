@@ -55,6 +55,7 @@ class reservationServices {
       else {
         arrayData.push(crearReserva);
         let booking_id = crearReserva.booking_id;
+        console.log('booking_id|  ', booking_id);
         let arrayRegisterBedrooms = [];
         for (let i = 0; i < body.rooms_reservations.length; i++) {
           body.rooms_reservations[i].booking_id = booking_id;
@@ -147,10 +148,13 @@ class reservationServices {
       if (typeof rta.rows[0] != 'undefined') {
         let dat = {};
         dat.booking_id = rta.rows[0].booking_id;
+        console.log('crearReserva', rta.rows[0]);
         // values[0].key = values[0].room_id;
-        const consult = await this.gellAllReservations(dat);
+        // const consult = await this.gellAllReservations(dat);
 
-        return consult;
+        // return consult;
+        return rta.rows[0];
+
       } else {
         console.log("rta.rows", rta.rows);
         return rta.rows;
@@ -226,23 +230,37 @@ class reservationServices {
       if (typeof params.fields != 'undefined' && params.fields != null) {
         query = `select a.user_id as key, ${params.fields} from  booking_config.users a ${where}`;
       } else {
-        // query = `select user_id as key,*,updated_by::text as updated_by,created_at::text as created_at from  booking_config.users ${where}`;
+        //   query = `SELECT
+        //             A.*,
+        //             B.CENTER_NAME,
+        //             C.NAME AS ROO_TYPE_NAME,
+        //             D.NO_ROOM,
+        //             D.ROOM_TYPE AS TYPE_ROOM
+        //           FROM
+        //             BOOKING_DATA.BOOKINGS A
+        //             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
+        //             LEFT JOIN BOOKING_DATA.ROOMS_RESERVATIONS E ON (A.BOOKING_ID = E.BOOKING_ID)
+        //             LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (E.ROOM_TYPE = C.ID_ROOM_TYPE)
+        //             LEFT JOIN BOOKING_DATA.BEDROOMS D ON (E.ROOM_ID = D.ROOM_ID) ${where}`;
         query = `SELECT
                   A.*,
-                  B.CENTER_NAME,
-                  C.NAME AS ROO_TYPE_NAME,
-                  D.NO_ROOM,
-                  D.ROOM_TYPE AS TYPE_ROOM
+                  B.CENTER_NAME
                 FROM
                   BOOKING_DATA.BOOKINGS A
-                  LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
-                  LEFT JOIN BOOKING_DATA.ROOMS_RESERVATIONS E ON (A.BOOKING_ID = E.BOOKING_ID)
-                  LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (E.ROOM_TYPE = C.ID_ROOM_TYPE)
-                  LEFT JOIN BOOKING_DATA.BEDROOMS D ON (E.ROOM_ID = D.ROOM_ID) ${where}`;
+                  LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID) ${where}`;
       }
 
       let rta = await this.pool.query(query);
       if (typeof params.return_all && params.return_all == true) {
+        console.log('rta.rows', rta.rows);
+
+        for (let i = 0; i < rta.rows.length; i++) {
+          console.log('rta.rows[i]', rta.rows[i]);
+          let details = await this.getAllDetailsReservations(rta.rows[i]);
+          rta.rows[i].no_room = details;
+        }
+        // let details = await this.getAllDetailsReservations(rta.rows[0]);
+        console.log('details', rta.rows);
         return rta.rows;
       } else {
         return rta.rows[0];
@@ -252,6 +270,28 @@ class reservationServices {
       return messageHandler(error);
     }
   }
+  async getAllDetailsReservations(params) {
+    try {
+      console.log('params', params);
+      let where = ` where 1=1`;
+      if (typeof params.booking_id != "undefined" && params.booking_id != "") {
+        where += ` and A.BOOKING_ID=${params.booking_id}`;
+      }
+      let query = `SELECT
+                    C.NO_ROOM,
+                    C.ROOM_TYPE AS TYPE_ROOM
+                  FROM
+                    BOOKING_DATA.ROOMS_RESERVATIONS A
+                    LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
+                    LEFT JOIN BOOKING_DATA.BEDROOMS C ON (A.ROOM_ID = C.ROOM_ID) ${where}`;
+
+      let rta = await this.pool.query(query);
+      return rta.rows
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
 
 
 
