@@ -1,4 +1,3 @@
-const { array } = require('joi');
 const pool = require('../../libs/postgres.pool');
 const messageHandler = require('./../../middlewares/message.handler');
 const clientesServices = require('./clientesServices');
@@ -244,7 +243,7 @@ class reservationServices {
         //             LEFT JOIN BOOKING_DATA.BEDROOMS D ON (E.ROOM_ID = D.ROOM_ID) ${where}`;
         query = `SELECT
                   A.*,
-                  B.CENTER_NAME
+                  B.CENTER_NAME, A.BOOKING_ID as KEY
                 FROM
                   BOOKING_DATA.BOOKINGS A
                   LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID) ${where}`;
@@ -279,7 +278,7 @@ class reservationServices {
       }
       let query = `SELECT
                     C.NO_ROOM,
-                    C.ROOM_TYPE AS TYPE_ROOM
+                    B.NAME AS TYPE_ROOM
                   FROM
                     BOOKING_DATA.ROOMS_RESERVATIONS A
                     LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
