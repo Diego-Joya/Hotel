@@ -21,15 +21,22 @@ class menuServices {
       console.log('retorno de menus', rta.rows);
       let menus_ids = [];
       let Submenus_ids = [];
+      let accion = [];
       for (let i = 0; i < rta.rows.length; i++) {
         let element = rta.rows[i];
         menus_ids.push(element.menu_id);
+        let data = {};
+        data.menu_id = element.menu_id;
         if (element.submenu_id != null && element.submenu_id != '') {
           Submenus_ids.push(element.submenu_id);
+          data.submenu_id = element.submenu_id;
         }
+        data.actions = element.actions;
+        accion.push(data);
       }
       console.log('menus_ids', menus_ids);
       console.log('Submenus_ids', Submenus_ids);
+      console.log('data accion', accion);
 
 
       let whereMenus = menus_ids.join(',');
@@ -40,21 +47,37 @@ class menuServices {
       console.log('menus', menus.rows);
       console.log('submenus', submenus.rows);
 
- menus.rows.map(item => {
-  submenus.rows.map(sub => {
-    if (sub.menu_id === item.menu_id) {
-      if (typeof item.submenus === 'undefined') {
-        item.submenus = [];
-      }
-      item.submenus.push(sub);
-    }
-  })
+      menus.rows.map(item => {
+        submenus.rows.map(sub => {
+          accion.map(act => {
+            console.log('mirar validacion', act.menu_id == item.menu_id && act.submenu_id == sub.submenu_id);
+            // if (act.menu_id == item.menu_id && act.submenu_id == sub.submenu_id) {
 
- })
+            //   sub.accion = act.actions;
+            // } else {
+            //   item.accion = act.actions;
 
-console.log('menus final', menus);
+            // }
+            if (sub.menu_id === item.menu_id) {
+              if (typeof item.submenus === 'undefined') {
+                item.submenus = [];
+              }
+              if (act.submenu_id == sub.submenu_id) {
+                sub.accion = act.actions;
+              }
+              item.submenus.push(sub);
+            } else {
+              item.accion = act.actions;
 
-return menus.rows;
+            }
+          })
+        })
+
+      })
+
+      console.log('menus final', menus);
+
+      return menus.rows;
 
 
     } catch (error) {
