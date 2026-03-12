@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const { config } = require('./../config/config');
-const { connectionString } = require('pg/lib/defaults');
+// const { connectionString } = require('pg/lib/defaults');
 
 const USER = encodeURIComponent(config.dbUser);
 const PASSWORD = encodeURIComponent(config.dbPassword);

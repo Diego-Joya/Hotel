@@ -56,7 +56,7 @@ class usuariosServices {
         profile_id = body.profile_id;
       } else {
 
-        profile_id = '1';
+        profile_id = '11';
       }
       const company_id = body.company_id;
       let created_by = "";
@@ -70,7 +70,7 @@ class usuariosServices {
       const center_id = body.center_id;
 
       const password_enc = await bcrypt.hash(password, 10);
-      console.log(password_enc);
+      console.log(' body', body);
       let client = '';
 
       if (transaction != null) {
@@ -85,7 +85,7 @@ class usuariosServices {
         created_by, created_at, company_id, center_id]);
 
       // return rta.rows;
-      if (typeof rta.rows[0] != 'undefined') {
+      if (typeof rta.rows[0] != 'undefined' && transaction == null) {
         let params = {};
         params.user_id = rta.rows[0].user_id;
         console.log("params", params);
