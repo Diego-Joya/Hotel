@@ -54,7 +54,7 @@ router.post(
       // res.cookie('refreshToken', refreshToken, {
       //   httpOnly: true,
       //   secure: true,
-      //   maxAge: 1 * 24 * 60 * 60 * 1000, 
+      //   maxAge: 1 * 24 * 60 * 60 * 1000,
       // });
       delete user.password
       res.json({
@@ -76,7 +76,10 @@ router.post('/verify-sesion', async (req, res, next) => {
     console.log('token aqui llega PUTO:', token);
 
     if (!token) {
-      return res.status(401).json({ message: "No se envio token para validación" });
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: "No se envio token para validación"
+      });
     }
     const decoded = jwt.decode(token);
 
@@ -118,7 +121,10 @@ router.post('/logout', async (req, res, next) => {
     console.log('token aqui llega PUTO:', token);
 
     if (!token) {
-      return res.status(401).json({ message: "No se envio token para validación" });
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: "No se envio token para validación"
+      });
     }
     const decoded = jwt.decode(token);
 
@@ -130,7 +136,10 @@ router.post('/logout', async (req, res, next) => {
     data.company_id = decoded.company_id;
     data.center_id = decoded.center_id;
     if (!token) {
-      return res.status(400).json({ message: "No hay token para cerrar sesión" });
+      return res.status(400).json({
+        isAuthenticated: false,
+        message: "No hay token para cerrar sesión"
+      });
     }
 
     let deleteToken = await usuario.deleteToken(data);
@@ -152,7 +161,10 @@ router.post('/refresh-token', async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      return res.status(401).json({ message: "No se envio token para validación" });
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: "No se envio token para validación"
+      });
     }
     const dataToken = jwt.decode(token);
 
@@ -171,7 +183,10 @@ router.post('/refresh-token', async (req, res, next) => {
     // return;
 
     if (validateToken.length == 0) {
-      return res.status(401).json({ message: "token invalido!" });
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: "token invalido!"
+      });
     }
 
     //validar refresh token
@@ -180,10 +195,16 @@ router.post('/refresh-token', async (req, res, next) => {
       console.log('verifyRefreshToken', verifyRefreshToken);
 
     } catch (err) {
-  if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ message: 'Refresh token expirado' });
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          isAuthenticated: false,
+          message: 'Refresh token expirado'
+        });
       }
-      return res.status(401).json({ message: 'Refresh token inválido' });
+      return res.status(401).json({
+        isAuthenticated: false,
+        message: 'Refresh token inválido'
+      });
     }
 
 
@@ -215,7 +236,7 @@ router.post('/refresh-token', async (req, res, next) => {
     // res.cookie('refreshToken', refreshToken, {
     //   httpOnly: true,
     //   secure: true,
-    //   maxAge: 1 * 24 * 60 * 60 * 1000, 
+    //   maxAge: 1 * 24 * 60 * 60 * 1000,
     // });
     res.json({
       user: validateToken[0],
