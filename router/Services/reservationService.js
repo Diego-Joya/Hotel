@@ -88,7 +88,7 @@ class reservationServices {
         const resultado = arrayData.map((item, index) => {
           return {
             ...item,
-            no_room: arrayRegisterBedrooms[index]  // asigna según la posición
+            no_room: arrayRegisterBedrooms[index]
           };
         });
 
