@@ -114,11 +114,7 @@ class reservationServices {
         ...crearReserva,
         rooms_reservations: roomsReservationsResponse
       };
-      return {
-        ok: true,
-        message: 'Reserva creada correctamente',
-        data: responseData,
-      };
+      return responseData;
 
     } catch (error) {
       await transaction.query('ROLLBACK');
@@ -131,13 +127,13 @@ class reservationServices {
   // =========================================================
   // UPDATE RESERVATION
   // =========================================================
-  async updateReservation(body) {
+  async updateReservation(body, id) {
     const transaction = await this.pool.connect();
 
     try {
       await transaction.query('BEGIN');
 
-      if (!body.booking_id || body.booking_id == 0) {
+      if (!id || id == 0) {
         await transaction.query('ROLLBACK');
         return {
           ok: false,
@@ -146,7 +142,7 @@ class reservationServices {
       }
 
       // 1. Validar que exista la reserva
-      const bookingActual = await this.getReservationById(body.booking_id, transaction);
+      const bookingActual = await this.getReservationById(id, transaction);
       if (!bookingActual || bookingActual.ok === false) {
         await transaction.query('ROLLBACK');
         return {
@@ -156,7 +152,7 @@ class reservationServices {
       }
 
       // 2. Obtener habitaciones actuales
-      const habitacionesActuales = await this.getReservationRooms(body.booking_id, transaction);
+      const habitacionesActuales = await this.getReservationRooms(id, transaction);
       if (habitacionesActuales.ok === false) {
         await transaction.query('ROLLBACK');
         return habitacionesActuales;
@@ -188,6 +184,7 @@ class reservationServices {
       }
 
       // 5. Actualizar cabecera
+      body.booking_id = id;
       const actualizarReserva = await this.updateBooking(body, transaction);
       if (actualizarReserva.ok === false) {
         await transaction.query('ROLLBACK');
@@ -341,6 +338,7 @@ class reservationServices {
     const exit_date = body.exit_date;
     const total_days = body.total_days;
     const number_persons = body.number_persons;
+    const total_rooms = body.total_rooms;
 
     try {
       let client = transaction != null ? transaction : this.pool;
@@ -357,9 +355,10 @@ class reservationServices {
           customer_id,
           exit_date,
           total_days,
-          number_persons
+          number_persons,
+          total_rooms
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING *;
       `;
 
@@ -374,7 +373,8 @@ class reservationServices {
         customer_id,
         exit_date,
         total_days,
-        number_persons
+        number_persons,
+        total_rooms
       ]);
 
       if (typeof rta.rows[0] != 'undefined') {
@@ -409,7 +409,8 @@ class reservationServices {
           exit_date = $6,
           total_days = $7,
           number_persons = $8
-        WHERE booking_id = $9
+          total_rooms = $9
+        WHERE booking_id = $10
         RETURNING *;
       `;
 
@@ -422,6 +423,7 @@ class reservationServices {
         body.exit_date,
         body.total_days,
         body.number_persons,
+        body.total_rooms,
         body.booking_id
       ]);
 
