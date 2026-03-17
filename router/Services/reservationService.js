@@ -11,18 +11,26 @@ class reservationServices {
   constructor() {
     this.pool = pool;
     this.pool.on('error', (err) => console.log(err));
-
   }
-  async createReservation(body) {
-    try {
-      const transaction = await pool.connect();
 
+  // =========================================================
+  // CREATE RESERVATION
+  // =========================================================
+  async createReservation(body) {
+    const transaction = await this.pool.connect();
+
+    try {
       await transaction.query('BEGIN');
-      // let id_cliente = body.customer_id;
+
       let arrayData = [];
 
-      if (typeof body.customer_id == "undefined" || body.customer_id == '0' || body.customer_id == '') {
-        let cliente = [];
+      // Si no existe customer_id, crear cliente
+      if (
+        typeof body.customer_id == "undefined" ||
+        body.customer_id == '0' ||
+        body.customer_id == ''
+      ) {
+        let cliente = {};
         cliente.names = body.names;
         cliente.surnames = body.surnames;
         cliente.document_type = body.document_type;
@@ -34,77 +42,294 @@ class reservationServices {
         cliente.center_id = body.center_id;
         cliente.created_by = body.created_by;
         cliente.email = null;
-        cliente.validar = false
+        cliente.validar = false;
+
         const crearCliente = await clientes.crear(cliente, transaction);
-        let { ok } = crearCliente;
-        if (ok == false) {
+
+        if (crearCliente.ok === false) {
           await transaction.query('ROLLBACK');
           return crearCliente;
         } else {
-          arrayData.push(crearCliente[0]);
+          arrayData.push(crearCliente[0] || crearCliente);
           body.customer_id = crearCliente.customer_id;
         }
       }
 
-      const crearReserva = await this.crear(body);
-      if (crearReserva.ok == false) {
+      // IMPORTANTE: ahora sí pasa transaction
+      const crearReserva = await this.crear(body, transaction);
+      console.log("crearReserva", crearReserva);
+      if (crearReserva.ok === false) {
         await transaction.query('ROLLBACK');
         return crearReserva;
       }
-      else {
-        arrayData.push(crearReserva);
-        let booking_id = crearReserva.booking_id;
-        console.log('booking_id|  ', booking_id);
-        let arrayRegisterBedrooms = [];
-        for (let i = 0; i < body.rooms_reservations.length; i++) {
-          body.rooms_reservations[i].booking_id = booking_id;
-          let rooms_reservations = body.rooms_reservations[i];
-          let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
-          if (registerBedrooms.ok == false) {
-            await transaction.query('ROLLBACK');
-            return registerBedrooms;
-          }
-          let room = {};
-          room.no_room = rooms_reservations.room_text;
-          room.type_room = rooms_reservations.room_type_text;
 
+      arrayData.push(crearReserva);
 
-          arrayRegisterBedrooms.push(room);
+      let booking_id = crearReserva.booking_id;
+      let arrayRegisterBedrooms = [];
+      let roomsReservationsResponse = [];
+      for (let i = 0; i < body.rooms_reservations.length; i++) {
+        body.rooms_reservations[i].booking_id = booking_id;
+        let rooms_reservations = body.rooms_reservations[i];
 
+        let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
+        console.log("registerBedrooms", registerBedrooms);
 
-          if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
-            let data = {};
-            data.room_id = rooms_reservations.room;
-            data.state = 'RESERVADA';
-            let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
-            if (stateBedroom.ok == false) {
-              await transaction.query('ROLLBACK');
-              return stateBedroom;
-            }
-          }
+        if (registerBedrooms.ok === false) {
+          await transaction.query('ROLLBACK');
+          return registerBedrooms;
         }
 
-        // arrayData.no_room = arrayRegisterBedrooms;
-        const resultado = arrayData.map((item, index) => {
-          return {
-            ...item,
-            no_room: arrayRegisterBedrooms[index]
-          };
+        let room = {};
+        room.no_room = rooms_reservations.room_text;
+        room.type_room = rooms_reservations.room_type_text;
+
+        arrayRegisterBedrooms.push(room);
+
+        roomsReservationsResponse.push({
+          rooms_reservations_id: registerBedrooms[0]?.rooms_reservations_id || null,
+          room: rooms_reservations.room,
+          room_text: rooms_reservations.room_text,
+          room_type: rooms_reservations.room_type,
+          room_type_text: rooms_reservations.room_type_text,
+          price: rooms_reservations.price
         });
 
-        console.log('arrayData', arrayData);
-        console.log('resultado', resultado);
-        await transaction.query('COMMIT');
-        return resultado;
+        if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
+          let data = {};
+          data.room_id = rooms_reservations.room;
+          data.state = 'RESERVADA';
+
+          let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
+          if (stateBedroom.ok === false) {
+            await transaction.query('ROLLBACK');
+            return stateBedroom;
+          }
+          arrayData.push(arrayRegisterBedrooms);
+        }
       }
 
+      await transaction.query('COMMIT');
+      const responseData = {
+        ...crearReserva,
+        rooms_reservations: roomsReservationsResponse
+      };
+      return {
+        ok: true,
+        message: 'Reserva creada correctamente',
+        data: responseData,
+      };
 
     } catch (error) {
-      return messageHandler(error)
+      await transaction.query('ROLLBACK');
+      return messageHandler(error);
+    } finally {
+      transaction.release();
     }
   }
+
+  // =========================================================
+  // UPDATE RESERVATION
+  // =========================================================
+  async updateReservation(body) {
+    const transaction = await this.pool.connect();
+
+    try {
+      await transaction.query('BEGIN');
+
+      if (!body.booking_id || body.booking_id == 0) {
+        await transaction.query('ROLLBACK');
+        return {
+          ok: false,
+          message: 'El booking_id es obligatorio para actualizar la reserva'
+        };
+      }
+
+      // 1. Validar que exista la reserva
+      const bookingActual = await this.getReservationById(body.booking_id, transaction);
+      if (!bookingActual || bookingActual.ok === false) {
+        await transaction.query('ROLLBACK');
+        return {
+          ok: false,
+          message: 'La reserva no existe'
+        };
+      }
+
+      // 2. Obtener habitaciones actuales
+      const habitacionesActuales = await this.getReservationRooms(body.booking_id, transaction);
+      if (habitacionesActuales.ok === false) {
+        await transaction.query('ROLLBACK');
+        return habitacionesActuales;
+      }
+
+      // 3. Liberar habitaciones actuales
+      for (let i = 0; i < habitacionesActuales.length; i++) {
+        if (habitacionesActuales[i].room_id) {
+          let data = {
+            room_id: habitacionesActuales[i].room_id,
+            state: 'DISPONIBLE'
+          };
+
+          let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
+          if (liberarHabitacion.ok === false) {
+            await transaction.query('ROLLBACK');
+            return liberarHabitacion;
+          }
+        }
+      }
+
+      // 4. Actualizar cliente (opcional)
+      if (body.customer_id && body.customer_id != '0') {
+        const actualizarCliente = await this.updateCustomerIfNeeded(body, transaction);
+        if (actualizarCliente.ok === false) {
+          await transaction.query('ROLLBACK');
+          return actualizarCliente;
+        }
+      }
+
+      // 5. Actualizar cabecera
+      const actualizarReserva = await this.updateBooking(body, transaction);
+      if (actualizarReserva.ok === false) {
+        await transaction.query('ROLLBACK');
+        return actualizarReserva;
+      }
+
+      // 6. Eliminar detalles viejos
+      const eliminarDetalles = await this.deleteReservationRooms(body.booking_id, transaction);
+      if (eliminarDetalles.ok === false) {
+        await transaction.query('ROLLBACK');
+        return eliminarDetalles;
+      }
+
+      // 7. Insertar nuevos detalles y reservar nuevas habitaciones
+      let arrayRegisterBedrooms = [];
+
+      for (let i = 0; i < body.rooms_reservations.length; i++) {
+        body.rooms_reservations[i].booking_id = body.booking_id;
+        let rooms_reservations = body.rooms_reservations[i];
+
+        let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
+        if (registerBedrooms.ok === false) {
+          await transaction.query('ROLLBACK');
+          return registerBedrooms;
+        }
+
+        let room = {};
+        room.no_room = rooms_reservations.room_text;
+        room.type_room = rooms_reservations.room_type_text;
+        arrayRegisterBedrooms.push(room);
+
+        if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
+          let data = {
+            room_id: rooms_reservations.room,
+            state: 'RESERVADA'
+          };
+
+          let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
+          if (stateBedroom.ok === false) {
+            await transaction.query('ROLLBACK');
+            return stateBedroom;
+          }
+        }
+      }
+
+      await transaction.query('COMMIT');
+
+      return {
+        ok: true,
+        message: 'Reserva actualizada correctamente',
+        booking_id: body.booking_id,
+        no_room: arrayRegisterBedrooms
+      };
+
+    } catch (error) {
+      await transaction.query('ROLLBACK');
+      return messageHandler(error);
+    } finally {
+      transaction.release();
+    }
+  }
+
+  // =========================================================
+  // CANCEL RESERVATION
+  // =========================================================
+  async cancelReservation(body) {
+    const transaction = await this.pool.connect();
+
+    try {
+      await transaction.query('BEGIN');
+
+      if (!body.booking_id || body.booking_id == 0) {
+        await transaction.query('ROLLBACK');
+        return {
+          ok: false,
+          message: 'El booking_id es obligatorio para cancelar la reserva'
+        };
+      }
+
+      // 1. Buscar habitaciones de la reserva
+      const habitacionesActuales = await this.getReservationRooms(body.booking_id, transaction);
+      if (habitacionesActuales.ok === false) {
+        await transaction.query('ROLLBACK');
+        return habitacionesActuales;
+      }
+
+      // 2. Liberar habitaciones
+      for (let i = 0; i < habitacionesActuales.length; i++) {
+        if (habitacionesActuales[i].room_id) {
+          let data = {
+            room_id: habitacionesActuales[i].room_id,
+            state: 'DISPONIBLE'
+          };
+
+          let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
+          if (liberarHabitacion.ok === false) {
+            await transaction.query('ROLLBACK');
+            return liberarHabitacion;
+          }
+        }
+      }
+
+      // 3. Cambiar estado de la reserva a CANCELADA
+      const query = `
+        UPDATE booking_data.bookings
+        SET state = 'CANCELADA'
+        WHERE booking_id = $1
+        RETURNING *;
+      `;
+
+      const rta = await transaction.query(query, [body.booking_id]);
+
+      if (rta.rows.length === 0) {
+        await transaction.query('ROLLBACK');
+        return {
+          ok: false,
+          message: 'No se pudo cancelar la reserva'
+        };
+      }
+
+      await transaction.query('COMMIT');
+
+      return {
+        ok: true,
+        message: 'Reserva cancelada correctamente',
+        data: rta.rows[0]
+      };
+
+    } catch (error) {
+      await transaction.query('ROLLBACK');
+      return messageHandler(error);
+    } finally {
+      transaction.release();
+    }
+  }
+
+  // =========================================================
+  // CREATE BOOKING HEADER
+  // =========================================================
   async crear(body, transaction = null) {
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
+
     const no_document = body.no_document;
     const entry_date = body.entry_date;
     const state = 'SIN CONFIRMAR';
@@ -118,18 +343,26 @@ class reservationServices {
     const number_persons = body.number_persons;
 
     try {
-      let client = '';
-      if (transaction != null) {
-        client = transaction
-      } else {
-        client = this.pool;
-      }
-      //     const query = `INSERT INTO booking_data.bookings(
-      //   no_document, reservation_date, state, center_id, created_by,  created_at,  company_id, customer_id)
-      // VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`;
-      const query = `INSERT INTO booking_data.bookings(
-	   no_document, entry_date, state, center_id, created_by, created_at, company_id, customer_id, exit_date, total_days, number_persons)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 ) RETURNING *`;
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        INSERT INTO booking_data.bookings(
+          no_document,
+          entry_date,
+          state,
+          center_id,
+          created_by,
+          created_at,
+          company_id,
+          customer_id,
+          exit_date,
+          total_days,
+          number_persons
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING *;
+      `;
+
       const rta = await client.query(query, [
         no_document,
         entry_date,
@@ -141,72 +374,230 @@ class reservationServices {
         customer_id,
         exit_date,
         total_days,
-        number_persons,
+        number_persons
       ]);
-      // return rta.rows[0];
+
       if (typeof rta.rows[0] != 'undefined') {
-        let dat = {};
-        dat.booking_id = rta.rows[0].booking_id;
-        console.log('crearReserva', rta.rows[0]);
-        // values[0].key = values[0].room_id;
-        // const consult = await this.gellAllReservations(dat);
-
-        // return consult;
         return rta.rows[0];
-
       } else {
-        console.log("rta.rows", rta.rows);
-        return rta.rows;
+        return {
+          ok: false,
+          message: 'No se pudo crear la reserva'
+        };
       }
 
-
-
     } catch (error) {
-      return messageHandler(error)
+      return messageHandler(error);
     }
-
   }
 
+  // =========================================================
+  // UPDATE BOOKING HEADER
+  // =========================================================
+  async updateBooking(body, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        UPDATE booking_data.bookings
+        SET
+          no_document = $1,
+          entry_date = $2,
+          center_id = $3,
+          company_id = $4,
+          customer_id = $5,
+          exit_date = $6,
+          total_days = $7,
+          number_persons = $8
+        WHERE booking_id = $9
+        RETURNING *;
+      `;
+
+      const rta = await client.query(query, [
+        body.no_document,
+        body.entry_date,
+        body.center_id,
+        body.company_id,
+        body.customer_id,
+        body.exit_date,
+        body.total_days,
+        body.number_persons,
+        body.booking_id
+      ]);
+
+      if (rta.rows.length > 0) {
+        return rta.rows[0];
+      }
+
+      return {
+        ok: false,
+        message: 'No se pudo actualizar la reserva'
+      };
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
+  // =========================================================
+  // INSERT ROOMS RESERVATIONS
+  // =========================================================
   async registerBedrooms(body, transaction = null) {
-    console.log('body', body);
     const booking_id = body.booking_id;
     const room = body.room;
     const price = body.price;
     const room_type = body.room_type;
-    console.log('booking_id', booking_id);
-    console.log('room', room);
-    console.log('price', price);
-    console.log('room_type', room_type);
 
     try {
-      let client = '';
-      if (transaction != null) {
-        client = transaction
-      } else {
-        client = this.pool;
-      }
-      const query = `INSERT INTO booking_data.rooms_reservations(
-	 room_type, room_id, price, booking_id)
-	VALUES ( $1, $2, $3, $4) RETURNING *`;
-      console.log('query', query);
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        INSERT INTO booking_data.rooms_reservations(
+          room_type,
+          room_id,
+          price,
+          booking_id
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+      `;
+
       const rta = await client.query(query, [
         room_type,
         room,
         price,
         booking_id
-
       ]);
-      // return rta.rows[0];
+
       return rta.rows;
+
     } catch (error) {
-      return messageHandler(error)
+      return messageHandler(error);
     }
   }
 
+  // =========================================================
+  // GET BOOKING BY ID
+  // =========================================================
+  async getReservationById(booking_id, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
 
+      const query = `
+        SELECT *
+        FROM booking_data.bookings
+        WHERE booking_id = $1
+        LIMIT 1;
+      `;
+
+      const rta = await client.query(query, [booking_id]);
+
+      if (rta.rows.length > 0) {
+        return rta.rows[0];
+      }
+
+      return null;
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
+  // =========================================================
+  // GET RESERVATION ROOMS
+  // =========================================================
+  async getReservationRooms(booking_id, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        SELECT rooms_reservations_id, booking_id, room_id, room_type, price
+        FROM booking_data.rooms_reservations
+        WHERE booking_id = $1;
+      `;
+
+      const rta = await client.query(query, [booking_id]);
+      return rta.rows;
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
+  // =========================================================
+  // DELETE RESERVATION ROOMS
+  // =========================================================
+  async deleteReservationRooms(booking_id, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        DELETE FROM booking_data.rooms_reservations
+        WHERE booking_id = $1;
+      `;
+
+      await client.query(query, [booking_id]);
+
+      return {
+        ok: true,
+        message: 'Detalles anteriores eliminados'
+      };
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
+  // =========================================================
+  // UPDATE CUSTOMER IF NEEDED
+  // =========================================================
+  async updateCustomerIfNeeded(body, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      // CAMBIAR booking_data.customers por tu tabla real
+      const query = `
+        UPDATE booking_data.customers
+        SET
+          names = $1,
+          surnames = $2,
+          document_type = $3,
+          no_document = $4,
+          cell_phone = $5
+        WHERE customer_id = $6
+        RETURNING *;
+      `;
+
+      const rta = await client.query(query, [
+        body.names,
+        body.surnames,
+        body.document_type,
+        body.no_document,
+        body.cell_phone,
+        body.customer_id
+      ]);
+
+      if (rta.rows.length > 0) {
+        return rta.rows[0];
+      }
+
+      return {
+        ok: false,
+        message: 'No se pudo actualizar el cliente'
+      };
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
+  // =========================================================
+  // LIST / GET ALL RESERVATIONS
+  // =========================================================
   async gellAllReservations(params) {
     try {
       let where = ` where 1=1`;
+
       if (typeof params.usernames != "undefined" && params.usernames != "") {
         where += ` and a.usernames='${params.usernames}'`;
       }
@@ -225,41 +616,31 @@ class reservationServices {
       if (typeof params.room_id != "undefined" && params.room_id != "") {
         where += ` and e.room_id=${params.room_id}`;
       }
-      let query = ''
+
+      let query = '';
+
       if (typeof params.fields != 'undefined' && params.fields != null) {
-        query = `select a.user_id as key, ${params.fields} from  booking_config.users a ${where}`;
+        query = `select a.user_id as key, ${params.fields} from booking_config.users a ${where}`;
       } else {
-        //   query = `SELECT
-        //             A.*,
-        //             B.CENTER_NAME,
-        //             C.NAME AS ROO_TYPE_NAME,
-        //             D.NO_ROOM,
-        //             D.ROOM_TYPE AS TYPE_ROOM
-        //           FROM
-        //             BOOKING_DATA.BOOKINGS A
-        //             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
-        //             LEFT JOIN BOOKING_DATA.ROOMS_RESERVATIONS E ON (A.BOOKING_ID = E.BOOKING_ID)
-        //             LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (E.ROOM_TYPE = C.ID_ROOM_TYPE)
-        //             LEFT JOIN BOOKING_DATA.BEDROOMS D ON (E.ROOM_ID = D.ROOM_ID) ${where}`;
-        query = `SELECT
-                  A.*,
-                  B.CENTER_NAME, A.BOOKING_ID as KEY
-                FROM
-                  BOOKING_DATA.BOOKINGS A
-                  LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID) ${where}`;
+        query = `
+          SELECT
+            A.*,
+            B.CENTER_NAME,
+            A.BOOKING_ID as KEY
+          FROM
+            BOOKING_DATA.BOOKINGS A
+            LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
+          ${where}
+        `;
       }
 
       let rta = await this.pool.query(query);
-      if (typeof params.return_all && params.return_all == true) {
-        console.log('rta.rows', rta.rows);
 
+      if (typeof params.return_all != 'undefined' && params.return_all == true) {
         for (let i = 0; i < rta.rows.length; i++) {
-          console.log('rta.rows[i]', rta.rows[i]);
           let details = await this.getAllDetailsReservations(rta.rows[i]);
           rta.rows[i].no_room = details;
         }
-        // let details = await this.getAllDetailsReservations(rta.rows[0]);
-        console.log('details', rta.rows);
         return rta.rows;
       } else {
         return rta.rows[0];
@@ -269,31 +650,41 @@ class reservationServices {
       return messageHandler(error);
     }
   }
+
+  // =========================================================
+  // GET DETAILS RESERVATION
+  // =========================================================
   async getAllDetailsReservations(params) {
     try {
-      console.log('params', params);
       let where = ` where 1=1`;
+
       if (typeof params.booking_id != "undefined" && params.booking_id != "") {
         where += ` and A.BOOKING_ID=${params.booking_id}`;
       }
-      let query = `SELECT
-                    C.NO_ROOM,
-                    B.NAME AS TYPE_ROOM
-                  FROM
-                    BOOKING_DATA.ROOMS_RESERVATIONS A
-                    LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
-                    LEFT JOIN BOOKING_DATA.BEDROOMS C ON (A.ROOM_ID = C.ROOM_ID) ${where}`;
+
+      let query = `
+        SELECT
+          A.ROOMS_RESERVATIONS_ID,
+          A.BOOKING_ID,
+          A.ROOM_ID,
+          A.ROOM_TYPE,
+          A.PRICE,
+          C.NO_ROOM,
+          B.NAME AS TYPE_ROOM
+        FROM
+          BOOKING_DATA.ROOMS_RESERVATIONS A
+          LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
+          LEFT JOIN BOOKING_DATA.BEDROOMS C ON (A.ROOM_ID = C.ROOM_ID)
+        ${where}
+      `;
 
       let rta = await this.pool.query(query);
-      return rta.rows
+      return rta.rows;
+
     } catch (error) {
       return messageHandler(error);
     }
   }
-
-
-
-
 }
 
 module.exports = reservationServices;
