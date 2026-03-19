@@ -35,12 +35,12 @@ router.patch(
             const { id } = req.params;
             const body = req.body;
             console.log(body);
-            res.send({
-                ok: false,
-                message: 'En desarrollo... Aguanta puto'
-            });
-            return;
-            const actualizar = await reservation.actualizar(id, body);
+            // res.send({
+            //     ok: false,
+            //     message: 'En desarrollo... Aguanta puto'
+            // });
+            // return;
+            const actualizar = await reservation.updateReservation(body, id);
             console.log("return", actualizar);
             const { ok } = actualizar
             if (ok == false) {

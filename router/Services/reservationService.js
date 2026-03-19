@@ -62,7 +62,6 @@ class reservationServices {
         await transaction.query('ROLLBACK');
         return crearReserva;
       }
-
       arrayData.push(crearReserva);
 
       let booking_id = crearReserva.booking_id;
@@ -110,6 +109,14 @@ class reservationServices {
       }
 
       await transaction.query('COMMIT');
+      let cliente = await clientes.getAllClientes({ customer_id: body.customer_id });
+      console.log("cliente", cliente);
+      crearReserva.customer_id = cliente[0]?.customer_id;
+      crearReserva.names = cliente[0]?.names;
+      crearReserva.surnames = cliente[0]?.surnames;
+      crearReserva.document_type = cliente[0]?.document_type;
+      crearReserva.no_document = cliente[0]?.no_document;
+      crearReserva.cell_phone = cliente[0]?.cell_phone;
       const responseData = {
         ...crearReserva,
         rooms_reservations: roomsReservationsResponse
@@ -408,7 +415,7 @@ class reservationServices {
           customer_id = $5,
           exit_date = $6,
           total_days = $7,
-          number_persons = $8
+          number_persons = $8,
           total_rooms = $9
         WHERE booking_id = $10
         RETURNING *;
@@ -627,6 +634,9 @@ class reservationServices {
         query = `
           SELECT
             A.*,
+            A.CREATED_AT::TEXT AS CREATED_AT,
+            A.EXIT_DATE::TEXT AS EXIT_DATE,
+            A.ENTRY_DATE::TEXT AS ENTRY_DATE,
             B.CENTER_NAME,
             A.BOOKING_ID as KEY
           FROM
