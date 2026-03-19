@@ -117,6 +117,7 @@ class reservationServices {
       crearReserva.document_type = cliente[0]?.document_type;
       crearReserva.no_document = cliente[0]?.no_document;
       crearReserva.cell_phone = cliente[0]?.cell_phone;
+
       const responseData = {
         ...crearReserva,
         rooms_reservations: roomsReservationsResponse
@@ -638,14 +639,21 @@ class reservationServices {
             A.EXIT_DATE::TEXT AS EXIT_DATE,
             A.ENTRY_DATE::TEXT AS ENTRY_DATE,
             B.CENTER_NAME,
-            A.BOOKING_ID as KEY
+            A.BOOKING_ID as KEY,
+            C.NAMES || ' ' || C.SURNAMES AS CUSTOMER_NAME,
+            C.DOCUMENT_TYPE,
+            C.NO_DOCUMENT,
+            C.NAMES,
+            C.SURNAMES,
+            C.CELL_PHONE
           FROM
             BOOKING_DATA.BOOKINGS A
             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
+            LEFT JOIN booking_data.customers C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
           ${where}
         `;
       }
-
+      console.log('query', query);
       let rta = await this.pool.query(query);
 
       if (typeof params.return_all != 'undefined' && params.return_all == true) {
