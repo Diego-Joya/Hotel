@@ -78,5 +78,23 @@ router.get('/',
     }
 
   });
+router.get('/calendar',
+  // passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const parametros = req.query
+      parametros.return_all = true;
+      const consulta = await reservation.getReservationsCalendar(parametros);
+      console.log('consulta', consulta);
+      res.json({
+        ok: true,
+        data: consulta
+      })
+
+    } catch (error) {
+      next(error);
+    }
+
+  });
 
 module.exports = router;

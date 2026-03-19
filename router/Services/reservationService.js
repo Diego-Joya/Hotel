@@ -705,6 +705,37 @@ class reservationServices {
       return messageHandler(error);
     }
   }
+  async getReservationsCalendar(params) {
+    try {
+      let where = ` where 1=1`;
+
+      if (typeof params.booking_id != "undefined" && params.booking_id != "") {
+        where += ` and A.BOOKING_ID=${params.booking_id}`;
+      }
+
+      let query = `
+        SELECT
+          A.BOOKING_ID AS ID,
+          D.NO_ROOM,
+CONCAT(  D.NO_ROOM || E.NAMES, ' ', E.SURNAMES) AS TITLE,
+          A.ENTRY_DATE::DATE::TEXT AS START,
+          A.EXIT_DATE::DATE::TEXT AS END
+        FROM
+        BOOKING_DATA.BOOKINGS A
+          LEFT JOIN BOOKING_DATA.ROOMS_RESERVATIONS B ON (A.BOOKING_ID = B.BOOKING_ID)
+          LEFT JOIN BOOKING_DATA.ROOM_TYPE C ON (B.ROOM_TYPE = C.ID_ROOM_TYPE)
+          LEFT JOIN BOOKING_DATA.BEDROOMS D ON (B.ROOM_ID = D.ROOM_ID)
+          LEFT JOIN BOOKING_DATA.CUSTOMERS E ON (A.CUSTOMER_ID = E.CUSTOMER_ID)
+        ${where}
+      `;
+
+      let rta = await this.pool.query(query);
+      return rta.rows;
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
 }
 
 module.exports = reservationServices;
