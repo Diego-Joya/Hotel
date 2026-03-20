@@ -736,6 +736,27 @@ CONCAT(  D.NO_ROOM || E.NAMES, ' ', E.SURNAMES) AS TITLE,
       return messageHandler(error);
     }
   }
+  async confirm_cancel_Booking(body, id) {
+    try {
+      console.log("id", id);
+      const query = `
+        UPDATE booking_data.bookings
+        SET
+          state = $1
+        WHERE booking_id = $2
+        RETURNING *`;
+
+      const rta = await this.pool.query(query, [
+        body.state,
+        id
+      ]);
+      console.log("rta", rta.rows);
+      return rta.rows[0];
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
 }
 
 module.exports = reservationServices;

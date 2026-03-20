@@ -59,6 +59,67 @@ router.patch(
   },
 );
 
+router.patch(
+  '/confirm/:id',
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      console.log(body);
+      // res.send({
+      //     ok: false,
+      //     message: 'En desarrollo... Aguanta puto'
+      // });
+      // return;
+      const actualizar = await reservation.confirm_cancel_Booking(body, id);
+      console.log("return", actualizar);
+      const { ok } = actualizar
+      if (ok == false) {
+        res.send(actualizar);
+      } else {
+        res.json({
+          ok: true,
+          message: 'Cancelación de reserva exitosa!',
+          data: actualizar,
+          id,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+router.patch(
+  '/cancel/:id',
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      console.log(body);
+      // res.send({
+      //     ok: false,
+      //     message: 'En desarrollo... Aguanta puto'
+      // });
+      // return;
+      const actualizar = await reservation.confirm_cancel_Booking(body, id);
+      console.log("return", actualizar);
+      const { ok } = actualizar
+      if (ok == false) {
+        res.send(actualizar);
+      } else {
+        res.json({
+          ok: true,
+          message: 'Confirmación de reserva exitosa!',
+          data: actualizar,
+          id,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 
 router.get('/',
   // passport.authenticate('jwt', { session: false }),
