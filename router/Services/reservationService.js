@@ -337,7 +337,7 @@ class reservationServices {
 
     const no_document = body.no_document;
     const entry_date = body.entry_date;
-    const state = 'SIN CONFIRMAR';
+    const state = 'PENDIENTE CONFIRMAR';
     const center_id = body.center_id;
     const created_by = body.created_by;
     const created_at = fecha_hora;
