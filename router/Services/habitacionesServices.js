@@ -198,6 +198,8 @@ class habitacionesServices {
 
   async getAllHabitaciones(param) {
     try {
+      console.log("parametros de busqueda", param);
+
       let where = `where  1=1 `;
       let fields = `a.room_id as key,a.*,a.updated_by::text as updated_by,a.created_at::text as created_at, a.fecha::text as fecha,b.name as room_type_name`;
       if (typeof param.room_id != "undefined" && param.room_id != "") {
@@ -216,7 +218,8 @@ class habitacionesServices {
         where += ` and a.state='${param.state}'`;
       }
       if (typeof param.select != "undefined" && param.select == "true") {
-        fields = `a.room_id as code, a.room_id as key, a.no_room as name, a.val_min, a.val_max`
+        console.log("entra a select true");
+        fields = `a.room_id as code, a.room_id as key, a.no_room as name, a.val_min, a.val_max,b.id_room_type`
       }
       if (typeof param.company_id != "undefined" && param.company_id != "") {
         where += ` and a.company_id=${param.company_id}`;
@@ -234,6 +237,7 @@ class habitacionesServices {
       // return rta.rows
 
       if (typeof param.return_all && param.return_all == true) {
+        // console.log("rta.rows", rta.rows);
         return rta.rows;
       } else {
         return rta.rows[0];

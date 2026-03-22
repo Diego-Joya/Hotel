@@ -28,6 +28,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+
 router.patch(
   '/:id',
   async (req, res, next) => {
@@ -157,5 +158,33 @@ router.get('/calendar',
     }
 
   });
+  router.get('/rooms_details/', async (req, res, next) => {
+  try {
+    const parametros = req.query;
+    console.log(parametros);
+    const consulta = await reservation.rooms_Booking(parametros);
+    res.json({
+      ok: true,
+      data: consulta,
+    })
+
+  } catch (error) {
+    next(error);
+  }
+});
+router.get('/rooms_available/', async (req, res, next) => {
+  try {
+    const parametros = req.query;
+    console.log(parametros);
+    const consulta = await reservation.rooms_available(parametros);
+    res.json({
+      ok: true,
+      data: consulta,
+    })
+
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
