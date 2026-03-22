@@ -90,8 +90,11 @@ class maestroHabitacionServices {
             if (typeof params.name != "undefined") {
                 where += ` and name = '${params.name}'`
             }
-            if (typeof params.type != "undefined") {
-                where += ` and type = '${params.type}'`
+            if (typeof params.center_id != "undefined" && params.center_id != "") {
+                where += ` and center_id = '${params.center_id}'`
+            }
+            if (typeof params.company_id != "undefined" && params.company_id != "") {
+                where += ` and company_id = '${params.company_id}'`
             }
 
             // let consulta = await this.pool.query(`SELECT entry_id as key, * FROM booking_data.entries ${where}`);

@@ -784,6 +784,12 @@ CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
       if (typeof params.exit_date != "undefined" && params.exit_date != "" && params.entry_date == "") {
         where += ` and A.EXIT_DATE  BETWEEN '${params.exit_date}' AND  '${params.entry_date}'`
       }
+      if (typeof params.center_id != "undefined" && params.center_id != "") {
+        where += ` and A.CENTER_ID = '${params.center_id}'`
+      }
+      if (typeof params.company_id != "undefined" && params.company_id != "") {
+        where += ` and B.COMPANY_ID = '${params.company_id}'`
+      }
 
 
       let fields = ` A.ROOMS_RESERVATIONS_ID,
@@ -852,7 +858,7 @@ CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
 
       const rooms = await this.rooms_Booking(data);
       console.log("rooms", rooms);
-      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true' });
+      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id });
       console.log("allRooms", allRooms);
       let rooms_available = [];
       for (let i = 0; i < allRooms.length; i++) {
@@ -872,7 +878,7 @@ CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
           rooms_available.push(room);
         }
       }
-      let maestroHabitacionData = await maestroHabitacion.getAll({ select: 'true' });
+      let maestroHabitacionData = await maestroHabitacion.getAll({ select: 'true', center_id: params.center_id });
       console.log("maestroHabitacionData", maestroHabitacionData);
 
       const data_return = {
