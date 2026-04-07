@@ -12,6 +12,61 @@ class ingresoClientesServices {
   async saveIngresoClientes(body) {
 
     console.log("body", body);
+    return;
+    const room_id = body.room_id;
+    const customer_id = body.customer_id;
+    const entry_date = body.entry_date;
+    const exit_date = body.exit_date;
+    // const exit_date = moment().format('YYYY-MM-DD HH:mm:ss');
+    const total_days = body.total_days;
+    const total_amount_pay = body.total_amount_pay;
+    const created_by = body.created_by;
+    const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
+    // const status = body.status;
+    const status = 'INGRESADO';
+    const val_room = body.val_room;
+    const company_id = body.company_id;
+    const center_id = body.center_id;
+
+    let array = [];
+    array.room_id = body.room_id;
+    array.state = 'OCUPADA';
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const actHabitacion = await habitacion.actualizarEstado(client, array);
+      const { ok } = actHabitacion
+      if (ok == false) {
+        return actHabitacion;
+      }
+      const query = `INSERT INTO booking_data.entries(
+            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room,company_id,center_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)  RETURNING *`;
+
+      const result = await this.pool.query(query, [
+        room_id,
+        customer_id,
+        status,
+        entry_date,
+        exit_date,
+        total_days,
+        total_amount_pay,
+        created_by,
+        created_at,
+        val_room,
+        company_id,
+        center_id
+      ]);
+      await client.query('COMMIT');
+      return result.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      return messageHandler(error);
+    }
+  }
+  async saveIngresoClientesOld(body) {
+
+    console.log("body", body);
     const room_id = body.room_id;
     const customer_id = body.customer_id;
     const entry_date = body.entry_date;

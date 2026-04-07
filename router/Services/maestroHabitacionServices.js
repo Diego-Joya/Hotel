@@ -75,7 +75,7 @@ class maestroHabitacionServices {
             let fields = `*, id_room_type as key, updated_at::text as updated_at, created_at::text as created_at`;
 
             if (typeof params.select != "undefined" && params.select == "true") {
-                fields = `id_room_type as code, id_room_type as key, name,*`
+                fields = `id_room_type as code, id_room_type as key, name`
             }
             if (typeof params.limit != "undefined") {
                 where += `order by key desc limit ${params.limit}`

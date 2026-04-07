@@ -231,7 +231,8 @@ class habitacionesServices {
       // let query = `select ${fields} from booking_data.bedrooms  ${where}`;
 
 
-      let query = `select ${fields} from  booking_data.bedrooms a left join booking_data.room_type b on (a.room_type = b.id_room_type)  ${where}`;
+      let query = `select ${fields} from  booking_data.bedrooms a left join booking_data.room_type b on
+       (a.room_type = b.id_room_type and a.center_id = b.center_id and b.company_id = a.company_id)  ${where}`;
       console.log('query que hace', query);
       let rta = await this.pool.query(query);
       // return rta.rows

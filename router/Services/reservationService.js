@@ -628,6 +628,9 @@ class reservationServices {
       if (typeof params.room_id != "undefined" && params.room_id != "") {
         where += ` and e.room_id=${params.room_id}`;
       }
+      if (typeof params.state != "undefined" && params.state != "") {
+        where += ` and a.state='${params.state}'`;
+      }
 
       let query = '';
 
@@ -785,7 +788,7 @@ CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
         where += ` and A.EXIT_DATE  BETWEEN '${params.exit_date}' AND  '${params.entry_date}'`
       }
       if (typeof params.center_id != "undefined" && params.center_id != "") {
-        where += ` and A.CENTER_ID = '${params.center_id}'`
+        where += ` and B.CENTER_ID = '${params.center_id}'`
       }
       if (typeof params.company_id != "undefined" && params.company_id != "") {
         where += ` and B.COMPANY_ID = '${params.company_id}'`
@@ -853,12 +856,13 @@ CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
         distinct_room: true,
         entry_date: params.entry_date,
         exit_date: params.exit_date,
-
+        company_id: params.company_id,
+        center_id: params.center_id
       };
 
       const rooms = await this.rooms_Booking(data);
       console.log("rooms", rooms);
-      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id });
+      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id, company_id: params.company_id });
       console.log("allRooms", allRooms);
       let rooms_available = [];
       for (let i = 0; i < allRooms.length; i++) {
