@@ -11,7 +11,7 @@ class maestroHabitacionServices {
         try {
             const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
             const username = body.created_by;
-            const center_id = body.centrer_id;
+            const center_id = body.center_id;
             const company_id = body.company_id;
             const name = body.name;
             const type = body.type;

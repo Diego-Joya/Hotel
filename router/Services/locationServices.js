@@ -16,7 +16,7 @@ class locationServices {
             if (typeof param.select != "undefined" && param.select == "true") {
                 fields = `id as code, id as key, countrie as name`
             }
-            let query = `select ${fields} from booking_config.countries  ${where}`;
+            let query = `select ${fields} from booking_config.countries  ${where} order by countrie asc`;
             let rta = await this.pool.query(query);
             return rta.rows
 
@@ -38,7 +38,7 @@ class locationServices {
             if (typeof param.code_city != "undefined" && param.code_city != "") {
                 where += `and code_city='${param.code_city}'`
             }
-            let query = `select ${fields} from booking_config.cities  ${where}`;
+            let query = `select ${fields} from booking_config.cities  ${where} order by city asc`;
             let rta = await this.pool.query(query);
             return rta.rows
 
@@ -54,7 +54,7 @@ class locationServices {
             if (typeof param.select != "undefined" && param.select == "true") {
                 fields = `id as code, id as key, city as name`
             }
-            let query = `select ${fields} from booking_config.departaments  ${where}`;
+            let query = `select ${fields} from booking_config.departaments  ${where} order by departament asc`;
             let rta = await this.pool.query(query);
             return rta.rows
 
