@@ -3,6 +3,8 @@ const moment = require('moment');
 const messageHandler = require('./../../middlewares/message.handler');
 const habitacionesServices = require('./habitacionesServices');
 const habitacion = new habitacionesServices();
+const reservationService = require('./reservationService');
+const reservation = new reservationService();
 class ingresoClientesServices {
   constructor() {
     this.pool = pool;
@@ -12,6 +14,32 @@ class ingresoClientesServices {
   async saveIngresoClientes(body) {
 
     console.log("body", body);
+    const transaction = await pool.connect();
+
+    try {
+      //realizar insert en  booking
+      body.state = 'INGRESO';
+      let dataReturn = {};
+      const reserva = await reservation.crear(body, transaction);
+      dataReturn.reserva = reserva;
+      // INSERTAR ROOMS_RESERVATIONS
+
+      for (let i = 0; i < body.rooms_reservations.length; i++) {
+        body.rooms_reservations[i].booking_id = reserva.booking_id;
+        const habitacionesReservadas = await reservation.registerBedrooms(body.rooms_reservations[i], body.rooms, transaction);
+        dataReturn.rooms_reservations = habitacionesReservadas;
+      }
+
+      return dataReturn;
+
+
+    } catch (error) {
+      await transaction.query('ROLLBACK');
+      return messageHandler(error);
+    }
+
+
+
     return;
     const room_id = body.room_id;
     const customer_id = body.customer_id;
@@ -57,7 +85,6 @@ class ingresoClientesServices {
         company_id,
         center_id
       ]);
-      await client.query('COMMIT');
       return result.rows[0];
     } catch (error) {
       await client.query('ROLLBACK');

@@ -14,7 +14,10 @@ class clientesServices {
     const surnames = body.surnames;
     const document_type = body.document_type;
     const no_document = body.no_document;
-    const birthdate = body.birthdate;
+    if (body.birthdate == "" || body.birthdate == "undefined") {
+      body.birthdate = '2026-04-07';
+    }
+    let birthdate = body.birthdate;
     const cell_phone = body.cell_phone;
     const company_id = body.company_id;
     if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {

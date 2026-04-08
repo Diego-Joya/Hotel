@@ -19,6 +19,9 @@ class reservationServices {
   // CREATE RESERVATION
   // =========================================================
   async createReservation(body) {
+
+
+
     const transaction = await this.pool.connect();
 
     try {
@@ -339,7 +342,11 @@ class reservationServices {
 
     const no_document = body.no_document;
     const entry_date = body.entry_date;
-    const state = 'PENDIENTE CONFIRMAR';
+    if (typeof body.state == "undefined" || body.state == "") {
+      body.state = 'PENDIENTE CONFIRMAR';
+    }
+
+    const state = body.state;
     const center_id = body.center_id;
     const created_by = body.created_by;
     const created_at = fecha_hora;
@@ -459,7 +466,7 @@ class reservationServices {
     const room = body.room;
     const price = body.price;
     const room_type = body.room_type;
-
+    let result = {};
     try {
       let client = transaction != null ? transaction : this.pool;
 
@@ -480,8 +487,39 @@ class reservationServices {
         price,
         booking_id
       ]);
+      const roomsReservations = rta.rows[0];
+      result.roomsReservations = roomsReservations;
+      // insertar los huespedes de cada habitación reservada
+      if (typeof body.guests_rooms != 'undefined' && body.guests_rooms != null) {
+        let guestsRooms = [];
+        for (let i = 0; i < body.guests_rooms.length; i++) {
+          let huesped = body.guests_rooms[i];
+          if (typeof huesped.customer_id == 'undefined' || huesped.customer_id == '' || huesped.customer_id == '0') {
+            // crear cliente
+            const crearCliente = await clientes.crear(huesped, transaction);
+            console.log("crearCliente", crearCliente);
+            if (crearCliente.ok === false) {
+              return crearCliente;
+            }
+            huesped.customer_id = crearCliente.customer_id;
+          }
 
-      return rta.rows;
+          const queryGuest = `INSERT INTO booking_data.guests_rooms(
+	 customer_id, rooms_reservation)
+	VALUES ($1, $2)   RETURNING * ;`;
+          const rtaQuest = await client.query(queryGuest, [
+            huesped.customer_id,
+            roomsReservations.rooms_reservations_id
+          ]);
+
+          const guestsRoomsres = rtaQuest.rows[0];
+
+          guestsRooms.push(guestsRoomsres);
+
+        }
+        result.roomsReservations.guestsRooms = guestsRooms;
+      }
+      return result;
 
     } catch (error) {
       return messageHandler(error);
