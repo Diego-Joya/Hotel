@@ -772,12 +772,17 @@ class reservationServices {
       if (typeof params.booking_id != "undefined" && params.booking_id != "") {
         where += ` and A.BOOKING_ID=${params.booking_id}`;
       }
+      if (typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
+        where += ` and A.entry_date::date between '${params.start}' and '${params.end}'`;
+      }
 
       let query = `
         SELECT
           A.BOOKING_ID AS ID,
           D.NO_ROOM,
 CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
+CONCAT (E.NAMES, ' ', E.SURNAMES) AS CUSTOMER,
+A.TOTAL_DAYS, A.TOTAL_ROOMS,
           A.ENTRY_DATE::DATE::TEXT AS START,
           A.EXIT_DATE::DATE::TEXT AS END
         FROM
