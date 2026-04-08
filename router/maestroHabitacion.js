@@ -32,7 +32,7 @@ router.patch('/:id', async (req, res, next) => {
         console.log(req.params)
         const { id } = req.params;
         const body = req.body;
-        const actualizar = await maestro.actaulizar(id, body);
+        const actualizar = await maestro.actualizar(id, body);
         const { ok } = actualizar
         if (ok == false) {
             res.send(actualizar);
