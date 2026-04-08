@@ -12,83 +12,64 @@ class ingresoClientesServices {
   }
 
   async saveIngresoClientes(body) {
-
     console.log("body", body);
+
     const transaction = await pool.connect();
 
     try {
-      //realizar insert en  booking
-      body.state = 'INGRESO';
-      let dataReturn = {};
-      const reserva = await reservation.crear(body, transaction);
-      dataReturn.reserva = reserva;
-      // INSERTAR ROOMS_RESERVATIONS
+      // INICIAR TRANSACCIÓN
+      await transaction.query('BEGIN');
 
-      for (let i = 0; i < body.rooms_reservations.length; i++) {
-        body.rooms_reservations[i].booking_id = reserva.booking_id;
-        const habitacionesReservadas = await reservation.registerBedrooms(body.rooms_reservations[i], body.rooms, transaction);
-        dataReturn.rooms_reservations = habitacionesReservadas;
+      // realizar insert en booking
+      body.state = 'INGRESO';
+
+      let dataReturn = {
+        reserva: null,
+        rooms_reservations: []
+      };
+
+      const reserva = await reservation.crear(body, transaction);
+
+      if (reserva.ok === false) {
+        throw new Error(reserva.message || 'Error al crear la reserva');
       }
 
-      return dataReturn;
+      dataReturn.reserva = reserva;
 
+      // INSERTAR ROOMS_RESERVATIONS
+      if (Array.isArray(body.rooms_reservations) && body.rooms_reservations.length > 0) {
+        for (let i = 0; i < body.rooms_reservations.length; i++) {
+          body.rooms_reservations[i].booking_id = reserva.booking_id;
+
+          // ⚠️ OJO: solo enviar body + transaction
+          const habitacionesReservadas = await reservation.registerBedrooms(
+            body.rooms_reservations[i],
+            transaction
+          );
+
+          if (habitacionesReservadas.ok === false) {
+            throw new Error(habitacionesReservadas.message || 'Error al registrar habitaciones');
+          }
+
+          // Agregar cada habitación al arreglo (NO sobrescribir)
+          dataReturn.rooms_reservations.push(habitacionesReservadas);
+        }
+      }
+
+      // CONFIRMAR TRANSACCIÓN
+      await transaction.query('COMMIT');
+
+      return {
+        ok: true,
+        message: '¡Ingreso registrado exitosamente!',
+        data: dataReturn
+      };
 
     } catch (error) {
       await transaction.query('ROLLBACK');
       return messageHandler(error);
-    }
-
-
-
-    return;
-    const room_id = body.room_id;
-    const customer_id = body.customer_id;
-    const entry_date = body.entry_date;
-    const exit_date = body.exit_date;
-    // const exit_date = moment().format('YYYY-MM-DD HH:mm:ss');
-    const total_days = body.total_days;
-    const total_amount_pay = body.total_amount_pay;
-    const created_by = body.created_by;
-    const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
-    // const status = body.status;
-    const status = 'INGRESADO';
-    const val_room = body.val_room;
-    const company_id = body.company_id;
-    const center_id = body.center_id;
-
-    let array = [];
-    array.room_id = body.room_id;
-    array.state = 'OCUPADA';
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-      const actHabitacion = await habitacion.actualizarEstado(client, array);
-      const { ok } = actHabitacion
-      if (ok == false) {
-        return actHabitacion;
-      }
-      const query = `INSERT INTO booking_data.entries(
-            room_id, customer_id, status, entry_date, exit_date, total_days, total_amount_pay, created_by, created_at,val_room,company_id,center_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)  RETURNING *`;
-
-      const result = await this.pool.query(query, [
-        room_id,
-        customer_id,
-        status,
-        entry_date,
-        exit_date,
-        total_days,
-        total_amount_pay,
-        created_by,
-        created_at,
-        val_room,
-        company_id,
-        center_id
-      ]);
-      return result.rows[0];
-    } catch (error) {
-      await client.query('ROLLBACK');
-      return messageHandler(error);
+    } finally {
+      transaction.release();
     }
   }
   async saveIngresoClientesOld(body) {

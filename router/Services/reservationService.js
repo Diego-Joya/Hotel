@@ -466,20 +466,22 @@ class reservationServices {
     const room = body.room;
     const price = body.price;
     const room_type = body.room_type;
+
     let result = {};
+
     try {
       let client = transaction != null ? transaction : this.pool;
 
       const query = `
-        INSERT INTO booking_data.rooms_reservations(
-          room_type,
-          room_id,
-          price,
-          booking_id
-        )
-        VALUES ($1, $2, $3, $4)
-        RETURNING *;
-      `;
+      INSERT INTO booking_data.rooms_reservations(
+        room_type,
+        room_id,
+        price,
+        booking_id
+      )
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
 
       const rta = await client.query(query, [
         room_type,
@@ -487,26 +489,43 @@ class reservationServices {
         price,
         booking_id
       ]);
+
       const roomsReservations = rta.rows[0];
+
       result.roomsReservations = roomsReservations;
-      // insertar los huespedes de cada habitación reservada
-      if (typeof body.guests_rooms != 'undefined' && body.guests_rooms != null) {
-        let guestsRooms = [];
+      result.guestsRooms = [];
+
+      // insertar los huéspedes de cada habitación reservada
+      if (Array.isArray(body.guests_rooms) && body.guests_rooms.length > 0) {
         for (let i = 0; i < body.guests_rooms.length; i++) {
           let huesped = body.guests_rooms[i];
-          if (typeof huesped.customer_id == 'undefined' || huesped.customer_id == '' || huesped.customer_id == '0') {
+
+          if (
+            typeof huesped.customer_id === 'undefined' ||
+            huesped.customer_id === '' ||
+            huesped.customer_id === '0' ||
+            huesped.customer_id === null
+          ) {
             // crear cliente
             const crearCliente = await clientes.crear(huesped, transaction);
             console.log("crearCliente", crearCliente);
+
             if (crearCliente.ok === false) {
               return crearCliente;
             }
+
             huesped.customer_id = crearCliente.customer_id;
           }
 
-          const queryGuest = `INSERT INTO booking_data.guests_rooms(
-	 customer_id, rooms_reservation)
-	VALUES ($1, $2)   RETURNING * ;`;
+          const queryGuest = `
+          INSERT INTO booking_data.guests_rooms(
+            customer_id,
+            rooms_reservation
+          )
+          VALUES ($1, $2)
+          RETURNING *;
+        `;
+
           const rtaQuest = await client.query(queryGuest, [
             huesped.customer_id,
             roomsReservations.rooms_reservations_id
@@ -514,18 +533,16 @@ class reservationServices {
 
           const guestsRoomsres = rtaQuest.rows[0];
 
-          guestsRooms.push(guestsRoomsres);
-
+          result.guestsRooms.push(guestsRoomsres);
         }
-        result.roomsReservations.guestsRooms = guestsRooms;
       }
+
       return result;
 
     } catch (error) {
       return messageHandler(error);
     }
   }
-
   // =========================================================
   // GET BOOKING BY ID
   // =========================================================
