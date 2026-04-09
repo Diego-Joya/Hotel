@@ -59,12 +59,12 @@ class ingresoClientesServices {
       // CONFIRMAR TRANSACCIÓN
       await transaction.query('COMMIT');
 
-      return {
-        ok: true,
-        message: '¡Ingreso registrado exitosamente!',
-        data: dataReturn
-      };
-
+      // return {
+      //   ok: true,
+      //   message: '¡Ingreso registrado exitosamente!',
+      //   data: dataReturn
+      // };
+      return dataReturn;
     } catch (error) {
       await transaction.query('ROLLBACK');
       return messageHandler(error);

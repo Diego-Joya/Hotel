@@ -788,8 +788,7 @@ class reservationServices {
           D.NO_ROOM,
 CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
 CONCAT (E.NAMES, ' ', E.SURNAMES) AS CUSTOMER,
-A.TOTAL_DAYS, A.TOTAL_ROOMS,
-a.state,
+A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
           A.ENTRY_DATE::DATE::TEXT AS START,
           A.EXIT_DATE::DATE::TEXT AS END
         FROM

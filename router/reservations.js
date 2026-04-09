@@ -2,32 +2,39 @@
 const express = require("express");
 const reservationService = require('./Services/reservationService');
 // const passport = require("passport");
+const ingresosClientesServices = require('./Services/IngresoClientesServices');
 
 const router = express.Router();
 const reservation = new reservationService();
-
+const ingresos = new ingresosClientesServices();
 
 router.post('/', async (req, res, next) => {
   try {
     const body = req.body;
-    console.log(body);
-    const crear = await reservation.createReservation(body);
-    console.log("crear", crear);
-    const { ok } = crear;
-    if (ok == false) {
-      res.send(crear);
+    console.log('body:', body);
+
+    let result;
+
+    if (body.type === 'INGRESO') {
+      result = await ingresos.saveIngresoClientes(body);
+    } else {
+      result = await reservation.createReservation(body);
     }
-    res.json({
+
+    if (result.ok === false) {
+      return res.send(result);
+    }
+
+    return res.json({
       ok: true,
-      message: "Datos guardados correctamente!",
-      data: crear,
-    })
+      message: 'Datos guardados correctamente!',
+      data: result,
+    });
 
   } catch (error) {
     next(error);
   }
 });
-
 
 router.patch(
   '/:id',
@@ -158,7 +165,7 @@ router.get('/calendar',
     }
 
   });
-  router.get('/rooms_details/', async (req, res, next) => {
+router.get('/rooms_details/', async (req, res, next) => {
   try {
     const parametros = req.query;
     console.log(parametros);
