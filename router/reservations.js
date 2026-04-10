@@ -182,8 +182,24 @@ router.get('/rooms_details/', async (req, res, next) => {
 router.get('/rooms_available/', async (req, res, next) => {
   try {
     const parametros = req.query;
+    parametros.distinct_room = true;
     console.log(parametros);
     const consulta = await reservation.rooms_available(parametros);
+    res.json({
+      ok: true,
+      data: consulta,
+    })
+
+  } catch (error) {
+    next(error);
+  }
+});
+router.get('/edit_booking/', async (req, res, next) => {
+  try {
+    const parametros = req.query;
+    console.log(parametros);
+    parametros.return_all = true;
+    const consulta = await reservation.edit_bookings(parametros);
     res.json({
       ok: true,
       data: consulta,

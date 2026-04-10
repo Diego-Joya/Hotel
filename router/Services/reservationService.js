@@ -831,9 +831,9 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
   async rooms_Booking(params) {
     try {
 
-      let where = 'where  1=1 ';
-      if (typeof params.exit_date != "undefined" && typeof params.exit_date != "undefined" && params.exit_date != "" && params.exit_date != "") {
-        where += ` and B.ENTRY_DATE >='${params.entry_date}'  AND B.EXIT_DATE <= '${params.exit_date}'`;
+      let where = `where  1=1 and b.state <> 'CANCELADA'`;
+      if (typeof params.entry_date != "undefined" && typeof params.entry_date != "undefined" && params.exit_date != "" && params.exit_date != "") {
+        where += ` and B.ENTRY_DATE <'${params.exit_date}'  AND B.EXIT_DATE <= '${params.entry_date}'`;
       }
       if (typeof params.customer_id != "undefined" && params.customer_id != "") {
         where += ` and B.CUSTOMER_ID = '${params.customer_id}'`
@@ -882,7 +882,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
 
 
 
-      if (typeof params.distict_room != "undefined" && params.distict_room == true) {
+      if (typeof params.distinct_room != "undefined" && params.distinct_room == true) {
         fields = `DISTINCT
                   ON (A.ROOM_ID) ROOM_ID,
                   A.PRICE,
@@ -909,6 +909,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
         LEFT JOIN BOOKING_DATA.CUSTOMERS C ON B.CUSTOMER_ID = C.CUSTOMER_ID
         LEFT JOIN BOOKING_DATA.ROOM_TYPE D ON A.ROOM_TYPE = D.ID_ROOM_TYPE ${where} `;
 
+      console.log("query consulta habitaciones", query);
       let consulta = await this.pool.query(query);
       return consulta.rows;
 
@@ -927,9 +928,9 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
       };
 
       const rooms = await this.rooms_Booking(data);
-      console.log("rooms", rooms);
+      console.log("rooms", rooms); //habitaciones que ya están reservadas en el rango de fechas
       const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id, company_id: params.company_id });
-      console.log("allRooms", allRooms);
+      console.log("allRooms", allRooms); //todas las habitaciones del centro
       let rooms_available = [];
       for (let i = 0; i < allRooms.length; i++) {
         let room = allRooms[i];
@@ -938,7 +939,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
         for (let j = 0; j < rooms.length; j++) {
           let reservation = rooms[j];
 
-          if (reservation.room_id === room.room_id) {
+          if (reservation.room_id === room.code) {
             isBooked = true;
             break;
           }
@@ -962,6 +963,62 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
       messageHandler(error);
       throw error;
     }
+  }
+  async edit_bookings(params) {
+    try {
+      console.log("parametros de busqueda", params);
+
+      let where = `where  1=1 `;
+      let fields = `a.room_id as key,a.*,a.updated_by::text as updated_by,a.created_at::text as created_at, a.fecha::text as fecha,b.name as room_type_name`;
+      if (typeof params.booking_id != "undefined" && params.booking_id != "") {
+        where += ` and a.booking_id='${params.booking_id}'`;
+      }
+      if (typeof params.room_id != "undefined" && params.room_id != "") {
+        where += ` and b.room_id='${params.room_id}'`;
+      }
+      if (typeof params.no_room != "undefined" && params.no_room != "") {
+        where += ` and e.no_room='${params.no_room}'`;
+      }
+      if (typeof params.room_type != "undefined" && params.room_type != "") {
+        where += ` and e.room_type='${params.room_type}'`;
+      }
+      if (typeof params.start != "undefined" && typeof params.start != "undefined" && params.end != "" && params.end != "") {
+        where += ` and a.entry_date between '${params.start}' and '${params.end}'`
+      }
+      if (typeof params.state != "undefined" && params.state != "") {
+        where += ` and a.state='${params.state}'`;
+      }
+      if (typeof params.company_id != "undefined" && params.company_id != "") {
+        where += ` and a.company_id=${params.company_id}`;
+      }
+      if (typeof params.center_id != "undefined" && params.center_id != "") {
+        where += ` and a.center_id=${params.center_id}`;
+      }
+
+      // let query = `select ${fields} from booking_data.bedrooms  ${where}`;
+
+
+      let query = `select a.booking_id, a.entry_date, a.state,  a.exit_date, a.total_days, a.number_persons, a.total_rooms,
+       a.action_type, b.rooms_reservations_id, b.room_type, b.room_id, b.price, c.guests_rooms_id, c.customer_id, c.rooms_reservation,
+	d.names, d.surnames, d.document_type, d.no_document, d.birthdate, cell_phone, d.cell_phone_emergency,d.email,
+	e.room_id, e.no_room, e.val_min, e.val_max, e.room_type,f.name as name_type_room , type
+	from booking_data.bookings a left join   booking_data.rooms_reservations b on a.booking_id=b.booking_id   left join
+	booking_data.guests_rooms c on (b.rooms_reservations_id = c.rooms_reservation) left join  booking_data.customers d on (c.customer_id= d.customer_id)
+left join booking_data.bedrooms e on (b.room_id =e.room_id)  left join booking_data.room_type f on (e.room_type = f.id_room_type)  ${where}`;
+      console.log('query que hace', query);
+      let rta = await this.pool.query(query);
+      // return rta.rows
+
+      if (typeof params.return_all && params.return_all == true) {
+        // console.log("rta.rows", rta.rows);
+        return rta.rows;
+      } else {
+        return rta.rows[0];
+      }
+
+    } catch (error) {
+      return messageHandler(error)
+    };
   }
 
 }
