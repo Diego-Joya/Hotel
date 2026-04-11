@@ -590,6 +590,23 @@ class reservationServices {
       return messageHandler(error);
     }
   }
+  async getGuestsRooms(rooms_reservation, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        SELECT guests_rooms_id, customer_id, rooms_reservation
+	FROM booking_data.guests_rooms
+        WHERE rooms_reservation = $1;
+      `;
+
+      const rta = await client.query(query, [rooms_reservation]);
+      return rta.rows;
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
 
   // =========================================================
   // DELETE RESERVATION ROOMS
@@ -965,7 +982,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
       throw error;
     }
   }
-  async edit_bookings(params) {
+  async bookings(params) {
     try {
       console.log("parametros de busqueda", params);
 
@@ -1021,6 +1038,31 @@ left join booking_data.bedrooms e on (b.room_id =e.room_id)  left join booking_d
       return messageHandler(error)
     };
   }
+
+ async edit_bookings(params) {
+  try {
+    const booking = await this.getReservationById(params.booking_id);
+    const rooms_reservations = await this.getReservationRooms(params.booking_id);
+
+    for (let i = 0; i < rooms_reservations.length; i++) {
+      let reservation = rooms_reservations[i];
+
+      let guestsRooms = await this.getGuestsRooms(reservation.rooms_reservations_id);
+
+      reservation.guests_rooms = guestsRooms;
+    }
+
+    return {
+      ...booking,
+      rooms_reservations: rooms_reservations
+    };
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 
 }
 
