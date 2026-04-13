@@ -727,7 +727,7 @@ class reservationServices {
             BOOKING_DATA.BOOKINGS A
             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
             LEFT JOIN booking_data.customers C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
-          ${where} order by a.entry_date desc
+          ${where} order by a.entry_date asc
         `;
       }
       console.log('query', query);
