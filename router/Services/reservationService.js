@@ -777,7 +777,7 @@ class reservationServices {
           BOOKING_DATA.ROOMS_RESERVATIONS A
           LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
           LEFT JOIN BOOKING_DATA.BEDROOMS C ON (A.ROOM_ID = C.ROOM_ID)
-        ${where}  order by b.entry_date desc
+        ${where}
       `;
 
       let rta = await this.pool.query(query);
