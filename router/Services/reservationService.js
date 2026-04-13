@@ -735,6 +735,7 @@ class reservationServices {
 
       if (typeof params.return_all != 'undefined' && params.return_all == true) {
         for (let i = 0; i < rta.rows.length; i++) {
+          rta.rows[i].unidField = true;
           let details = await this.getAllDetailsReservations(rta.rows[i]);
           rta.rows[i].no_room = details;
         }
@@ -758,16 +759,20 @@ class reservationServices {
       if (typeof params.booking_id != "undefined" && params.booking_id != "") {
         where += ` and A.BOOKING_ID=${params.booking_id}`;
       }
-
-      let query = `
-        SELECT
-          A.ROOMS_RESERVATIONS_ID,
+      let fields = `  A.ROOMS_RESERVATIONS_ID,
           A.BOOKING_ID,
           A.ROOM_ID,
           A.ROOM_TYPE,
           A.PRICE,
           C.NO_ROOM,
-          B.NAME AS TYPE_ROOM
+          B.NAME AS TYPE_ROOM`;
+
+      if (params.unidField) {
+        fields = ` B.NAME AS TYPE_ROOM,   C.NO_ROOM, A.PRICE`;
+      }
+      let query = `
+        SELECT
+         ${fields}
         FROM
           BOOKING_DATA.ROOMS_RESERVATIONS A
           LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
@@ -1039,29 +1044,29 @@ left join booking_data.bedrooms e on (b.room_id =e.room_id)  left join booking_d
     };
   }
 
- async edit_bookings(params) {
-  try {
-    const booking = await this.getReservationById(params.booking_id);
-    const rooms_reservations = await this.getReservationRooms(params.booking_id);
+  async edit_bookings(params) {
+    try {
+      const booking = await this.getReservationById(params.booking_id);
+      const rooms_reservations = await this.getReservationRooms(params.booking_id);
 
-    for (let i = 0; i < rooms_reservations.length; i++) {
-      let reservation = rooms_reservations[i];
+      for (let i = 0; i < rooms_reservations.length; i++) {
+        let reservation = rooms_reservations[i];
 
-      let guestsRooms = await this.getGuestsRooms(reservation.rooms_reservations_id);
+        let guestsRooms = await this.getGuestsRooms(reservation.rooms_reservations_id);
 
-      reservation.guests_rooms = guestsRooms;
+        reservation.guests_rooms = guestsRooms;
+      }
+
+      return {
+        ...booking,
+        rooms_reservations: rooms_reservations
+      };
+
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
-
-    return {
-      ...booking,
-      rooms_reservations: rooms_reservations
-    };
-
-  } catch (error) {
-    console.error(error);
-    throw error;
   }
-}
 
 
 }
