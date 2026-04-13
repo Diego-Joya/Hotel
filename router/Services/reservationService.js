@@ -777,7 +777,7 @@ class reservationServices {
           BOOKING_DATA.ROOMS_RESERVATIONS A
           LEFT JOIN BOOKING_DATA.ROOM_TYPE B ON (A.ROOM_TYPE = B.ID_ROOM_TYPE)
           LEFT JOIN BOOKING_DATA.BEDROOMS C ON (A.ROOM_ID = C.ROOM_ID)
-        ${where}
+        ${where}  order by b.entry_date desc
       `;
 
       let rta = await this.pool.query(query);
@@ -789,7 +789,7 @@ class reservationServices {
   }
   async getReservationsCalendar(params) {
     try {
-      let where = ` where 1=1`;
+      let where = ` where 1=1 and A.state <> 'CANCELADA'`;
 
       if (typeof params.booking_id != "undefined" && params.booking_id != "") {
         where += ` and A.BOOKING_ID=${params.booking_id}`;
@@ -811,8 +811,8 @@ class reservationServices {
 CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
 CONCAT (E.NAMES, ' ', E.SURNAMES) AS CUSTOMER,
 A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
-          A.ENTRY_DATE::DATE::TEXT AS START,
-          A.EXIT_DATE::DATE::TEXT AS END,
+          A.ENTRY_DATE::TEXT AS START,
+          A.EXIT_DATE::TEXT AS END,
           b.room_id
         FROM
         BOOKING_DATA.BOOKINGS A
