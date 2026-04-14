@@ -856,7 +856,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
 
       let where = `where  1=1 and b.state <> 'CANCELADA'`;
       if (typeof params.entry_date != "undefined" && typeof params.entry_date != "undefined" && params.exit_date != "" && params.exit_date != "") {
-        where += ` and B.ENTRY_DATE::date <'${params.exit_date}'  AND B.EXIT_DATE::date > '${params.entry_date}'`;
+        where += ` and B.ENTRY_DATE <'${params.exit_date}'  AND B.EXIT_DATE > '${params.entry_date}'`;
       }
       if (typeof params.customer_id != "undefined" && params.customer_id != "") {
         where += ` and B.CUSTOMER_ID = '${params.customer_id}'`
