@@ -551,7 +551,7 @@ class reservationServices {
       let client = transaction != null ? transaction : this.pool;
 
       const query = `
-        SELECT *
+        SELECT booking_id, no_document, entry_date, state
         FROM booking_data.bookings
         WHERE booking_id = $1
         LIMIT 1;
@@ -590,14 +590,33 @@ class reservationServices {
       return messageHandler(error);
     }
   }
+  async getReservationRoomsDetails(booking_id, transaction = null) {
+    try {
+      let client = transaction != null ? transaction : this.pool;
+
+      const query = `
+        SELECT a.rooms_reservations_id, a.booking_id, a.room_id, a.room_type, a.price,
+	 b.no_room, b.val_min, b.val_max, b.room_type
+        FROM booking_data.rooms_reservations a left join  booking_data.bedrooms b on a.room_id=b.room_id
+        WHERE a.booking_id = $1;
+      `;
+
+      const rta = await client.query(query, [booking_id]);
+      return rta.rows;
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
   async getGuestsRooms(rooms_reservation, transaction = null) {
     try {
       let client = transaction != null ? transaction : this.pool;
 
       const query = `
-        SELECT guests_rooms_id, customer_id, rooms_reservation
-	FROM booking_data.guests_rooms
-        WHERE rooms_reservation = $1;
+       SELECT a.guests_rooms_id, a.customer_id, a.rooms_reservation,
+	b.names, b.surnames, b.document_type, b.no_document, b.birthdate, b.cell_phone, b.cell_phone_emergency
+	FROM booking_data.guests_rooms a left join   booking_data.customers b on a.customer_id = b.customer_id
+        WHERE a.rooms_reservation = $1;
       `;
 
       const rta = await client.query(query, [rooms_reservation]);
@@ -1047,10 +1066,12 @@ left join booking_data.bedrooms e on (b.room_id =e.room_id)  left join booking_d
   async edit_bookings(params) {
     try {
       const booking = await this.getReservationById(params.booking_id);
-      const rooms_reservations = await this.getReservationRooms(params.booking_id);
+      const rooms_reservations = await this.getReservationRoomsDetails(params.booking_id);
 
       for (let i = 0; i < rooms_reservations.length; i++) {
         let reservation = rooms_reservations[i];
+
+        console.log("reservation", reservation);
 
         let guestsRooms = await this.getGuestsRooms(reservation.rooms_reservations_id);
 
