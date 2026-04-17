@@ -356,6 +356,7 @@ class reservationServices {
     const total_days = body.total_days;
     const number_persons = body.number_persons;
     const total_rooms = body.total_rooms;
+    const type = body.type;
 
     try {
       let client = transaction != null ? transaction : this.pool;
@@ -373,9 +374,10 @@ class reservationServices {
           exit_date,
           total_days,
           number_persons,
-          total_rooms
+          total_rooms,
+            type
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING *;
       `;
 
@@ -391,7 +393,8 @@ class reservationServices {
         exit_date,
         total_days,
         number_persons,
-        total_rooms
+        total_rooms,
+        type
       ]);
 
       if (typeof rta.rows[0] != 'undefined') {
@@ -426,8 +429,9 @@ class reservationServices {
           exit_date = $6,
           total_days = $7,
           number_persons = $8,
-          total_rooms = $9
-        WHERE booking_id = $10
+          total_rooms = $9,
+          type = $10
+        WHERE booking_id = $11
         RETURNING *;
       `;
 
@@ -441,6 +445,7 @@ class reservationServices {
         body.total_days,
         body.number_persons,
         body.total_rooms,
+        body.type,
         body.booking_id
       ]);
 

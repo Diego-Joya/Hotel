@@ -15,11 +15,11 @@ router.post('/', async (req, res, next) => {
 
     let result;
 
-    if (body.type === 'INGRESO') {
-      result = await ingresos.saveIngresoClientes(body);
-    } else {
-      result = await reservation.createReservation(body);
-    }
+    // if (body.type === 'INGRESO') {
+    //   result = await ingresos.saveIngresoClientes(body);
+    // } else {
+    result = await reservation.createReservation(body);
+    // }
 
     if (result.ok === false) {
       return res.send(result);
