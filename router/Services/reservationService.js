@@ -600,9 +600,10 @@ class reservationServices {
       let client = transaction != null ? transaction : this.pool;
 
       const query = `
-        SELECT a.rooms_reservations_id, a.booking_id, a.room_id, a.room_type, a.price,
-	 b.no_room, b.val_min, b.val_max, b.room_type
+      SELECT a.rooms_reservations_id, a.booking_id, a.room_id, a.room_type,c.name as room_type_text, a.price,
+	 b.no_room, b.val_min, b.val_max
         FROM booking_data.rooms_reservations a left join  booking_data.bedrooms b on a.room_id=b.room_id
+left join booking_data.room_type c on (a.room_type =c.id_room_type)
         WHERE a.booking_id = $1;
       `;
 
