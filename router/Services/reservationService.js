@@ -345,6 +345,9 @@ class reservationServices {
     if (typeof body.state == "undefined" || body.state == "") {
       body.state = 'PENDIENTE CONFIRMAR';
     }
+    if (body.type == "INGRESO") {
+      body.state = 'INGRESO';
+    }
 
     const state = body.state;
     const center_id = body.center_id;
