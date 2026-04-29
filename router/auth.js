@@ -72,6 +72,7 @@ router.post(
 router.post('/verify-sesion', async (req, res, next) => {
   try {
     console.log(req.headers.cookie)
+    console.log("valores de cookies", req.cookies);
     const token = req.cookies.token;
     console.log('token aqui llega PUTO:', token);
 

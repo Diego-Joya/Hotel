@@ -787,6 +787,7 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
       let fields = `  A.ROOMS_RESERVATIONS_ID,
           A.BOOKING_ID,
           A.ROOM_ID,
+          A.ROOM_ID AS KEY,
           A.ROOM_TYPE,
           A.PRICE,
           C.NO_ROOM,
