@@ -839,7 +839,7 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
           D.NO_ROOM,
 CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
 CONCAT (E.NAMES, ' ', E.SURNAMES) AS CUSTOMER,
-A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
+A.TOTAL_DAYS, B.PRICE,A.TOTAL_ROOMS,A.STATE,
           A.ENTRY_DATE::TEXT AS START,
           A.EXIT_DATE::TEXT AS END,
           b.room_id
@@ -851,7 +851,7 @@ A.TOTAL_DAYS, A.TOTAL_ROOMS,A.STATE,
           LEFT JOIN BOOKING_DATA.CUSTOMERS E ON (A.CUSTOMER_ID = E.CUSTOMER_ID)
         ${where}
       `;
-
+      console.log('query', query);
       let rta = await this.pool.query(query);
       return rta.rows;
 
