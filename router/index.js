@@ -12,6 +12,7 @@ const bank = require("./banks");
 const bankAccounts = require("./bankAccounts");
 const reservations = require("./reservations");
 const menus  = require('./menus');
+const dashboard  = require('./dashboard');
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -28,5 +29,6 @@ function routerApi(app) {
   app.use("/bankAccounts",bankAccounts);
   app.use("/reservations",reservations);
   app.use('/menus', menus);
+  app.use('/dashboard', dashboard);
 }
 module.exports = routerApi;
