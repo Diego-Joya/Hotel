@@ -14,16 +14,17 @@ class dashboardServices {
   async getDashboard(params) {
     try {
       let data = {};
-      const reservasPendientes = await this.getReservasState({ state: 'pendiente_confirmar' });
+      params.state = 'pendiente_confirmar';
+      const reservasPendientes = await this.getReservasState(params);
       console.log("reservasPendientes", reservasPendientes.pendiente_confirmar);
       data.reservasPendientes = reservasPendientes.pendiente_confirmar;
-      const reservasReservadas = await this.getReservasState({ state: 'reservada' });
+      params.state = 'reservada';
+      const reservasReservadas = await this.getReservasState(params);
       data.reservasReservadas = reservasReservadas.reservada;
-      const ingresosClientes = await this.getReservasState({ state: 'ingreso' });
+      params.state = 'ingreso';
+      const ingresosClientes = await this.getReservasState(params);
       data.ingresosClientes = ingresosClientes.ingreso;
-return data;
-      // const habitacionesDisponibles = await this.getHabitacionesDisponibles(params);
-      // const habitacionesOcupadas = await this.getHabitacionesOcupadas(params);
+      return data;
 
     } catch (error) {
       return messageHandler(error);
@@ -34,15 +35,24 @@ return data;
   async getReservasState(params) {
 
     try {
-      let where = ``;
+      let where = ` where 1=1`;
+      if (typeof params.company_id != "undefined" && params.company_id != "") {
+        where += ` and company_id=${params.company_id}`;
+      }
+      if (typeof params.center_id != "undefined" && params.center_id != "") {
+        where += ` and center_id=${params.center_id}`;
+      }
       if (typeof params.state != "undefined" && params.state == 'pendiente_confirmar') {
-        where += `WHERE STATE = 'PENDIENTE CONFIRMAR'`;
+        where += ` and STATE = 'PENDIENTE CONFIRMAR'`;
       }
       if (typeof params.state != "undefined" && params.state == 'reservada') {
-        where += `WHERE STATE = 'RESERVADA'`;
+        where += ` and STATE = 'RESERVADA'`;
       }
       if (typeof params.state != "undefined" && params.state == 'ingreso') {
-        where += `WHERE STATE = 'INGRESO'`;
+        where += ` and STATE = 'INGRESO'`;
+      }
+      if (typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
+        where += ` and entry_date::date between '${params.start}' and '${params.end}'`;
       }
 
       let query = `
@@ -53,7 +63,7 @@ return data;
 
           ${where}
         `;
-
+console.log('query', query);
       let rta = await this.pool.query(query);
       return rta.rows[0];
 
