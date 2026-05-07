@@ -14,9 +14,9 @@ class dashboardServices {
   async getDashboard(params) {
     try {
       let data = {};
-      const reservasPenduientes = await this.getReservasState({ state: 'pendiente_confirmar' });
-      console.log("reservasPenduientes", reservasPenduientes.pendiente_confirmar);
-      data.reservasPenduientes = reservasPenduientes.pendiente_confirmar;
+      const reservasPendientes = await this.getReservasState({ state: 'pendiente_confirmar' });
+      console.log("reservasPendientes", reservasPendientes.pendiente_confirmar);
+      data.reservasPendientes = reservasPendientes.pendiente_confirmar;
       const reservasReservadas = await this.getReservasState({ state: 'reservada' });
       data.reservasReservadas = reservasReservadas.reservada;
       const ingresosClientes = await this.getReservasState({ state: 'ingreso' });
