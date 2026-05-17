@@ -20,8 +20,6 @@ class reservationServices {
   // =========================================================
   async createReservation(body) {
 
-
-
     const transaction = await this.pool.connect();
 
     try {
@@ -104,11 +102,11 @@ class reservationServices {
           data.room_id = rooms_reservations.room;
           data.state = 'RESERVADA';
 
-          let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
-          if (stateBedroom.ok === false) {
-            await transaction.query('ROLLBACK');
-            return stateBedroom;
-          }
+          // let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
+          // if (stateBedroom.ok === false) {
+          //   await transaction.query('ROLLBACK');
+          //   return stateBedroom;
+          // }
           arrayData.push(arrayRegisterBedrooms);
         }
       }

@@ -13,6 +13,11 @@ class dashboardServices {
 
   async getDashboard(params) {
     try {
+      console.log('params', params);
+      if (typeof params.start == "undefined" || params.start == "" && typeof params.end == "undefined" || params.end == "") {
+        params.start = moment().format('YYYY-MM-DD');
+        params.end = moment(params.end, 'YYYY-MM-DD').endOf('day').format('YYYY-MM-DD HH:mm:ss');
+      }
       let data = {};
       params.state = 'pendiente_confirmar';
       const reservasPendientes = await this.getReservasState(params);
@@ -24,6 +29,13 @@ class dashboardServices {
       params.state = 'ingreso';
       const ingresosClientes = await this.getReservasState(params);
       data.ingresosClientes = ingresosClientes.ingreso;
+      params.state = 'salida';
+      const salidasClientes = await this.getReservasState(params);
+      data.salidasClientes = salidasClientes.salida;
+      params.state = 'Cancelada';
+      const canceladas = await this.getReservasState(params);
+      console.log("canceladas0",canceladas);
+      data.canceladas = canceladas.cancelada;
       return data;
 
     } catch (error) {
@@ -46,13 +58,16 @@ class dashboardServices {
         where += ` and STATE = 'PENDIENTE CONFIRMAR'`;
       }
       if (typeof params.state != "undefined" && params.state == 'reservada') {
-        where += ` and STATE = 'RESERVADA'`;
+        where += ` and STATE = 'RESERVADA'  and entry_date::date >= '${params.start}' and entry_date::date <= '${params.end}'`;
+      }
+      if (typeof params.state != "undefined" && params.state == 'Cancelada') {
+        where += ` and STATE = 'CANCELADA'  and entry_date::date >= '${params.start}' and entry_date::date <= '${params.end}'`;
       }
       if (typeof params.state != "undefined" && params.state == 'ingreso') {
-        where += ` and STATE = 'INGRESO'`;
+        where += ` and STATE = 'INGRESO' and entry_date::date >= '${params.start}' and entry_date::date <= '${params.end}'`;
       }
-      if (typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
-        where += ` and entry_date::date between '${params.start}' and '${params.end}'`;
+      if (typeof params.state != "undefined" && params.state == 'salida' &&  typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
+        where += ` and exit_date::date between '${params.start}' and '${params.end}'`;
       }
 
       let query = `
@@ -63,7 +78,7 @@ class dashboardServices {
 
           ${where}
         `;
-console.log('query', query);
+      console.log('query', query);
       let rta = await this.pool.query(query);
       return rta.rows[0];
 
