@@ -177,11 +177,11 @@ class reservationServices {
             state: 'DISPONIBLE'
           };
 
-          let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
-          if (liberarHabitacion.ok === false) {
-            await transaction.query('ROLLBACK');
-            return liberarHabitacion;
-          }
+          // let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
+          // if (liberarHabitacion.ok === false) {
+          //   await transaction.query('ROLLBACK');
+          //   return liberarHabitacion;
+          // }
         }
       }
 
@@ -417,8 +417,11 @@ class reservationServices {
   // =========================================================
   async updateBooking(body, transaction = null) {
     try {
+      console.log("Updating booking:", body);
       let client = transaction != null ? transaction : this.pool;
-
+      if (body.type == "INGRESO") {
+        body.state = 'INGRESO';
+      }
       const query = `
         UPDATE booking_data.bookings
         SET
@@ -431,8 +434,9 @@ class reservationServices {
           total_days = $7,
           number_persons = $8,
           total_rooms = $9,
-          type = $10
-        WHERE booking_id = $11
+          type = $10,
+          state= $11
+        WHERE booking_id = $12
         RETURNING *;
       `;
 
@@ -447,6 +451,7 @@ class reservationServices {
         body.number_persons,
         body.total_rooms,
         body.type,
+        body.state,
         body.booking_id
       ]);
 
@@ -795,7 +800,7 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
           B.NAME AS TYPE_ROOM`;
 
       if (params.unidField) {
-        fields = ` B.NAME AS TYPE_ROOM,   C.NO_ROOM, A.PRICE`;
+        fields = ` B.NAME AS TYPE_ROOM,   C.NO_ROOM,  C.NO_ROOM as Key, A.PRICE`;
       }
       let query = `
         SELECT
