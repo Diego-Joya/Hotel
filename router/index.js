@@ -11,8 +11,9 @@ const center = require("./centers");
 const bank = require("./banks");
 const bankAccounts = require("./bankAccounts");
 const reservations = require("./reservations");
-const menus  = require('./menus');
-const dashboard  = require('./dashboard');
+const menus = require('./menus');
+const dashboard = require('./dashboard');
+const invoice = require('./invoice');
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -24,11 +25,12 @@ function routerApi(app) {
   app.use('/auth', auth);
   app.use('/company', company);
   app.use('/location', location);
-  app.use("/centers",center);
-  app.use("/banks",bank);
-  app.use("/bankAccounts",bankAccounts);
-  app.use("/reservations",reservations);
+  app.use("/centers", center);
+  app.use("/banks", bank);
+  app.use("/bankAccounts", bankAccounts);
+  app.use("/reservations", reservations);
   app.use('/menus', menus);
   app.use('/dashboard', dashboard);
+  app.use('/invoice', invoice);
 }
 module.exports = routerApi;
