@@ -758,7 +758,7 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
             BOOKING_DATA.BOOKINGS A
             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
             LEFT JOIN booking_data.customers C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
-          ${where} order by a.entry_date asc
+          ${where} order by a.entry_date desc
         `;
       }
       console.log('query', query);
