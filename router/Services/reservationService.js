@@ -44,7 +44,7 @@ class reservationServices {
         cliente.cell_phone_emergency = body.cell_phone;
         cliente.center_id = body.center_id;
         cliente.created_by = body.created_by;
-        cliente.email = null;
+        cliente.email =  body.email;
         cliente.validar = false;
 
         const crearCliente = await clientes.crear(cliente, transaction);
@@ -357,6 +357,7 @@ class reservationServices {
     const total_days = body.total_days;
     const number_persons = body.number_persons;
     const total_rooms = body.total_rooms;
+    const total_reservation = body.total_reservation;
     const type = body.type;
 
     try {
@@ -376,9 +377,10 @@ class reservationServices {
           total_days,
           number_persons,
           total_rooms,
-            type
+          total_reservation,
+          type
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         RETURNING *;
       `;
 
@@ -395,6 +397,7 @@ class reservationServices {
         total_days,
         number_persons,
         total_rooms,
+        total_reservation,
         type
       ]);
 
@@ -435,8 +438,9 @@ class reservationServices {
           number_persons = $8,
           total_rooms = $9,
           type = $10,
-          state= $11
-        WHERE booking_id = $12
+          state= $11,
+          total_reservation = $12
+        WHERE booking_id = $13
         RETURNING *;
       `;
 
@@ -452,6 +456,7 @@ class reservationServices {
         body.total_rooms,
         body.type,
         body.state,
+        body.total_reservation,
         body.booking_id
       ]);
 
