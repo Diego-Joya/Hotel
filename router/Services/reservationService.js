@@ -140,7 +140,8 @@ class reservationServices {
   // =========================================================
   async updateReservation(body, id) {
     const transaction = await this.pool.connect();
-
+    console.log("body", body);
+    // return;
     try {
       await transaction.query('BEGIN');
 
@@ -227,18 +228,18 @@ class reservationServices {
         room.type_room = rooms_reservations.room_type_text;
         arrayRegisterBedrooms.push(room);
 
-        if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
-          let data = {
-            room_id: rooms_reservations.room,
-            state: 'RESERVADA'
-          };
+        // if (typeof rooms_reservations.room != 'undefined' && rooms_reservations.room != '') {
+        //   let data = {
+        //     room_id: rooms_reservations.room,
+        //     state: 'RESERVADA'
+        //   };
 
-          let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
-          if (stateBedroom.ok === false) {
-            await transaction.query('ROLLBACK');
-            return stateBedroom;
-          }
-        }
+        //   let stateBedroom = await habitaciones.actualizarEstado(transaction, data);
+        //   if (stateBedroom.ok === false) {
+        //     await transaction.query('ROLLBACK');
+        //     return stateBedroom;
+        //   }
+        // }
       }
 
       await transaction.query('COMMIT');

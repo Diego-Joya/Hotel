@@ -9,6 +9,8 @@ class clientesServices {
     this.pool.on('error', (err) => console.error(err));
   }
   async crear(body) {
+    console.log("body_ crear cliente", body);
+
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
     const surnames = body.surnames;
@@ -17,7 +19,7 @@ class clientesServices {
     if (body.birthdate == "" || body.birthdate == "undefined") {
       body.birthdate = '2026-04-07';
     }
-    let birthdate = body.birthdate;
+   let birthdate = moment(body.birthdate).format('YYYY-MM-DD');
     const cell_phone = body.cell_phone;
     const company_id = body.company_id;
     if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {
