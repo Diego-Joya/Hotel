@@ -16,10 +16,11 @@ class clientesServices {
     const surnames = body.surnames;
     const document_type = body.document_type;
     const no_document = body.no_document;
-    if (body.birthdate == "" || body.birthdate == "undefined") {
+    // if (body.birthdate == "" || body.birthdate == "undefined") {
+    if (!body.birthdate) {
       body.birthdate = '2026-04-07';
     }
-   let birthdate = moment(body.birthdate).format('YYYY-MM-DD');
+    let birthdate = moment(body.birthdate).format('YYYY-MM-DD');
     const cell_phone = body.cell_phone;
     const company_id = body.company_id;
     if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {
@@ -28,12 +29,15 @@ class clientesServices {
     const cell_phone_emergency = body.cell_phone_emergency;
     const center_id = body.center_id;
     const created_by = body.created_by;
+    if (typeof body.email == "undefined") {
+      body.email = "";
+    }
     const email = body.email;
     const created_at = fecha_hora;
     let data = {};
     data.no_document = no_document
     // data.center_id = center_id
-    if (body.validar == "undefined" || body.validar!= false) {
+    if (body.validar == "undefined" || body.validar != false) {
       const validarExistencia = await this.getAllClientes(data);
       console.log("validar existen", validarExistencia);
       if (validarExistencia.length > 0) {
@@ -48,7 +52,7 @@ class clientesServices {
       const query = `INSERT INTO  booking_data.customers(
     names, surnames, document_type, no_document, birthdate, cell_phone,
     cell_phone_emergency, center_id, created_by, created_at,email,company_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *`;
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *,birth_date as text `;
       const rta = await this.pool
         .query(query, [
           names,

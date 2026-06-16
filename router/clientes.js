@@ -11,6 +11,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const id = req.params;
     const getData = await cliente.getClientes(id);
+    console.log("getData", getData);
     res.json({
       ok: true,
       data: getData,
@@ -34,7 +35,7 @@ router.get('/nombres/:nombre', async (req, res, next) => {
 });
 router.get('/', async (req, res, next) => {
   try {
-    const parametros= req.query
+    const parametros = req.query
     const getAll = await cliente.getAllClientes(parametros);
     const ok = getAll;
     if (ok == false) {

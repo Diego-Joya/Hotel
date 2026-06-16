@@ -44,10 +44,11 @@ class reservationServices {
         cliente.cell_phone_emergency = body.cell_phone;
         cliente.center_id = body.center_id;
         cliente.created_by = body.created_by;
-        cliente.email =  body.email;
+        cliente.email = body.email;
         cliente.validar = false;
 
         const crearCliente = await clientes.crear(cliente, transaction);
+        console.log("crearCliente", crearCliente);
 
         if (crearCliente.ok === false) {
           await transaction.query('ROLLBACK');
@@ -171,20 +172,20 @@ class reservationServices {
       }
 
       // 3. Liberar habitaciones actuales
-      for (let i = 0; i < habitacionesActuales.length; i++) {
-        if (habitacionesActuales[i].room_id) {
-          let data = {
-            room_id: habitacionesActuales[i].room_id,
-            state: 'DISPONIBLE'
-          };
+      // for (let i = 0; i < habitacionesActuales.length; i++) {
+      //   if (habitacionesActuales[i].room_id) {
+      //     let data = {
+      //       room_id: habitacionesActuales[i].room_id,
+      //       state: 'DISPONIBLE'
+      //     };
 
-          // let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
-          // if (liberarHabitacion.ok === false) {
-          //   await transaction.query('ROLLBACK');
-          //   return liberarHabitacion;
-          // }
-        }
-      }
+      // let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
+      // if (liberarHabitacion.ok === false) {
+      //   await transaction.query('ROLLBACK');
+      //   return liberarHabitacion;
+      // }
+      //   }
+      // }
 
       // 4. Actualizar cliente (opcional)
       if (body.customer_id && body.customer_id != '0') {
@@ -284,20 +285,20 @@ class reservationServices {
       }
 
       // 2. Liberar habitaciones
-      for (let i = 0; i < habitacionesActuales.length; i++) {
-        if (habitacionesActuales[i].room_id) {
-          let data = {
-            room_id: habitacionesActuales[i].room_id,
-            state: 'DISPONIBLE'
-          };
+      // for (let i = 0; i < habitacionesActuales.length; i++) {
+      //   if (habitacionesActuales[i].room_id) {
+      //     let data = {
+      //       room_id: habitacionesActuales[i].room_id,
+      //       state: 'DISPONIBLE'
+      //     };
 
-          let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
-          if (liberarHabitacion.ok === false) {
-            await transaction.query('ROLLBACK');
-            return liberarHabitacion;
-          }
-        }
-      }
+      //     let liberarHabitacion = await habitaciones.actualizarEstado(transaction, data);
+      //     if (liberarHabitacion.ok === false) {
+      //       await transaction.query('ROLLBACK');
+      //       return liberarHabitacion;
+      //     }
+      //   }
+      // }
 
       // 3. Cambiar estado de la reserva a CANCELADA
       const query = `
