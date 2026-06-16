@@ -311,10 +311,14 @@ class usuariosServices {
         }
       } else {
         if (typeof params.fields != 'undefined' && params.fields != null) {
-          let menus_permisos = await menuServices.menusProfile({ profile_id: rta.rows[0].profile_id });
-          rta.rows[0].menus = menus_permisos;
-          console.log('rta.rows[0]', rta.rows[0]);
-          return rta.rows[0];
+          if (typeof rta.rows[0].profile_id != 'undefined' && rta.rows[0].profile_id != null) {
+            let menus_permisos = await menuServices.menusProfile({ profile_id: rta.rows[0].profile_id });
+            rta.rows[0].menus = menus_permisos;
+            console.log('rta.rows[0]', rta.rows[0]);
+            return rta.rows[0];
+          } else {
+            return rta.rows[0];
+          }
         } else {
           return rta.rows[0];
         }

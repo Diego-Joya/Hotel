@@ -991,7 +991,7 @@ A.TOTAL_DAYS, B.PRICE,A.TOTAL_ROOMS,A.STATE,
 
       const rooms = await this.rooms_Booking(data);
       console.log("rooms", rooms); //habitaciones que ya están reservadas en el rango de fechas
-      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id, company_id: params.company_id });
+      const allRooms = await habitaciones.getAllHabitaciones({ return_all: true, select: 'true', center_id: params.center_id, company_id: params.company_id, state: 'DISPONIBLE' });
       console.log("allRooms", allRooms); //todas las habitaciones del centro
       let rooms_available = [];
       for (let i = 0; i < allRooms.length; i++) {
