@@ -241,7 +241,6 @@ class usuariosServices {
 
   async consulta(params) {
     try {
-      console.log('params usuarios', params);
       let where = ` where 1=1`;
       if (typeof params.id != "undefined") {
         where += ` and a.user_id= ${params.id}`;
@@ -297,15 +296,19 @@ class usuariosServices {
       }
 
       let rta = await this.pool.query(query);
-      //
-
-
+      if (rta.rows.length == 0) {
+        return rta.rows;
+      }
+      console.log('rta usuarios en 0', rta.rows[0]);
       if (typeof params.return_all && params.return_all == true) {
         if (typeof params.fields != 'undefined' && params.fields != null) {
-          let menus_permisos = await menuServices.menusProfile({ profile_id: rta.rows[0].profile_id });
-          rta.rows[0].menus = menus_permisos;
-          console.log('rta.rows[0]', rta.rows[0]);
-          return rta.rows;
+          if (typeof params.fields != 'undefined' && params.fields != null) {
+            let menus_permisos = await menuServices.menusProfile({ profile_id: rta.rows[0].profile_id });
+            rta.rows[0].menus = menus_permisos;
+            return rta.rows;
+          } else {
+            return rta.rows;
+          }
         } else {
           return rta.rows;
         }
@@ -314,7 +317,6 @@ class usuariosServices {
           if (typeof rta.rows[0].profile_id != 'undefined' && rta.rows[0].profile_id != null) {
             let menus_permisos = await menuServices.menusProfile({ profile_id: rta.rows[0].profile_id });
             rta.rows[0].menus = menus_permisos;
-            console.log('rta.rows[0]', rta.rows[0]);
             return rta.rows[0];
           } else {
             return rta.rows[0];
