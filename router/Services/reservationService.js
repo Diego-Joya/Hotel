@@ -536,6 +536,12 @@ class reservationServices {
             }
 
             huesped.customer_id = crearCliente.customer_id;
+          } else {
+            // actualizar cliente
+            const actualizarCliente = await clientes.actualizar(huesped.customer_id, huesped, transaction);
+            if (actualizarCliente.ok === false) {
+              return actualizarCliente;
+            }
           }
 
           const queryGuest = `

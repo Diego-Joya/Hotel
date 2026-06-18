@@ -8,7 +8,10 @@ class clientesServices {
     this.pool = pool;
     this.pool.on('error', (err) => console.error(err));
   }
-  async crear(body) {
+  async crear(body, transaction = null) {
+    if (transaction != null) {
+      this.pool = transaction;
+    }
     console.log("body_ crear cliente", body);
 
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -75,12 +78,15 @@ class clientesServices {
 
   }
 
-  async actualizar(id, body) {
+  async actualizar(id, body, transaction = null) {
     if (Object.keys(body).length == 0) {
       return {
         ok: false,
         message: "No se encotraron parametros a actualizar!"
       }
+    }
+    if (transaction != null) {
+      this.pool = transaction;
     }
     const fecha_hora = moment().format('YYYY-MM-DD HH:mm:ss');
     const names = body.names;
