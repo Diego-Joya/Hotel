@@ -28,26 +28,28 @@ class reservationServices {
       let arrayData = [];
 
       // Si no existe customer_id, crear cliente
+      let datacliente = {};
+        datacliente.names = body.names;
+        datacliente.surnames = body.surnames;
+        datacliente.document_type = body.document_type;
+        datacliente.no_document = body.no_document;
+        datacliente.birthdate = null;
+        datacliente.cell_phone = body.cell_phone;
+        datacliente.company_id = body.company_id;
+        datacliente.cell_phone_emergency = body.cell_phone;
+        datacliente.center_id = body.center_id;
+        datacliente.created_by = body.created_by;
+        datacliente.updated_by = body.created_by;
+        datacliente.email = body.email;
+        datacliente.validar = false;
       if (
         typeof body.customer_id == "undefined" ||
         body.customer_id == '0' ||
         body.customer_id == ''
       ) {
-        let cliente = {};
-        cliente.names = body.names;
-        cliente.surnames = body.surnames;
-        cliente.document_type = body.document_type;
-        cliente.no_document = body.no_document;
-        cliente.birthdate = null;
-        cliente.cell_phone = body.cell_phone;
-        cliente.company_id = body.company_id;
-        cliente.cell_phone_emergency = body.cell_phone;
-        cliente.center_id = body.center_id;
-        cliente.created_by = body.created_by;
-        cliente.email = body.email;
-        cliente.validar = false;
 
-        const crearCliente = await clientes.crear(cliente, transaction);
+
+        const crearCliente = await clientes.crear(datacliente, transaction);
         console.log("crearCliente", crearCliente);
 
         if (crearCliente.ok === false) {
@@ -56,6 +58,14 @@ class reservationServices {
         } else {
           arrayData.push(crearCliente[0] || crearCliente);
           body.customer_id = crearCliente.customer_id;
+        }
+      }
+      else{
+        // actualizar cliente
+        const actualizarCliente = await clientes.actualizar(body.customer_id, datacliente, transaction);
+        if (actualizarCliente.ok === false) {
+          await transaction.query('ROLLBACK');
+          return actualizarCliente;
         }
       }
 
