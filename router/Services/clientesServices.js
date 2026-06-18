@@ -17,10 +17,10 @@ class clientesServices {
     const document_type = body.document_type;
     const no_document = body.no_document;
     // if (body.birthdate == "" || body.birthdate == "undefined") {
-    if (!body.birthdate) {
-      body.birthdate = '2026-04-07';
+    let birthdate = null;
+    if (body.birthdate) {
+      birthdate = moment(body.birthdate).format('YYYY-MM-DD');
     }
-    let birthdate = moment(body.birthdate).format('YYYY-MM-DD');
     const cell_phone = body.cell_phone;
     const company_id = body.company_id;
     if (body.cell_phone_emergency == "" || body.cell_phone_emergency == undefined) {
@@ -52,7 +52,7 @@ class clientesServices {
       const query = `INSERT INTO  booking_data.customers(
     names, surnames, document_type, no_document, birthdate, cell_phone,
     cell_phone_emergency, center_id, created_by, created_at,email,company_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *,birth_date as text `;
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) RETURNING *,birthdate as text `;
       const rta = await this.pool
         .query(query, [
           names,
