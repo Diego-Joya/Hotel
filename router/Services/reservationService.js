@@ -19,7 +19,7 @@ class reservationServices {
   // CREATE RESERVATION
   // =========================================================
   async createReservation(body) {
-
+    console.log("body", body);
     const transaction = await this.pool.connect();
 
     try {
@@ -373,7 +373,8 @@ class reservationServices {
     const total_reservation = body.total_reservation;
     const type = body.type;
     const observations = body.observations;
-
+    console.log("body en crear", body.observations);
+    // return;
     try {
       let client = transaction != null ? transaction : this.pool;
 
@@ -416,7 +417,7 @@ class reservationServices {
         type,
         observations
       ]);
-
+      console.log("rta en crear:::", rta.rows[0]);
       if (typeof rta.rows[0] != 'undefined') {
         return rta.rows[0];
       } else {
@@ -455,8 +456,9 @@ class reservationServices {
           total_rooms = $9,
           type = $10,
           state= $11,
-          total_reservation = $12
-        WHERE booking_id = $13
+          total_reservation = $12,
+          observations = $13
+        WHERE booking_id = $14
         RETURNING *;
       `;
 
@@ -473,6 +475,7 @@ class reservationServices {
         body.type,
         body.state,
         body.total_reservation,
+        body.observations,
         body.booking_id
       ]);
 

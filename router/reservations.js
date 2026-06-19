@@ -136,7 +136,7 @@ router.get('/',
       const parametros = req.query
       parametros.return_all = true;
       const consulta = await reservation.gellAllReservations(parametros);
-      console.log('consulta', consulta);
+      // console.log('consulta', consulta);
       res.json({
         ok: true,
         data: consulta
