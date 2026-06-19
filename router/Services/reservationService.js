@@ -29,19 +29,19 @@ class reservationServices {
 
       // Si no existe customer_id, crear cliente
       let datacliente = {};
-        datacliente.names = body.names;
-        datacliente.surnames = body.surnames;
-        datacliente.document_type = body.document_type;
-        datacliente.no_document = body.no_document;
-        datacliente.birthdate = null;
-        datacliente.cell_phone = body.cell_phone;
-        datacliente.company_id = body.company_id;
-        datacliente.cell_phone_emergency = body.cell_phone;
-        datacliente.center_id = body.center_id;
-        datacliente.created_by = body.created_by;
-        datacliente.updated_by = body.created_by;
-        datacliente.email = body.email;
-        datacliente.validar = false;
+      datacliente.names = body.names;
+      datacliente.surnames = body.surnames;
+      datacliente.document_type = body.document_type;
+      datacliente.no_document = body.no_document;
+      datacliente.birthdate = null;
+      datacliente.cell_phone = body.cell_phone;
+      datacliente.company_id = body.company_id;
+      datacliente.cell_phone_emergency = body.cell_phone;
+      datacliente.center_id = body.center_id;
+      datacliente.created_by = body.created_by;
+      datacliente.updated_by = body.created_by;
+      datacliente.email = body.email;
+      datacliente.validar = false;
       if (
         typeof body.customer_id == "undefined" ||
         body.customer_id == '0' ||
@@ -60,7 +60,7 @@ class reservationServices {
           body.customer_id = crearCliente.customer_id;
         }
       }
-      else{
+      else {
         // actualizar cliente
         const actualizarCliente = await clientes.actualizar(body.customer_id, datacliente, transaction);
         if (actualizarCliente.ok === false) {
@@ -226,6 +226,7 @@ class reservationServices {
 
       for (let i = 0; i < body.rooms_reservations.length; i++) {
         body.rooms_reservations[i].booking_id = body.booking_id;
+        body.rooms_reservations[i].center_id = body.center_id;
         let rooms_reservations = body.rooms_reservations[i];
 
         let registerBedrooms = await this.registerBedrooms(rooms_reservations, transaction);
@@ -529,8 +530,9 @@ class reservationServices {
       // insertar los huéspedes de cada habitación reservada
       if (Array.isArray(body.guests_rooms) && body.guests_rooms.length > 0) {
         for (let i = 0; i < body.guests_rooms.length; i++) {
+          body.guests_rooms[i].center_id = body.center_id;
           let huesped = body.guests_rooms[i];
-
+          console.log("huesped", huesped);
           if (
             typeof huesped.customer_id === 'undefined' ||
             huesped.customer_id === '' ||
