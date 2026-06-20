@@ -784,7 +784,8 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
             C.NO_DOCUMENT,
             C.NAMES,
             C.SURNAMES,
-            C.CELL_PHONE
+            C.CELL_PHONE,
+            C.EMAIL
           FROM
             BOOKING_DATA.BOOKINGS A
             LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
