@@ -35,10 +35,8 @@ class dashboardServices {
       data.salidasClientes = salidasClientes.salida;
       params.state = 'Cancelada';
       const canceladas = await this.getReservasState(params);
-      console.log("canceladas0", canceladas);
       data.canceladas = canceladas.cancelada;
       let consultasCentros = await center.getAll({ company_id: params.company_id, return_all: true });
-      console.log("consultasCentros", consultasCentros);
 
       let centros = [];
       for (let i = 0; i < consultasCentros.length; i++) {
@@ -58,7 +56,6 @@ class dashboardServices {
         element.canceladas = canceladas.cancelada;
         centros.push(element);
       }
-      console.log("centros", centros);
       data.centros = centros;
       return data;
 
@@ -102,7 +99,6 @@ class dashboardServices {
 
           ${where}
         `;
-      console.log('query', query);
       let rta = await this.pool.query(query);
       return rta.rows[0];
 
