@@ -1,8 +1,9 @@
 const pool = require('../../libs/postgres.pool');
 const moment = require("moment");
 const messageHandler = require('./../../middlewares/message.handler');
+const centerServices = require('./centerServices');
 // const reservationService = require('./Services/reservationService');
-
+const center = new centerServices();
 // const reserva = new reservationService();
 class dashboardServices {
   constructor() {
@@ -34,8 +35,31 @@ class dashboardServices {
       data.salidasClientes = salidasClientes.salida;
       params.state = 'Cancelada';
       const canceladas = await this.getReservasState(params);
-      console.log("canceladas0",canceladas);
+      console.log("canceladas0", canceladas);
       data.canceladas = canceladas.cancelada;
+      let consultasCentros = await center.getAll({ company_id: params.company_id, return_all: true });
+      console.log("consultasCentros", consultasCentros);
+
+      let centros = [];
+      for (let i = 0; i < consultasCentros.length; i++) {
+        const element = consultasCentros[i];
+        params.center_id = element.centers_id;
+        params.state = 'reservada';
+        const reservasReservadas = await this.getReservasState(params);
+        element.reservasReservadas = reservasReservadas.reservada;
+        params.state = 'ingreso';
+        const ingresosClientes = await this.getReservasState(params);
+        element.ingresosClientes = ingresosClientes.ingreso;
+        params.state = 'salida';
+        const salidasClientes = await this.getReservasState(params);
+        element.salidasClientes = salidasClientes.salida;
+        params.state = 'Cancelada';
+        const canceladas = await this.getReservasState(params);
+        element.canceladas = canceladas.cancelada;
+        centros.push(element);
+      }
+      console.log("centros", centros);
+      data.centros = centros;
       return data;
 
     } catch (error) {
@@ -66,7 +90,7 @@ class dashboardServices {
       if (typeof params.state != "undefined" && params.state == 'ingreso') {
         where += ` and STATE = 'INGRESO' and entry_date::date >= '${params.start}' and entry_date::date <= '${params.end}'`;
       }
-      if (typeof params.state != "undefined" && params.state == 'salida' &&  typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
+      if (typeof params.state != "undefined" && params.state == 'salida' && typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
         where += ` and exit_date::date between '${params.start}' and '${params.end}'`;
       }
 
