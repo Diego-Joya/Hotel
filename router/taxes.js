@@ -62,4 +62,25 @@ router.patch('/:id', async (req, res, next) => {
     next(error);
   }
 });
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await taxes.innactiveTax(id);
+    console.log("result", result);
+    if (typeof result.ok !== 'undefined' && result.ok === false) {
+      res.send(result);
+    }
+    else {
+      res.json({
+        ok: true,
+        message: 'Impuesto inactivado correctamente',
+        id,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

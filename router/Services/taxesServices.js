@@ -96,6 +96,16 @@ class taxesServices {
   }
 
 
+  async innactiveTax(id) {
+    try {
+      const query = `UPDATE booking_data.taxes SET is_active=false WHERE tax_id=$1 RETURNING *`;
+      const rta = await this.pool.query(query, [id]);
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
 }
 
 module.exports = taxesServices;
