@@ -37,14 +37,31 @@ class invoiceServices {
 
   async saveInvoice(body, transaction) {
     try {
+
+      const consequenceNumber = await this.getConsecutiveInvoiceNumber({
+        company_id: body.company_id,
+        center_id: body.center_id,
+        document_type: 'INVOICE'
+      }, transaction);
+      console.log("consequenceNumber", consequenceNumber);
+      if (!consequenceNumber) {
+        return {
+          ok: false,
+          message: 'No se pudo obtener el consecutivo número de factura.Verifique que exista una secuencia de facturación para la compañía y centro especificados.',
+        };
+      }
+      body.invoice_number = consequenceNumber.start_number; // Asigna el número de factura consecutivo al cuerpo de la solicitud
+      body.prefix = consequenceNumber.prefix; // Asigna el prefijo de la factura consecutivo al cuerpo de la solicitud
+
       const query = `INSERT INTO booking_data.invoices(
-	 booking_id, customer_id, invoice_number, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;`;
+	 booking_id, customer_id, invoice_number,prefix, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to)
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12) RETURNING *;`;
 
       const values = [
         body.booking_id,
         body.customer_id,
         body.invoice_number,
+        body.prefix,
         body.invoice_date,
         body.subtotal,
         body.taxes,
@@ -135,5 +152,19 @@ class invoiceServices {
     }
 
   }
+
+  async getConsecutiveInvoiceNumber(params, transaction) {
+    try {
+      console.log("params", params);
+      const query = `update booking_data.invoice_sequences set start_number = start_number + 1 where company_id = $1 and center_id = $2 and document_type = $3 returning start_number`;
+      const values = [params.company_id, params.center_id, params.document_type];
+      const rta = await transaction.query(query, values);
+      return rta.rows[0];
+
+    } catch (error) {
+      return messageHandler(error);
+    }
+  }
+
 }
 module.exports = invoiceServices;
