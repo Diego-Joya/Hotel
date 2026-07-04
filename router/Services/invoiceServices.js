@@ -10,6 +10,7 @@ class invoiceServices {
 
   async createinvoice(body) {
     try {
+      console.log("body", body);
       const transaction = await this.pool.connect();
       await transaction.query('BEGIN');
       const reserva = await this.saveInvoice(body, transaction);
@@ -37,8 +38,8 @@ class invoiceServices {
   async saveInvoice(body, transaction) {
     try {
       const query = `INSERT INTO booking_data.invoices(
-	 booking_id, customer_id, invoice_number, invoice_date, subtotal, taxes, total, status)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`;
+	 booking_id, customer_id, invoice_number, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to)
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;`;
 
       const values = [
         body.booking_id,
@@ -48,7 +49,10 @@ class invoiceServices {
         body.subtotal,
         body.taxes,
         body.total,
-        body.status
+        body.status,
+        body.other_services,
+        body.email,
+        body.invoice_to
       ];
 
       const rta = await transaction.query(query, values);
