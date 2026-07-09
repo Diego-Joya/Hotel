@@ -54,22 +54,25 @@ class invoiceServices {
       body.prefix = consequenceNumber.prefix; // Asigna el prefijo de la factura consecutivo al cuerpo de la solicitud
 
       const query = `INSERT INTO booking_data.invoices(
-	 booking_id, customer_id, invoice_number,prefix, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12) RETURNING *;`;
+	 booking_id, customer_id, invoice_number,prefix, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to,payment_method,exit_date)
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12,$13) RETURNING *;`;
 
       const values = [
         body.booking_id,
         body.customer_id,
         body.invoice_number,
         body.prefix,
-        body.invoice_date,
+       moment().format('YYYY-MM-DD HH:mm:ss'),
         body.subtotal,
         body.taxes,
         body.total,
         body.status,
         body.other_services,
         body.email,
-        body.invoice_to
+        body.invoice_to,
+        body.payment_method,
+        body.exit_date
+
       ];
 
       const rta = await transaction.query(query, values);
