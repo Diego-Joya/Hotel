@@ -1,7 +1,8 @@
 const pool = require('../../libs/postgres.pool');
 const messageHandler = require('./../../middlewares/message.handler');
 const moment = require("moment");
-
+const clientesServices = require('./clientesServices');
+const clientesClass = new clientesServices();
 class invoiceServices {
   constructor() {
     this.pool = pool;
@@ -43,6 +44,39 @@ class invoiceServices {
         center_id: body.center_id,
         document_type: 'INVOICE'
       }, transaction);
+
+      if (
+        typeof body.customer_id === 'undefined' ||
+        body.customer_id === '' ||
+        body.customer_id === '0' ||
+        body.customer_id === null
+      ) {
+        // crear cliente
+        let dataCliente = {};
+        dataCliente.names = body.names;
+        dataCliente.surnames = body.surnames;
+        dataCliente.document_type = body.document_type;
+        if (body.invoice_to == "Empresa") {
+          dataCliente.names = body.customer_name;
+          dataCliente.surnames = '';
+          dataCliente.document_type = 'NIT';
+        }
+        dataCliente.no_document = body.no_document;
+        dataCliente.center_id = body.center_id;
+        dataCliente.company_id = body.company_id;
+        dataCliente.cell_phone = body.cell_phone;
+        dataCliente.email = body.email;
+        dataCliente.created_by = '0';
+        const crearCliente = await clientesClass.crear(dataCliente, transaction);
+        console.log("crearCliente", crearCliente);
+
+        if (crearCliente.ok === false) {
+          return crearCliente;
+        }
+
+        body.customer_id = crearCliente.customer_id;
+      }
+
       console.log("consequenceNumber", consequenceNumber);
       if (!consequenceNumber) {
         return {
@@ -55,14 +89,14 @@ class invoiceServices {
 
       const query = `INSERT INTO booking_data.invoices(
 	 booking_id, customer_id, invoice_number,prefix, invoice_date, subtotal, taxes, total, status, other_services,email,invoice_to,payment_method,exit_date)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12,$13) RETURNING *;`;
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,$12,$13,$14) RETURNING *;`;
 
       const values = [
         body.booking_id,
         body.customer_id,
         body.invoice_number,
         body.prefix,
-       moment().format('YYYY-MM-DD HH:mm:ss'),
+        moment().format('YYYY-MM-DD HH:mm:ss'),
         body.subtotal,
         body.taxes,
         body.total,
@@ -159,7 +193,7 @@ class invoiceServices {
   async getConsecutiveInvoiceNumber(params, transaction) {
     try {
       console.log("params", params);
-      const query = `update booking_data.invoice_sequences set start_number = start_number + 1 where company_id = $1 and center_id = $2 and document_type = $3 returning start_number`;
+      const query = `update booking_data.invoice_sequences set start_number = start_number + 1 where company_id = $1 and center_id = $2 and document_type = $3 returning *`;
       const values = [params.company_id, params.center_id, params.document_type];
       const rta = await transaction.query(query, values);
       return rta.rows[0];
