@@ -28,6 +28,8 @@ class invoiceServices {
         return detalle;
       }
 
+
+
       await transaction.query('COMMIT');
       reserva.detalle = detalle; // Agrega los detalles a la respuesta de la reserva
       return reserva;
