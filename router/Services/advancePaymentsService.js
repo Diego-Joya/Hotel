@@ -33,8 +33,8 @@ class advancePaymentsService {
   async createAdvancePayment(body) {
     try {
       const query = `INSERT INTO booking_data.booking_advance_payments(
-	 booking_id, amount, payment_date, payment_method, reference, observations, status, created_by, created_at)
-	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`;
+	 booking_id, amount, payment_date, payment_method, reference, observations, status, created_by, created_at,bank_account_id)
+	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9,$10) RETURNING *`;
 
       const result = await this.pool.query(query, [
         body.booking_id,
@@ -45,7 +45,9 @@ class advancePaymentsService {
         body.observations,
         body.status,
         body.created_by,
-        moment().format('YYYY-MM-DD HH:mm:ss')
+        moment().format('YYYY-MM-DD HH:mm:ss'),
+        body.bank_account_id
+
       ]);
       return result.rows[0];
     } catch (error) {
@@ -57,8 +59,8 @@ class advancePaymentsService {
     try {
 
       const query = `UPDATE booking_data.booking_advance_payments
-	SET  booking_id=$1, amount=$2, payment_date=$3, payment_method=$4, reference=$5, observations=$6, status=$7,  updated_at=$8
-	WHERE id = $9 RETURNING *`;
+	SET  booking_id=$1, amount=$2, payment_date=$3, payment_method=$4, reference=$5, observations=$6, status=$7,  updated_at=$8,bank_account_id =$9
+	WHERE id = $10 RETURNING *`;
       const result = await this.pool.query(query, [
         body.booking_id,
         body.amount,
@@ -68,6 +70,7 @@ class advancePaymentsService {
         body.observations,
         body.status,
         moment().format('YYYY-MM-DD HH:mm:ss'),
+        body.bank_account_id,
         id
       ]);
       return result.rows[0];
