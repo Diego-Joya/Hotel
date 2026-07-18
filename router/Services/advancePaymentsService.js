@@ -32,6 +32,9 @@ class advancePaymentsService {
   }
   async createAdvancePayment(body) {
     try {
+      if (body.bank_account_id == '') {
+        body.bank_account_id = null;
+      }
       const query = `INSERT INTO booking_data.booking_advance_payments(
 	 booking_id, amount, payment_date, payment_method, reference, observations, status, created_by, created_at,bank_account_id)
 	VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9,$10) RETURNING *`;

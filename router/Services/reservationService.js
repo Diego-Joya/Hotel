@@ -786,7 +786,15 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
           C.SURNAMES,
           C.CELL_PHONE,
           C.EMAIL,
-          D.INVOICE_NUMBER
+          D.INVOICE_NUMBER,
+          (
+            SELECT
+              SUM(AMOUNT)
+            FROM
+              BOOKING_DATA.BOOKING_ADVANCE_PAYMENTS AS E
+            WHERE
+              E.BOOKING_ID = A.BOOKING_ID
+          ) AS VALUE_ADVANCE
         FROM
           BOOKING_DATA.BOOKINGS A
           LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
