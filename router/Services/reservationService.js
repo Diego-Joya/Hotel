@@ -657,7 +657,7 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
 
       const query = `
        SELECT a.guests_rooms_id, a.customer_id, a.rooms_reservation,
-	b.names, b.surnames, b.document_type, b.no_document, b.birthdate, b.cell_phone, b.cell_phone_emergency
+	b.names, b.surnames, b.document_type, b.no_document, b.birthdate, b.cell_phone, b.cell_phone_emergency, b.email
 	FROM booking_data.guests_rooms a left join   booking_data.customers b on a.customer_id = b.customer_id
         WHERE a.rooms_reservation = $1;
       `;
