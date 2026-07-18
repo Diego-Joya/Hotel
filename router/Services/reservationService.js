@@ -772,24 +772,26 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
         query = `select a.user_id as key, ${params.fields} from booking_config.users a ${where}`;
       } else {
         query = `
-          SELECT
-            A.*,
-            A.CREATED_AT::TEXT AS CREATED_AT,
-            A.EXIT_DATE::TEXT AS EXIT_DATE,
-            A.ENTRY_DATE::TEXT AS ENTRY_DATE,
-            B.CENTER_NAME,
-            A.BOOKING_ID as KEY,
-            C.NAMES || ' ' || C.SURNAMES AS CUSTOMER_NAME,
-            C.DOCUMENT_TYPE,
-            C.NO_DOCUMENT,
-            C.NAMES,
-            C.SURNAMES,
-            C.CELL_PHONE,
-            C.EMAIL
-          FROM
-            BOOKING_DATA.BOOKINGS A
-            LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
-            LEFT JOIN booking_data.customers C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
+         SELECT
+          A.*,
+          A.CREATED_AT::TEXT AS CREATED_AT,
+          A.EXIT_DATE::TEXT AS EXIT_DATE,
+          A.ENTRY_DATE::TEXT AS ENTRY_DATE,
+          B.CENTER_NAME,
+          A.BOOKING_ID AS KEY,
+          C.NAMES || ' ' || C.SURNAMES AS CUSTOMER_NAME,
+          C.DOCUMENT_TYPE,
+          C.NO_DOCUMENT,
+          C.NAMES,
+          C.SURNAMES,
+          C.CELL_PHONE,
+          C.EMAIL,
+          D.INVOICE_NUMBER
+        FROM
+          BOOKING_DATA.BOOKINGS A
+          LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
+          LEFT JOIN BOOKING_DATA.CUSTOMERS C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
+          LEFT JOIN BOOKING_DATA.INVOICES D ON A.BOOKING_ID = D.BOOKING_ID
           ${where} order by a.entry_date desc
         `;
       }
