@@ -17,6 +17,7 @@ const invoice = require('./invoice');
 const taxes = require('./taxes');
 const secuences = require('./invoiceSequences');
 const advancePayment = require('./advancePayments');
+const otherServices = require('./otherServices');
 
 function routerApi(app) {
   app.use('/clientes', clientes);
@@ -38,5 +39,6 @@ function routerApi(app) {
   app.use('/taxes', taxes);
   app.use('/invoiceSequences', secuences);
   app.use('/advancePayments', advancePayment);
+  app.use('/otherServices', otherServices);
 }
 module.exports = routerApi;
