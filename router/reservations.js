@@ -3,41 +3,45 @@ const express = require("express");
 const reservationService = require('./Services/reservationService');
 // const passport = require("passport");
 const ingresosClientesServices = require('./Services/IngresoClientesServices');
+const passport = require("passport");
 
 const router = express.Router();
 const reservation = new reservationService();
 const ingresos = new ingresosClientesServices();
 
-router.post('/', async (req, res, next) => {
-  try {
-    const body = req.body;
-    console.log('body:', body);
+router.post('/',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      console.log('body:', body);
 
-    let result;
+      let result;
 
-    // if (body.type === 'INGRESO') {
-    //   result = await ingresos.saveIngresoClientes(body);
-    // } else {
-    result = await reservation.createReservation(body);
-    // }
+      // if (body.type === 'INGRESO') {
+      //   result = await ingresos.saveIngresoClientes(body);
+      // } else {
+      result = await reservation.createReservation(body);
+      // }
 
-    if (result.ok === false) {
-      return res.send(result);
+      if (result.ok === false) {
+        return res.send(result);
+      }
+
+      return res.json({
+        ok: true,
+        message: 'Datos guardados correctamente!',
+        data: result,
+      });
+
+    } catch (error) {
+      next(error);
     }
-
-    return res.json({
-      ok: true,
-      message: 'Datos guardados correctamente!',
-      data: result,
-    });
-
-  } catch (error) {
-    next(error);
-  }
-});
+  });
 
 router.patch(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -69,6 +73,7 @@ router.patch(
 
 router.patch(
   '/confirm/:id',
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -99,6 +104,7 @@ router.patch(
 );
 router.patch(
   '/cancel/:id',
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -130,7 +136,7 @@ router.patch(
 
 
 router.get('/',
-  // passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const parametros = req.query
@@ -148,7 +154,7 @@ router.get('/',
 
   });
 router.get('/calendar',
-  // passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const parametros = req.query
@@ -165,49 +171,55 @@ router.get('/calendar',
     }
 
   });
-router.get('/rooms_details/', async (req, res, next) => {
-  try {
-    const parametros = req.query;
-    console.log(parametros);
-    const consulta = await reservation.rooms_Booking(parametros);
-    res.json({
-      ok: true,
-      data: consulta,
-    })
+router.get('/rooms_details/',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const parametros = req.query;
+      console.log(parametros);
+      const consulta = await reservation.rooms_Booking(parametros);
+      res.json({
+        ok: true,
+        data: consulta,
+      })
 
-  } catch (error) {
-    next(error);
-  }
-});
-router.get('/rooms_available/', async (req, res, next) => {
-  try {
-    const parametros = req.query;
-    parametros.distinct_room = true;
-    console.log(parametros);
-    const consulta = await reservation.rooms_available(parametros);
-    res.json({
-      ok: true,
-      data: consulta,
-    })
+    } catch (error) {
+      next(error);
+    }
+  });
+router.get('/rooms_available/',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const parametros = req.query;
+      parametros.distinct_room = true;
+      console.log(parametros);
+      const consulta = await reservation.rooms_available(parametros);
+      res.json({
+        ok: true,
+        data: consulta,
+      })
 
-  } catch (error) {
-    next(error);
-  }
-});
-router.get('/edit_booking/', async (req, res, next) => {
-  try {
-    const parametros = req.query;
-    console.log(parametros);
-    parametros.return_all = true;
-    const consulta = await reservation.edit_bookings(parametros);
-    res.json({
-      ok: true,
-      data: consulta,
-    })
+    } catch (error) {
+      next(error);
+    }
+  });
+router.get('/edit_booking/',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const parametros = req.query;
+      console.log(parametros);
+      parametros.return_all = true;
+      const consulta = await reservation.edit_bookings(parametros);
+      res.json({
+        ok: true,
+        data: consulta,
+      })
 
-  } catch (error) {
-    next(error);
-  }
-});
+    } catch (error) {
+      next(error);
+    }
+  });
 
 module.exports = router;

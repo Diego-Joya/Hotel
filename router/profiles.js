@@ -2,34 +2,38 @@ const expres = require("express");
 const profiles_service = require("./Services/profiles_services");
 const router = expres.Router();
 const profile = new profiles_service();
+const passport = require("passport");
 
-const passport= require('passport')
 
-router.get("/", async (req, res, next) => {
-  try {
-       const parametros = req.query;
-            // parametros.return_all = true;
-    const consulta = await profile.buscar_todos(parametros);
-    res.json({
-      ok:true,
-      data: consulta,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/",
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+
+    try {
+      const parametros = req.query;
+      // parametros.return_all = true;
+      const consulta = await profile.buscar_todos(parametros);
+      res.json({
+        ok: true,
+        data: consulta,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
 router.get(
   "/:nombre",
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { nombre } = req.params;
       const cat = await profile.buscar_uno(nombre);
-        res.json({
-          ok: true,
-          data: cat,
-        });
-      
+      res.json({
+        ok: true,
+        data: cat,
+      });
+
     } catch (error) {
       next(error);
     }
@@ -38,7 +42,7 @@ router.get(
 
 router.post(
   "/",
-  passport.authenticate('jwt', {session:false}),
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const body = req.body;
@@ -57,6 +61,7 @@ router.post(
 
 router.patch(
   "/:id",
+  passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -81,25 +86,27 @@ router.patch(
   }
 );
 
-router.delete("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const delete_cate = await profile.delete(id);
-    if (delete_cate == false) {
-      res.json({
-        ok: false,
-        message: "No se encontro el registro en la bd",
-      });
-    } else {
-      res.json({
-        ok: true,
-        message: "Registro eliminado correctamente!",
-        id,
-      });
+router.delete("/:id",
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const delete_cate = await profile.delete(id);
+      if (delete_cate == false) {
+        res.json({
+          ok: false,
+          message: "No se encontro el registro en la bd",
+        });
+      } else {
+        res.json({
+          ok: true,
+          message: "Registro eliminado correctamente!",
+          id,
+        });
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
-  }
-});
+  });
 
 module.exports = router;
