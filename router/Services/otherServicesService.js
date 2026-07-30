@@ -8,9 +8,23 @@ class otherServicesService {
     this.pool = pool;
     this.pool.on('error', (err) => console.error(err));
   }
-
   async createOtherServices(body) {
     try {
+      let ids = [];
+      for (let i = 0; i < body.other_services.length; i++) {
+        const element = body.other_services[i];
+        let save = await this.saveOtherServices(element);
+        ids.push(save);
+      }
+      return ids;
+    } catch (error) {
+      return messageHandler(error);
+    }
+
+  }
+  async saveOtherServices(body) {
+    try {
+      console.log("body", body);
       const query = `INSERT INTO booking_data.other_services(
 	 booking_id, service_date, service_name, unit_value, total_value, observations)
 	VALUES ($1, $2, $3, $4, $5 ,$6) RETURNING *`;
