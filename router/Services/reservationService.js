@@ -786,7 +786,13 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
           C.SURNAMES,
           C.CELL_PHONE,
           C.EMAIL,
-          D.INVOICE_NUMBER,
+          (
+    SELECT i.invoice_number
+    FROM booking_data.invoices i
+    WHERE i.booking_id = a.booking_id
+    ORDER BY i.ID DESC   -- o created_at DESC
+    LIMIT 1
+) AS invoice_number,
           (
               SELECT
                   COALESCE(SUM(E.AMOUNT), 0)
@@ -808,7 +814,6 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
           BOOKING_DATA.BOOKINGS A
           LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
           LEFT JOIN BOOKING_DATA.CUSTOMERS C ON (A.CUSTOMER_ID = C.CUSTOMER_ID)
-          LEFT JOIN BOOKING_DATA.INVOICES D ON A.BOOKING_ID = D.BOOKING_ID
           ${where} order by a.entry_date desc
         `;
       }
