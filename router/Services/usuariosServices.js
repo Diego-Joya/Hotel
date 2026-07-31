@@ -144,6 +144,26 @@ class usuariosServices {
     }
 
   }
+  async CambiarPassword(id, body) {
+    console.log(body);
+    // const surname = body.surname;
+    const password = body.password;
+    const password_enc = await bcrypt.hash(password, 10);
+    // const password_enc = await bcrypt.hash(password, 10);
+    // console.log(password_enc);
+
+    try {
+      const query = `UPDATE booking_config.users
+	SET password = $1
+	WHERE  user_id=$2  RETURNING id`
+      const rta = await this.pool.query(query,
+        [password_enc, id])
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error);
+    }
+
+  }
   async saveRefreshToke(user, refreshToken) {
     console.log("user", user);
     console.log("refreshToken", refreshToken);
