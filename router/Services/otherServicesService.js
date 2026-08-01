@@ -69,9 +69,9 @@ class otherServicesService {
     try {
       let where = ` where 1=1 `;
       if (typeof params.booking_id != "undefined" && params.booking_id != "") {
-        where += ` booking_id = ${params.body.booking_id} `;
+        where += ` and booking_id = ${params.booking_id} `;
       }
-      const query = `SELECT *	FROM booking_data.other_services ${where}`;
+      const query = `SELECT *, id as key	FROM booking_data.other_services ${where}`;
       const rta = await this.pool.query(query);
       return rta.rows;
 
