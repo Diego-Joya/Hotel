@@ -11,9 +11,9 @@ class advancePaymentsService {
 
   async getAll(params) {
     try {
-      let where = '';
+      let where = ' where 1=1 ';
       if (typeof params.company_id != 'undefined' && params.company_id != '') {
-        where += ` WHERE company_id = ${params.company_id}`;
+        where += ` and company_id = ${params.company_id}`;
       }
       if (typeof params.center_id != 'undefined' && params.center_id != '') {
         where += ` AND center_id = ${params.center_id}`;
@@ -22,7 +22,7 @@ class advancePaymentsService {
         where += ` AND booking_id = ${params.booking_id}`;
       }
 
-      const query = `SELECT * FROM booking_data.booking_advance_payments ${where}`;
+      const query = `SELECT *, id as key FROM booking_data.booking_advance_payments ${where}`;
       let rta = await this.pool.query(query);
       return rta.rows;
 
