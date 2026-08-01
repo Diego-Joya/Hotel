@@ -149,13 +149,14 @@ class usuariosServices {
     // const surname = body.surname;
     const password = body.password;
     const password_enc = await bcrypt.hash(password, 10);
+    console.log("password_enc", password_enc);
     // const password_enc = await bcrypt.hash(password, 10);
     // console.log(password_enc);
 
     try {
       const query = `UPDATE booking_config.users
 	SET password = $1
-	WHERE  user_id=$2  RETURNING id`
+	WHERE  user_id=$2  RETURNING user_id`
       const rta = await this.pool.query(query,
         [password_enc, id])
       return rta.rows;
@@ -395,6 +396,54 @@ class usuariosServices {
     }
   }
 
+  async consultaVeryficarPassword(body) {
+    try {
+      const existencia = await this.consultarUsuario(body, "password");
+      console.log("existencia", existencia);
+      if (existencia.length == 0) {
+        return {
+          ok: false,
+          message: 'No se encontro el usuario en la bd.',
+        };
+      }
+      const isMatch = await bcrypt.compare(
+        body.password,
+        existencia[0].password
+      );
+      console.log("isMatch", isMatch);
+      if (!isMatch) {
+        return {
+          ok: false,
+          message: 'Contraseña incorrecta.',
+        };
+      } else {
+        return {
+          ok: true,
+          message: 'Contraseña correcta.',
+        };
+      }
+
+    } catch (error) {
+      return messageHandler(error)
+    }
+  }
+  async consultarUsuario(params, fields = "*") {
+
+    try {
+      let where = ` where 1=1`
+      if (params.id != null && params.id != "") {
+        where += ` and user_id=${params.id}`;
+      }
+
+      const query = `select ${fields} from  booking_config.users  ${where}`;
+      console.log(query);
+      const rta = await this.pool.query(query);
+      return rta.rows;
+    } catch (error) {
+      return messageHandler(error);
+    }
+
+  }
 
 }
 module.exports = usuariosServices;

@@ -23,6 +23,19 @@ router.get('/',
     }
 
   });
+router.post('/verify-password',
+  // passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const parametros = req.body
+      const consulta = await usuarios.consultaVeryficarPassword(parametros);
+      res.send(consulta);
+
+    } catch (error) {
+      next(error);
+    }
+
+  });
 
 router.post('/',
   passport.authenticate('jwt', { session: false }),
