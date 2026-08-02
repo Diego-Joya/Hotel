@@ -26,8 +26,8 @@ class otherServicesService {
     try {
       console.log("body", body);
       const query = `INSERT INTO booking_data.other_services(
-	 booking_id, service_date, service_name, unit_value, total_value, observations)
-	VALUES ($1, $2, $3, $4, $5 ,$6) RETURNING *`;
+	 booking_id, service_date, service_name, unit_value, total_value, observations, quantity)
+	VALUES ($1, $2, $3, $4, $5 ,$6, $7) RETURNING *`;
 
       const rta = await this.pool.query(query, [
         body.booking_id,
@@ -48,8 +48,8 @@ class otherServicesService {
   async updateOtherServices(id, body) {
     try {
       const query = `UPDATE booking_data.other_services
-	SET  booking_id=$1, service_date=$2, service_name=$3, unit_value=$4, total_value=$5, observations=$6
-	WHERE id =$7 RETURNING *`;
+	SET  booking_id=$1, service_date=$2, service_name=$3, unit_value=$4, total_value=$5, observations=$6, quantity=$7
+	WHERE id =$8 RETURNING *`;
       const rta = await this.pool.query(query, [
         body.booking_id,
         body.service_date,
@@ -57,6 +57,7 @@ class otherServicesService {
         body.unit_value,
         body.total_value,
         body.observations,
+        body.quantity,
         id
       ])
       return rta.rows[0];
