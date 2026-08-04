@@ -156,7 +156,7 @@ class invoiceServices {
       if (typeof params.status != "undefined" && params.status != "") {
         where += ` and status='${params.status}'`;
       }
-      const query = `SELECT * FROM booking_data.invoices ${where}`;
+      const query = `SELECT *,ID AS KEY FROM booking_data.invoices ${where}`;
       const rta = await this.pool.query(query);
       return rta.rows;
 
