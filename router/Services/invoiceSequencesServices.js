@@ -13,7 +13,7 @@ class invoiceSequencesServices {
       if (typeof params.company_id != 'undefined' && params.company_id != '') {
         where += ` WHERE company_id = ${params.company_id}`;
       }
-      const query = `SELECT * FROM booking_data.invoice_sequences
+      const query = `SELECT *, ID AS KEY FROM booking_data.invoice_sequences
       ${where}
       `;
       console.log('query', query);
