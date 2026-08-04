@@ -809,7 +809,11 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
               WHERE
                   E.BOOKING_ID = A.BOOKING_ID
           ) AS TOTAL,
-           '0' as total_others_services
+       (    SELECT
+	COALESCE(SUM(TOTAL_VALUE), 0)
+FROM
+	BOOKING_DATA.OTHER_SERVICES F
+WHERE F.BOOKING_ID = A.BOOKING_ID) as total_others_services
       FROM
           BOOKING_DATA.BOOKINGS A
           LEFT JOIN BOOKING_CONFIG.CENTERS B ON (A.CENTER_ID = B.CENTERS_ID)
