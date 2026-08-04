@@ -13,7 +13,14 @@ class otherServicesService {
       let ids = [];
       for (let i = 0; i < body.other_services.length; i++) {
         const element = body.other_services[i];
-        let save = await this.saveOtherServices(element);
+        let save = ""
+        if (typeof element.id != "undefined" && element.id != "" && element.id != null) {
+
+          save = await this.updateOtherServices(element);
+        } else {
+
+          save = await this.saveOtherServices(element);
+        }
         ids.push(save);
       }
       return ids;

@@ -58,7 +58,8 @@ router.patch("/:id",
     try {
       const { id } = req.params;
       const body = req.body;
-      const result = await otherService.updateOtherServices(id, body);
+      // const result = await otherService.updateOtherServices(id, body);
+      const result = await otherService.createOtherServices(id, body);
       if (typeof result.ok !== "undefined" && result.ok == false) {
         res.send(result);
       } else {
