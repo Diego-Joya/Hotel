@@ -30,7 +30,7 @@ class invoiceServices {
         return detalle;
       }
 
-      const updatebooking = await reservation.confirm_cancel_Booking({ state: 'FACTURADA' }, body.booking_id);
+      const updatebooking = await reservation.confirm_cancel_Booking({ state: 'FINALIZADA' }, body.booking_id);
       if (updatebooking.ok === false) {
         await transaction.query('ROLLBACK');
         return updatebooking;
