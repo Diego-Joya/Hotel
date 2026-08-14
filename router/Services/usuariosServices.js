@@ -445,5 +445,46 @@ class usuariosServices {
 
   }
 
+  // ----
+  async consultar_email_user(data) {
+    const rta = await this.pool
+      .query(
+        `SELECT user_id, names, surnames, email, username, cell_phone, address, state, profile_id, company_id, center_id, token
+	      FROM booking_config.users where username=$1`,
+        [data]
+      )
+      .catch((err) => console.log(err));
+    return rta.rows;
+  }
+  async consultar_user(data) {
+    const rta = await this.pool
+      .query(
+        `SELECT  user_id, names, surnames, email, username, cell_phone, address, password, state, profile_id, created_by, updated_by, created_at, updated_at, company_id, center_id, token, fecha_creacion_token, fecha_creacion_refreshtoken, refreshtoken, fecha_delete_token
+        where username=$1`,
+        [data]
+      )
+      .catch((err) => console.log(err));
+    return rta.rows;
+  }
+  async buscar_uno(data) {
+    const rta = await this.pool
+      .query(
+        `SELECT *, user_id as key FROM  booking_config.users where username LIKE ('%${data}%') OR id::text LIKE ('%${data}%') `
+      )
+      .catch((err) => console.log(err));
+    return rta.rows;
+  }
+  async Guardartoken(idact, token) {
+
+    const rta = await this.pool
+      .query(
+        `UPDATE booking_config.users
+    SET token=$1
+    WHERE user_id=$2`,
+        [token, idact]
+      )
+      .catch((err) => console.log(err));
+    return rta;
+  }
 }
 module.exports = usuariosServices;

@@ -2,7 +2,9 @@ const pool = require('../../libs/postgres.pool');
 const messageHandler = require('./../../middlewares/message.handler');
 const moment = require("moment");
 const clientesServices = require('./clientesServices');
+const reservationServices = require('./reservationService');
 const clientesClass = new clientesServices();
+const reservation = new reservationServices();
 class invoiceServices {
   constructor() {
     this.pool = pool;
@@ -28,6 +30,11 @@ class invoiceServices {
         return detalle;
       }
 
+      const updatebooking = await reservation.confirm_cancel_Booking({ state: 'FACTURADA' }, body.booking_id);
+      if (updatebooking.ok === false) {
+        await transaction.query('ROLLBACK');
+        return updatebooking;
+      }
 
 
       await transaction.query('COMMIT');

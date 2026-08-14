@@ -802,12 +802,16 @@ left join booking_data.room_type c on (a.room_type =c.id_room_type)
                   E.BOOKING_ID = A.BOOKING_ID
           ) AS VALUE_ADVANCE,
           (
-              SELECT
+              (SELECT
                   A.TOTAL_RESERVATION - COALESCE(SUM(E.AMOUNT), 0)
               FROM
                   BOOKING_DATA.BOOKING_ADVANCE_PAYMENTS AS E
               WHERE
-                  E.BOOKING_ID = A.BOOKING_ID
+                  E.BOOKING_ID = A.BOOKING_ID) - ( SELECT
+        COALESCE(SUM(TOTAL_VALUE), 0)
+FROM
+        BOOKING_DATA.OTHER_SERVICES F
+WHERE F.BOOKING_ID = A.BOOKING_ID)
           ) AS TOTAL,
        (    SELECT
 	COALESCE(SUM(TOTAL_VALUE), 0)

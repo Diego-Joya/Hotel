@@ -3,9 +3,9 @@ const router = expres.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const usuariosServices = require("./Services/usuariosServices");
-
+const auth_services = require("./Services/auth_services");
 const usuario = new usuariosServices();
-
+const service = new auth_services()
 const { config } = require('../config/config')
 router.post(
   "/login",
@@ -254,6 +254,27 @@ router.post('/refresh-token', async (req, res, next) => {
     next(error);
   }
 });
+router.post("/recovery", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const rta = await service.resetPasswor(email);
+    res.json(rta);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Cambiar contraseña usando el token recibido por correo
+router.post("/change-password", async (req, res, next) => {
+  try {
+    const { token, newpassword } = req.body;
+    const rta = await service.changePassword(token, newpassword);
+    res.json(rta);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 
 module.exports = router;
