@@ -245,12 +245,12 @@ class usuariosServices {
       if (user != null) {
         where += ` and user_id=${user.user_id}`;
       }
-      let fields = ' user_id as key, user_id, names, surnames,  username, cell_phone, address,  profile_id, company_id, center_id';
+      let fields = ' a.user_id as key, a.user_id, a.names, a.surnames,  a.username, a.cell_phone, a.address,  a.profile_id, a.company_id, a.center_id,D.COMPANY_NAME';
       if (typeof user.verify != 'undefined' && user.verify == true) {
         fields += ', refreshtoken, fecha_creacion_refreshtoken';
       }
 
-      const query = `select ${fields} from  booking_config.users  ${where}`;
+      const query = `select ${fields} from  booking_config.users a LEFT JOIN BOOKING_CONFIG.COMPANYS D ON (a.COMPANY_ID = D.COMPANY_ID)   ${where}`;
       console.log(query);
       const rta = await this.pool.query(query);
       return rta.rows;
