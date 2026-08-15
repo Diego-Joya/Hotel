@@ -903,6 +903,7 @@ WHERE F.BOOKING_ID = A.BOOKING_ID) as total_others_services
       let query = `
         SELECT
           A.BOOKING_ID AS ID,
+          A.OBSERVATIONS,
           D.NO_ROOM,
 CONCAT('🏨 ', D.NO_ROOM, ' ', E.NAMES, ' ', E.SURNAMES) AS TITLE,
 CONCAT (E.NAMES, ' ', E.SURNAMES) AS CUSTOMER,
