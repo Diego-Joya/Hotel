@@ -5,7 +5,7 @@ const dashboard = new dashboarServices();
 const passport = require("passport");
 
 router.get('',
-  passport.authenticate('jwt', { session: false }),
+  // passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
       const valores = req.query

@@ -36,27 +36,29 @@ class dashboardServices {
       params.state = 'Cancelada';
       const canceladas = await this.getReservasState(params);
       data.canceladas = canceladas.cancelada;
-      let consultasCentros = await center.getAll({ company_id: params.company_id, return_all: true });
+      if (typeof params.company_id != "undefined" && params.company_id != "" && typeof params.center_id == "undefined" && params.center_id == "") {
+        let consultasCentros = await center.getAll({ company_id: params.company_id, return_all: true });
 
-      let centros = [];
-      for (let i = 0; i < consultasCentros.length; i++) {
-        const element = consultasCentros[i];
-        params.center_id = element.centers_id;
-        params.state = 'reservada';
-        const reservasReservadas = await this.getReservasState(params);
-        element.reservasReservadas = reservasReservadas.reservada;
-        params.state = 'ingreso';
-        const ingresosClientes = await this.getReservasState(params);
-        element.ingresosClientes = ingresosClientes.ingreso;
-        params.state = 'salida';
-        const salidasClientes = await this.getReservasState(params);
-        element.salidasClientes = salidasClientes.salida;
-        params.state = 'Cancelada';
-        const canceladas = await this.getReservasState(params);
-        element.canceladas = canceladas.cancelada;
-        centros.push(element);
-      }
-      data.centros = centros;
+        let centros = [];
+        for (let i = 0; i < consultasCentros.length; i++) {
+          const element = consultasCentros[i];
+          params.center_id = element.centers_id;
+          params.state = 'reservada';
+          const reservasReservadas = await this.getReservasState(params);
+          element.reservasReservadas = reservasReservadas.reservada;
+          params.state = 'ingreso';
+          const ingresosClientes = await this.getReservasState(params);
+          element.ingresosClientes = ingresosClientes.ingreso;
+          params.state = 'salida';
+          const salidasClientes = await this.getReservasState(params);
+          element.salidasClientes = salidasClientes.salida;
+          params.state = 'Cancelada';
+          const canceladas = await this.getReservasState(params);
+          element.canceladas = canceladas.cancelada;
+          centros.push(element);
+        }
+        data.centros = centros;
+      };
       return data;
 
     } catch (error) {
@@ -99,6 +101,7 @@ class dashboardServices {
 
           ${where}
         `;
+      console.log('query', query);
       let rta = await this.pool.query(query);
       return rta.rows[0];
 
