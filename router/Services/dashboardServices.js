@@ -37,7 +37,7 @@ class dashboardServices {
       params.state = 'Cancelada';
       const canceladas = await this.getReservasState(params);
       data.canceladas = canceladas.cancelada;
-      if (typeof params.company_id != "undefined" && params.company_id != "" && typeof params.center_id == "undefined" && params.center_id == "") {
+      if ((typeof params.company_id != "undefined" && params.company_id != "") && (typeof params.center_id == "undefined" || params.center_id == "")) {
         let consultasCentros = await center.getAll({ company_id: params.company_id, return_all: true });
 
         let centros = [];
