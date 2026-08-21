@@ -15,10 +15,11 @@ class dashboardServices {
   async getDashboard(params) {
     try {
       console.log('params', params);
-      if (typeof params.start == "undefined" || params.start == "" && typeof params.end == "undefined" || params.end == "") {
+      if ((typeof params.start == "undefined" || params.start == "") && (typeof params.end == "undefined" || params.end == "")) {
         params.start = moment().format('YYYY-MM-DD');
-        params.end = moment(params.end, 'YYYY-MM-DD').endOf('day').format('YYYY-MM-DD HH:mm:ss');
+        params.end = moment(params.start, 'YYYY-MM-DD').endOf('day').format('YYYY-MM-DD HH:mm:ss');
       }
+       console.log('params', params);
       let data = {};
       params.state = 'pendiente_confirmar';
       const reservasPendientes = await this.getReservasState(params);
@@ -89,9 +90,11 @@ class dashboardServices {
       if (typeof params.state != "undefined" && params.state == 'ingreso') {
         where += ` and STATE = 'INGRESO' and entry_date::date >= '${params.start}' and entry_date::date <= '${params.end}'`;
       }
-      if (typeof params.state != "undefined" && params.state == 'salida' && typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "") {
+      if ((typeof params.state != "undefined" && params.state == 'salida') && (typeof params.start != "undefined" && params.start != "" && typeof params.end != "undefined" && params.end != "")) {
         where += ` and exit_date::date between '${params.start}' and '${params.end}'`;
       }
+
+
 
       let query = `
           SELECT
